@@ -24,10 +24,10 @@ export default function ProfilePage() {
   };
 
   const handleMakeAdmin = async () => {
-    if (!user) return;
+    if (!user || !appUser) return;
     try {
       const db = getFirebaseDb();
-      await updateDoc(doc(db, 'users', appUser.id), { role: 'admin' });
+      await updateDoc(doc(db, 'users', appUser.uid), { role: 'admin' });
       toast.success('You are now an admin!');
       router.refresh();
     } catch (error) {
