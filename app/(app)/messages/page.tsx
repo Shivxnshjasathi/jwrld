@@ -6,6 +6,7 @@ import { ArrowLeft, Send } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { subscribeToMessages, sendMessage, markChatRead, type Message } from '@/lib/firestore';
 import { format } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
 export default function UserMessagesPage() {
   const { user, appUser } = useAuth();
@@ -46,7 +47,7 @@ export default function UserMessagesPage() {
       setNewMessage('');
     } catch (err) {
       console.error(err);
-      alert('Failed to send message');
+      toast.error('Failed to send message');
     }
     setSending(false);
   };
@@ -79,7 +80,7 @@ export default function UserMessagesPage() {
               <span className="text-2xl">👋</span>
             </div>
             <h3 className="text-gray-900 font-bold mb-1">How can we help?</h3>
-            <p className="text-sm text-gray-500">Send us a message and we'll get back to you as soon as possible.</p>
+            <p className="text-sm text-gray-500">Send us a message and we&apos;ll get back to you as soon as possible.</p>
           </div>
         ) : (
           messages.map((msg) => {

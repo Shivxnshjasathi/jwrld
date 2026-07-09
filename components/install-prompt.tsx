@@ -10,9 +10,11 @@ export default function InstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<Event | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsIOS(
       /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as unknown as Record<string, unknown>).MSStream
     );
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
 
     // Check if user has dismissed the prompt before

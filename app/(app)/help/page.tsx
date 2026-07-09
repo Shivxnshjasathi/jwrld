@@ -28,16 +28,26 @@ export default function HelpPage() {
 
       <div className="p-4 md:p-6 max-w-7xl mx-auto mt-4 space-y-4">
         <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-gray-900 mb-2">How do I make a booking?</h3>
-          <p className="text-xs text-gray-500 leading-relaxed">
-            Navigate to the home screen, select the asset you want (e.g., Pool Table), pick a date and time slot, and tap "Search" or "Book". You can view all your active bookings in the "My Bookings" tab.
+          <h3 className="text-sm font-bold text-gray-900 mb-2">Booking & Cancellations</h3>
+          <p className="text-xs text-gray-500 leading-relaxed mb-4">
+            <strong>How do I make a booking?</strong><br/>
+            Navigate to the home screen, select the asset you want (e.g., Pool Table), pick a date and time slot, and tap &quot;Book&quot;. You can view all your active bookings in the &quot;My Bookings&quot; tab.
+          </p>
+          <p className="text-xs text-gray-500 leading-relaxed mb-4">
+            <strong>Can I cancel my booking?</strong><br/>
+            Yes, bookings can be cancelled up to 2 hours before the scheduled time slot. Go to &quot;My Bookings&quot;, select the booking, and tap &quot;Cancel&quot;.
           </p>
         </div>
 
         <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-gray-900 mb-2">How do I contact support?</h3>
+          <h3 className="text-sm font-bold text-gray-900 mb-2">Account & Support</h3>
+          <p className="text-xs text-gray-500 leading-relaxed mb-4">
+            <strong>How do I reset my password?</strong><br/>
+            If you are logged out, click &quot;Forgot Password&quot; on the login screen. If you are logged in, you can update your password in the Settings menu.
+          </p>
           <p className="text-xs text-gray-500 leading-relaxed">
-            You can message the admin directly by tapping the Message icon on the top right of the home screen. We'll get back to you as soon as possible!
+            <strong>Need further assistance?</strong><br/>
+            You can message the admin directly by tapping the Message icon on the top right of the home screen. We&apos;ll get back to you immediately during operating hours!
           </p>
         </div>
       </div>

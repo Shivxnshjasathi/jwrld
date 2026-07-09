@@ -63,8 +63,8 @@ export default function LoginPage() {
         const user = await signInWithEmail(email, password);
         if (user) router.replace('/home');
       }
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Authentication failed');
     }
     setLoading(false);
   };
@@ -79,8 +79,8 @@ export default function LoginPage() {
     try {
       await resetPassword(email);
       setResetMessage('Password reset email sent! Check your inbox.');
-    } catch (err: any) {
-      setError(err.message || 'Failed to send reset email.');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send reset email.');
     }
   };
 

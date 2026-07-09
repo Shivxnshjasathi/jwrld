@@ -94,10 +94,10 @@ export default function AdminDashboard() {
     setSeeding(true);
     try {
       await seedAssets();
-      alert('Assets seeded successfully!');
+      toast.success('Assets seeded successfully!');
     } catch (error) {
       console.error('Error seeding assets:', error);
-      alert('Failed to seed assets');
+      toast.error('Failed to seed assets');
     }
     setSeeding(false);
   };
@@ -137,8 +137,9 @@ export default function AdminDashboard() {
       setShowWalkInForm(false);
       setWalkInName('');
       setWalkInAsset('');
+      toast.success('Walk-in booking created');
     } catch (error) {
-      alert(error instanceof Error ? error.message : 'Failed to create walk-in booking');
+      toast.error(error instanceof Error ? error.message : 'Failed to create walk-in booking');
     }
     setWalkInSubmitting(false);
   };
@@ -146,16 +147,18 @@ export default function AdminDashboard() {
   const handleApprove = async (id: string) => {
     try {
       await updateBookingStatus(id, 'approved');
+      toast.success('Booking approved');
     } catch (err) {
-      alert('Failed to approve');
+      toast.error('Failed to approve');
     }
   };
 
   const handleReject = async (id: string) => {
     try {
       await updateBookingStatus(id, 'rejected');
+      toast.success('Booking rejected');
     } catch (err) {
-      alert('Failed to reject');
+      toast.error('Failed to reject');
     }
   };
 

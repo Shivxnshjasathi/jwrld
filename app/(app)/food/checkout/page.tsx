@@ -124,7 +124,7 @@ export default function FoodCheckoutPage() {
       </div>
 
       {/* Place Order Button */}
-      <div className="fixed bottom-[104px] left-0 right-0 px-6 z-10 animate-slide-up pointer-events-none">
+      <div className="fixed bottom-6 left-0 right-0 px-6 z-10 animate-slide-up pointer-events-none">
         <button 
           onClick={handlePlaceOrder} 
           disabled={!tableNumber.trim() || isSubmitting}

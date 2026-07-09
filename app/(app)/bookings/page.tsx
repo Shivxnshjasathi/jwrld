@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { Calendar, Clock, X, CheckCircle2, CircleDashed, Target, Gamepad2, Utensils } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
-import { getUserBookings, cancelBooking, type Booking } from '@/lib/firestore';
+import { subscribeToUserBookings, cancelBooking, type Booking } from '@/lib/firestore';
 import { formatTime, formatPrice, getCategoryLabel } from '@/lib/utils';
 
 const getLucideIcon = (category: string) => {
@@ -35,17 +35,12 @@ function BookingsContent() {
   }, [searchParams]);
 
   useEffect(() => {
-    async function fetchBookings() {
-      if (!user) return;
-      try {
-        const data = await getUserBookings(user.uid);
-        setBookings(data);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
-      }
+    if (!user) return;
+    const unsubscribe = subscribeToUserBookings(user.uid, (data) => {
+      setBookings(data);
       setLoading(false);
-    }
-    fetchBookings();
+    });
+    return () => unsubscribe();
   }, [user]);
 
   const handleCancel = async (bookingId: string) => {

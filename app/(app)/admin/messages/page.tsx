@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Send, User, ChevronRight } from 'lucide-react';
 import { subscribeToChats, subscribeToMessages, sendMessage, markChatRead, type Chat, type Message } from '@/lib/firestore';
 import { format } from 'date-fns';
+import { toast } from 'react-hot-toast';
 
 export default function AdminMessagesPage() {
   const router = useRouter();
@@ -55,7 +56,7 @@ export default function AdminMessagesPage() {
       setNewMessage('');
     } catch (err) {
       console.error(err);
-      alert('Failed to send message');
+      toast.error('Failed to send message');
     }
     setSending(false);
   };

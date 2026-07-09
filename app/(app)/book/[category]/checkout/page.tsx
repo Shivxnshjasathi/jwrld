@@ -201,7 +201,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       </div>
 
       {/* Sticky Pay Button */}
-      <div className="fixed bottom-[104px] left-0 right-0 px-6 z-10 pointer-events-none">
+      <div className="fixed bottom-6 left-0 right-0 px-6 z-10 pointer-events-none">
         <button
           onClick={handlePayment}
           disabled={loading}

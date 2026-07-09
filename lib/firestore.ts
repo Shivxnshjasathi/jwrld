@@ -204,6 +204,26 @@ export function subscribeToBookings(
   });
 }
 
+export function subscribeToUserBookings(
+  userId: string,
+  callback: (bookings: Booking[]) => void
+): Unsubscribe {
+  if (!isFirebaseConfigured) {
+    callback([]);
+    return () => {};
+  }
+  const db = getFirebaseDb();
+  const q = query(
+    collection(db, 'bookings'),
+    where('userId', '==', userId),
+    orderBy('createdAt', 'desc')
+  );
+  return onSnapshot(q, (snapshot) => {
+    const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
+    callback(bookings);
+  });
+}
+
 export function subscribeToAllBookings(
   callback: (bookings: Booking[]) => void
 ): Unsubscribe {

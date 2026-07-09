@@ -205,6 +205,7 @@ export function useAuth() {
   useEffect(() => {
     if (!isFirebaseConfigured) {
       // If Firebase is not configured, stop loading but leave user as null
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
       return;
     }

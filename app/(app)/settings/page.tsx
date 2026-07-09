@@ -26,13 +26,45 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="p-4 md:p-6 max-w-7xl mx-auto mt-4">
-        <div className="bg-white rounded-[1.5rem] p-8 shadow-sm text-center">
-          <Settings size={48} className="text-gray-300 mx-auto mb-4" />
-          <h2 className="text-lg font-bold text-gray-900 mb-2">Settings Overview</h2>
-          <p className="text-gray-500 text-sm">
-            This is a placeholder page for Settings. Future updates will include profile editing, notification preferences, and account management.
-          </p>
+      <div className="p-4 md:p-6 max-w-7xl mx-auto mt-4 space-y-4">
+        <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-gray-900 mb-4">Account Preferences</h3>
+          
+          <div className="flex items-center justify-between py-3 border-b border-gray-100">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Push Notifications</p>
+              <p className="text-xs text-gray-500">Receive alerts for bookings and messages</p>
+            </div>
+            <div className="w-12 h-6 bg-[#111111] rounded-full relative cursor-not-allowed opacity-50">
+              <div className="w-4 h-4 bg-white rounded-full absolute right-1 top-1"></div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between py-3 border-b border-gray-100">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Email Updates</p>
+              <p className="text-xs text-gray-500">Promotions and news from ArcadeZone</p>
+            </div>
+            <div className="w-12 h-6 bg-gray-200 rounded-full relative cursor-not-allowed opacity-50">
+              <div className="w-4 h-4 bg-white rounded-full absolute left-1 top-1 shadow-sm"></div>
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between py-3">
+            <div>
+              <p className="text-sm font-bold text-gray-900">Dark Mode</p>
+              <p className="text-xs text-gray-500">The app natively follows your system theme</p>
+            </div>
+            <div className="text-xs font-bold bg-gray-100 px-3 py-1 rounded-full text-gray-500">Auto</div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
+          <h3 className="text-sm font-bold text-red-600 mb-2">Danger Zone</h3>
+          <p className="text-xs text-gray-500 mb-4">Once you delete your account, there is no going back. Please be certain.</p>
+          <button className="text-sm font-bold text-red-600 bg-red-50 px-4 py-2 rounded-full w-full">
+            Delete Account
+          </button>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { ArrowLeft, LogOut, User, Phone, Mail, Shield, ChevronRight, Settings, H
 import { useAuth, signOut } from '@/lib/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
+import { toast } from 'react-hot-toast';
 
 const MENU_ITEMS = [
   { icon: Star, label: 'My Bookings', href: '/bookings' },
@@ -26,12 +27,12 @@ export default function ProfilePage() {
     if (!user) return;
     try {
       const db = getFirebaseDb();
-      await updateDoc(doc(db, 'users', user.uid), { role: 'admin' });
-      // Force reload to grab new token/claims if necessary, or just rely on state
-      window.location.reload();
-    } catch (err) {
-      console.error(err);
-      alert('Failed to make admin');
+      await updateDoc(doc(db, 'users', appUser.id), { role: 'admin' });
+      toast.success('You are now an admin!');
+      router.refresh();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to make admin');
     }
   };
 
