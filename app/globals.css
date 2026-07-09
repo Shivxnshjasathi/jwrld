@@ -1,26 +1,502 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
+/* ─── Playo-Inspired Design Tokens ──────────────────────────────────────── */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --arcade-green: #00C853;
+  --arcade-green-dark: #00A844;
+  --arcade-green-light: #E8F5E9;
+  --arcade-blue-soft: #E8F0FE;
+  --arcade-blue-accent: #4A90D9;
+  --arcade-blue-banner: #2979FF;
+  --arcade-bg: #F5F5F5;
+  --arcade-card: #FFFFFF;
+  --arcade-text: #1A1A1A;
+  --arcade-text-secondary: #555555;
+  --arcade-text-muted: #999999;
+  --arcade-border: #E8E8E8;
+  --arcade-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --arcade-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --arcade-radius: 16px;
+  --arcade-radius-sm: 10px;
+  --arcade-radius-full: 9999px;
+  --bottom-nav-height: 72px;
+
+  --background: #F5F5F5;
+  --foreground: #1A1A1A;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-arcade-green: var(--arcade-green);
+  --color-arcade-green-dark: var(--arcade-green-dark);
+  --color-arcade-green-light: var(--arcade-green-light);
+  --color-arcade-blue-soft: var(--arcade-blue-soft);
+  --color-arcade-blue-accent: var(--arcade-blue-accent);
+  --color-arcade-blue-banner: var(--arcade-blue-banner);
+  --color-arcade-bg: var(--arcade-bg);
+  --color-arcade-card: var(--arcade-card);
+  --color-arcade-text: var(--arcade-text);
+  --color-arcade-text-secondary: var(--arcade-text-secondary);
+  --color-arcade-text-muted: var(--arcade-text-muted);
+  --color-arcade-border: var(--arcade-border);
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ─── Base Styles ────────────────────────────────────────────────────────── */
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--arcade-bg);
+  color: var(--arcade-text);
+  min-height: 100dvh;
+  overscroll-behavior-y: contain;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
+
+/* ─── Scrollbar Styles ───────────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+/* ─── PWA Standalone Styles ──────────────────────────────────────────────── */
+
+@media (display-mode: standalone) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ─── Bottom Navigation ──────────────────────────────────────────────────── */
+
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: white;
+  border-top: 1px solid var(--arcade-border);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.05);
+}
+
+.bottom-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--arcade-text-muted);
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.bottom-nav-item.active {
+  color: var(--arcade-green);
+}
+
+.bottom-nav-pill {
+  position: absolute;
+  top: -1px;
+  width: 32px;
+  height: 4px;
+  border-radius: 0 0 4px 4px;
+  background: var(--arcade-green);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Cards ──────────────────────────────────────────────────────────────── */
+
+.arcade-card {
+  background: var(--arcade-card);
+  border-radius: 2rem;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.arcade-card:active {
+  transform: scale(0.98);
+}
+
+/* ─── Category Card ──────────────────────────────────────────────────────── */
+
+.category-card {
+  position: relative;
+  border-radius: var(--arcade-radius);
+  padding: 20px;
+  min-height: 140px;
+  overflow: hidden;
+  background: white;
+  box-shadow: var(--arcade-shadow);
+  transition: transform 0.15s ease;
+}
+
+.category-card:active {
+  transform: scale(0.96);
+}
+
+.category-card .card-emoji {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-size: 48px;
+  opacity: 0.9;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
+}
+
+/* ─── Global Button (Formerly Green Button) ────────────────────────────── */
+
+.btn-green {
+  background: #111111;
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0px;
+  border-radius: 9999px;
+  padding: 16px 32px;
+  width: 100%;
+  text-align: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.btn-green:hover {
+  background: #000000;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+.btn-green:active {
+  transform: scale(0.98);
+}
+
+.btn-green:disabled {
+  background: #E5E7EB;
+  color: #6B7280;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ─── Date Strip ──────────────────────────────────────────────────────────── */
+
+.date-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
+}
+
+.date-strip::-webkit-scrollbar {
+  display: none;
+}
+
+.date-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 52px;
+  padding: 8px 4px;
+  scroll-snap-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.date-item .day-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--arcade-text-muted);
+  text-transform: uppercase;
+}
+
+.date-item .date-number {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--arcade-text);
+  transition: all 0.2s ease;
+}
+
+.date-item.selected .date-number {
+  background: var(--arcade-text);
+  color: white;
+}
+
+.date-item.today .date-number {
+  border: 2px solid var(--arcade-green);
+}
+
+/* ─── Time Picker Section ─────────────────────────────────────────────────── */
+
+.time-section {
+  background: var(--arcade-blue-soft);
+  border-radius: var(--arcade-radius);
+  padding: 20px;
+}
+
+.time-slider-track {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: #D0D0D0;
+  border-radius: 3px;
+  margin: 24px 0 8px;
+}
+
+.time-slider-fill {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--arcade-green);
+  border-radius: 3px;
+  transition: left 0.15s ease, width 0.15s ease;
+}
+
+.time-slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 22px;
+  height: 22px;
+  background: white;
+  border: 3px solid var(--arcade-text);
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 2;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  transition: transform 0.1s ease;
+}
+
+.time-slider-thumb:active {
+  cursor: grabbing;
+  transform: translate(-50%, -50%) scale(1.15);
+}
+
+/* ─── Asset Card ──────────────────────────────────────────────────────────── */
+
+.asset-card {
+  background: white;
+  border: 2px solid var(--arcade-border);
+  border-radius: var(--arcade-radius);
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 150px;
+}
+
+.asset-card:hover {
+  border-color: var(--arcade-green);
+}
+
+.asset-card.selected {
+  border-color: var(--arcade-green);
+  background: var(--arcade-green-light);
+}
+
+.asset-card.booked {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #F5F5F5;
+}
+
+.asset-card .asset-icon {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+
+.asset-card .asset-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--arcade-text);
+  margin-bottom: 4px;
+}
+
+.asset-card .asset-price {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--arcade-text-secondary);
+}
+
+/* ─── Avatar Bubbles ──────────────────────────────────────────────────────── */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  33% { transform: translateY(-8px) rotate(2deg); }
+  66% { transform: translateY(4px) rotate(-1deg); }
+}
+
+.avatar-bubble {
+  animation: float 4s ease-in-out infinite;
+}
+
+.avatar-bubble:nth-child(2) { animation-delay: 0.5s; }
+.avatar-bubble:nth-child(3) { animation-delay: 1s; }
+.avatar-bubble:nth-child(4) { animation-delay: 1.5s; }
+.avatar-bubble:nth-child(5) { animation-delay: 2s; }
+.avatar-bubble:nth-child(6) { animation-delay: 2.5s; }
+
+/* ─── OTP Input ───────────────────────────────────────────────────────────── */
+
+.otp-input {
+  width: 48px;
+  height: 56px;
+  border: 2px solid var(--arcade-border);
+  border-radius: 12px;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--arcade-text);
+  background: white;
+  outline: none;
+  transition: border-color 0.2s ease;
+  caret-color: var(--arcade-green);
+}
+
+.otp-input:focus {
+  border-color: var(--arcade-green);
+  box-shadow: 0 0 0 3px rgba(0, 200, 83, 0.15);
+}
+
+/* ─── Bottom Sheet ────────────────────────────────────────────────────────── */
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.12);
+  z-index: 40;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-sheet-handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #DDD;
+  margin: 12px auto 8px;
+}
+
+/* ─── Checkout ────────────────────────────────────────────────────────────── */
+
+.checkout-card {
+  background: white;
+  border-radius: 2rem;
+  padding: 20px;
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+.checkout-divider {
+  height: 1px;
+  background: var(--arcade-border);
+  margin: 16px 0;
+}
+
+/* ─── Animations ──────────────────────────────────────────────────────────── */
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Skeleton Loader ─────────────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% { background-position: -200px 0; }
+  100% { background-position: calc(200px + 100%) 0; }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200px 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+  border-radius: 8px;
+}
+
+/* ─── Install Prompt ──────────────────────────────────────────────────────── */
+
+.install-prompt {
+  position: fixed;
+  bottom: 80px;
+  left: 16px;
+  right: 16px;
+  z-index: 45;
+  background: white;
+  border-radius: var(--arcade-radius);
+  padding: 16px 20px;
+  box-shadow: var(--arcade-shadow-lg);
+  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Admin Styles ────────────────────────────────────────────────────────── */
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.available { background: var(--arcade-green); }
+.status-dot.occupied { background: #F44336; }
+.status-dot.maintenance { background: #FFC107; }
