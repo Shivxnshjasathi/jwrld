@@ -2,7 +2,6 @@
 
 import { useRef, useCallback, useState } from 'react';
 
-const HOURS = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 const MIN_HOUR = 10;
 const MAX_HOUR = 21;
 const RANGE = MAX_HOUR - MIN_HOUR; // 11
@@ -17,70 +16,21 @@ interface SliderTrackProps {
 export default function SliderTrack({ startTime, endTime, bookedHours, onRangeChange }: SliderTrackProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<'start' | 'end' | 'range' | null>(null);
-  const dragStartRef = useRef<{ x: number; startTime: number; endTime: number }>({ x: 0, startTime: 10, endTime: 11 });
+  const dragRef = useRef<{ x: number; startTime: number; endTime: number }>({ x: 0, startTime: 10, endTime: 11 });
 
   const getHourFromX = useCallback((clientX: number): number => {
     if (!trackRef.current) return MIN_HOUR;
     const rect = trackRef.current.getBoundingClientRect();
     const x = clientX - rect.left;
     const pct = Math.max(0, Math.min(1, x / rect.width));
-    const hour = Math.round(MIN_HOUR + pct * RANGE);
-    return Math.max(MIN_HOUR, Math.min(MAX_HOUR, hour));
+    return Math.round(MIN_HOUR + pct * RANGE);
   }, []);
 
-  // ─── Handle Touch Start ─────────────────────────────────────────────
-  const handleTouchStart = useCallback((e: React.TouchEvent, target: 'start' | 'end' | 'range') => {
-    e.stopPropagation();
-    const touch = e.touches[0];
-    setDragging(target);
-    dragStartRef.current = { x: touch.clientX, startTime, endTime };
-  }, [startTime, endTime]);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent, target: 'start' | 'end' | 'range') => {
-    e.stopPropagation();
-    e.preventDefault();
-    setDragging(target);
-    dragStartRef.current = { x: e.clientX, startTime, endTime };
-
-    const handleMouseMove = (me: MouseEvent) => {
-      const hour = getHourFromX(me.clientX);
-      const dur = dragStartRef.current.endTime - dragStartRef.current.startTime;
-
-      if (target === 'start') {
-        const newStart = Math.min(hour, endTime - 1);
-        const clamped = Math.max(MIN_HOUR, Math.min(MAX_HOUR - 1, newStart));
-        onRangeChange(clamped, Math.max(clamped + 1, endTime));
-      } else if (target === 'end') {
-        const newEnd = Math.max(hour, startTime + 1);
-        const clamped = Math.max(MIN_HOUR + 1, Math.min(MAX_HOUR, newEnd));
-        onRangeChange(Math.min(startTime, clamped - 1), clamped);
-      } else {
-        const delta = hour - getHourFromX(dragStartRef.current.x);
-        let newStart = dragStartRef.current.startTime + delta;
-        let newEnd = newStart + dur;
-        if (newStart < MIN_HOUR) { newStart = MIN_HOUR; newEnd = newStart + dur; }
-        if (newEnd > MAX_HOUR) { newEnd = MAX_HOUR; newStart = newEnd - dur; }
-        onRangeChange(newStart, newEnd);
-      }
-    };
-
-    const handleMouseUp = () => {
-      setDragging(null);
-      document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mouseup', handleMouseUp);
-    };
-
-    document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('mouseup', handleMouseUp);
-  }, [startTime, endTime, getHourFromX, onRangeChange]);
-
-  // ─── Handle Touch Move ──────────────────────────────────────────────
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  const moveDrag = useCallback((clientX: number) => {
     if (!dragging) return;
-    const touch = e.touches[0];
-    const hour = getHourFromX(touch.clientX);
-    const dur = dragStartRef.current.endTime - dragStartRef.current.startTime;
-
+    const dur = dragRef.current.endTime - dragRef.current.startTime;
+    const hour = getHourFromX(clientX);
+    
     if (dragging === 'start') {
       const newStart = Math.min(hour, endTime - 1);
       const clamped = Math.max(MIN_HOUR, Math.min(MAX_HOUR - 1, newStart));
@@ -90,8 +40,8 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
       const clamped = Math.max(MIN_HOUR + 1, Math.min(MAX_HOUR, newEnd));
       onRangeChange(Math.min(startTime, clamped - 1), clamped);
     } else {
-      const delta = hour - getHourFromX(dragStartRef.current.x);
-      let newStart = dragStartRef.current.startTime + delta;
+      const delta = hour - getHourFromX(dragRef.current.x);
+      let newStart = dragRef.current.startTime + delta;
       let newEnd = newStart + dur;
       if (newStart < MIN_HOUR) { newStart = MIN_HOUR; newEnd = newStart + dur; }
       if (newEnd > MAX_HOUR) { newEnd = MAX_HOUR; newStart = newEnd - dur; }
@@ -99,13 +49,10 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
     }
   }, [dragging, startTime, endTime, getHourFromX, onRangeChange]);
 
-  const handleTouchEnd = useCallback(() => {
-    setDragging(null);
-  }, []);
+  const endDrag = useCallback(() => setDragging(null), []);
 
-  // ─── Tap on track to move selection ─────────────────────────────────
-  const handleTrackTap = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  // Tap on track to jump
+  const handleTrackTap = useCallback((clientX: number) => {
     const hour = getHourFromX(clientX);
     const dur = endTime - startTime;
     let newStart = Math.round(hour - dur / 2);
@@ -115,10 +62,10 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
   }, [startTime, endTime, getHourFromX, onRangeChange]);
 
   const startPct = ((startTime - MIN_HOUR) / RANGE) * 100;
-  const endPct = ((endTime - MIN_HOUR) / RANGE) * 100;
+  const widthPct = ((endTime - startTime) / RANGE) * 100;
 
   return (
-    <div className="relative pt-2 pb-12 px-1 select-none touch-none">
+    <div className="relative pt-2 pb-10 px-1 select-none">
       {/* Tick labels */}
       <div className="absolute top-0 left-[12px] right-[12px] flex justify-between pointer-events-none">
         {[10, 12, 14, 16, 18, 20].map(h => {
@@ -134,14 +81,14 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
         })}
       </div>
 
-      {/* Track */}
+      {/* Track line */}
       <div
         ref={trackRef}
-        className="absolute top-[32px] left-[12px] right-[12px] h-[3px] bg-gray-200 rounded-full cursor-pointer"
-        onClick={handleTrackTap}
+        className="absolute top-[32px] left-[12px] right-[12px] h-[3px] bg-gray-200 rounded-full"
+        onClick={(e) => handleTrackTap(e.clientX)}
       >
-        {/* Booked segments */}
-        {HOURS.map(h => {
+        {/* Booked (red) segments */}
+        {[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(h => {
           if (bookedHours.includes(h)) {
             return (
               <div
@@ -157,41 +104,76 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
           return null;
         })}
 
-        {/* Selected range bar — draggable */}
+        {/* Selected range — thin black bar */}
         <div
-          className={`absolute top-[-8px] h-[19px] bg-[#111111] rounded-full cursor-grab transition-colors ${dragging === 'range' ? 'bg-[#333]' : ''}`}
-          style={{
-            left: `${startPct}%`,
-            width: `${endPct - startPct}%`,
-          }}
-          onTouchStart={(e) => handleTouchStart(e, 'range')}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={(e) => handleMouseDown(e, 'range')}
+          className="absolute top-0 h-full bg-[#111111] rounded-full transition-all duration-150"
+          style={{ left: `${startPct}%`, width: `${widthPct}%` }}
         />
 
-        {/* Start handle — big touch target */}
+        {/* Draggable center area (slides the whole range) */}
         <div
-          className={`absolute top-[-18px] w-[44px] h-[44px] flex items-center justify-center cursor-grab z-20 ${dragging === 'start' ? 'scale-125' : ''}`}
-          style={{ left: `${startPct}%`, transform: 'translateX(-50%)' }}
-          onTouchStart={(e) => handleTouchStart(e, 'start')}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={(e) => handleMouseDown(e, 'start')}
+          className="absolute top-[-20px] h-[40px] z-10 touch-none cursor-grab"
+          style={{ left: `${startPct}%`, width: `${widthPct}%` }}
+          onTouchStart={(e) => {
+            setDragging('range');
+            dragRef.current = { x: e.touches[0].clientX, startTime, endTime };
+          }}
+          onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
+          onTouchEnd={endDrag}
+          onMouseDown={(e) => {
+            setDragging('range');
+            dragRef.current = { x: e.clientX, startTime, endTime };
+            const onMove = (me: MouseEvent) => moveDrag(me.clientX);
+            const onUp = () => { endDrag(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          }}
+        />
+
+        {/* Start handle (left triangle) */}
+        <div
+          className="absolute top-[6px] w-[40px] h-[40px] -translate-x-1/2 -translate-y-[15px] flex items-center justify-center z-20 touch-none cursor-grab"
+          style={{ left: `${startPct}%` }}
+          onTouchStart={(e) => {
+            setDragging('start');
+            dragRef.current = { x: e.touches[0].clientX, startTime, endTime };
+          }}
+          onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
+          onTouchEnd={endDrag}
+          onMouseDown={(e) => {
+            setDragging('start');
+            dragRef.current = { x: e.clientX, startTime, endTime };
+            const onMove = (me: MouseEvent) => moveDrag(me.clientX);
+            const onUp = () => { endDrag(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          }}
         >
-          <div className="w-5 h-5 rounded-full bg-[#111111] border-[3px] border-white shadow-md" />
+          {/* Visual Triangle */}
+          <div className="absolute top-[15px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111] pointer-events-none" />
         </div>
 
-        {/* End handle — big touch target */}
+        {/* End handle (right triangle) */}
         <div
-          className={`absolute top-[-18px] w-[44px] h-[44px] flex items-center justify-center cursor-grab z-20 ${dragging === 'end' ? 'scale-125' : ''}`}
-          style={{ left: `${endPct}%`, transform: 'translateX(-50%)' }}
-          onTouchStart={(e) => handleTouchStart(e, 'end')}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={(e) => handleMouseDown(e, 'end')}
+          className="absolute top-[6px] w-[40px] h-[40px] -translate-x-1/2 -translate-y-[15px] flex items-center justify-center z-20 touch-none cursor-grab"
+          style={{ left: `${startPct + widthPct}%` }}
+          onTouchStart={(e) => {
+            setDragging('end');
+            dragRef.current = { x: e.touches[0].clientX, startTime, endTime };
+          }}
+          onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
+          onTouchEnd={endDrag}
+          onMouseDown={(e) => {
+            setDragging('end');
+            dragRef.current = { x: e.clientX, startTime, endTime };
+            const onMove = (me: MouseEvent) => moveDrag(me.clientX);
+            const onUp = () => { endDrag(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
+            document.addEventListener('mousemove', onMove);
+            document.addEventListener('mouseup', onUp);
+          }}
         >
-          <div className="w-5 h-5 rounded-full bg-[#111111] border-[3px] border-white shadow-md" />
+          {/* Visual Triangle */}
+          <div className="absolute top-[15px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111] pointer-events-none" />
         </div>
       </div>
     </div>
