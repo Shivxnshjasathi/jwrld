@@ -59,7 +59,7 @@ export default function FoodCheckoutPage() {
           Your food is being prepared and will be brought to {tableNumber} shortly.
         </p>
         <button
-          onClick={() => router.push('/home')}
+          onClick={() => router.replace('/home')}
           className="btn-green w-full"
         >
           BACK TO HOME

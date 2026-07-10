@@ -40,6 +40,7 @@ import {
   type Announcement,
 } from '@/lib/firestore';
 import { formatTime, formatPrice, getCategoryIcon, getCategoryLabel } from '@/lib/utils';
+import { useModalBackHandler } from '@/hooks/use-modal-back-handler';
 
 export default function AdminDashboard() {
   const { appUser, user } = useAuth();
@@ -64,6 +65,9 @@ export default function AdminDashboard() {
   const [announcement, setAnnouncementState] = useState<Announcement | null>(null);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
   const [announcementText, setAnnouncementText] = useState('');
+
+  useModalBackHandler(showWalkInForm, () => setShowWalkInForm(false));
+  useModalBackHandler(showAnnouncementModal, () => setShowAnnouncementModal(false));
 
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 

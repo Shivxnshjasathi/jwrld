@@ -140,10 +140,10 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5] pb-32">
+    <div className="min-h-dvh bg-background pb-32 transition-colors">
       {/* Announcement Banner */}
       {announcement?.active && announcement.text && !bannerDismissed && (
-        <div className="mx-4 mt-3 bg-[#111111] text-white rounded-2xl px-4 py-3 flex items-center gap-3 animate-slide-up shadow-lg">
+        <div className="mx-4 mt-3 bg-foreground text-background rounded-2xl px-4 py-3 flex items-center gap-3 animate-slide-up shadow-lg">
           <Megaphone size={18} className="text-amber-400 shrink-0" />
           <p className="text-xs font-semibold flex-1">{announcement.text}</p>
           <button onClick={() => setBannerDismissed(true)} className="shrink-0 p-1">
@@ -155,7 +155,7 @@ export default function HomePage() {
       {/* Header */}
       <div className="pt-12 px-6 flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 border-2 border-white shadow-sm flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full overflow-hidden bg-arcade-border border-2 border-arcade-card shadow-sm flex items-center justify-center">
             {appUser?.photoURL ? (
               <img src={appUser.photoURL} alt="" className="w-full h-full object-cover" />
             ) : (
@@ -163,16 +163,16 @@ export default function HomePage() {
             )}
           </div>
           <div>
-            <p className="text-[13px] text-gray-500 font-medium">Hello 👋</p>
-            <h1 className="text-[17px] font-bold text-gray-900 leading-tight">{userName}</h1>
+            <p className="text-[13px] text-arcade-text-secondary font-medium">Hello 👋</p>
+            <h1 className="text-[17px] font-bold text-foreground leading-tight">{userName}</h1>
           </div>
         </div>
         <button
           onClick={() => router.push('/messages')}
-          className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm relative text-gray-800"
+          className="w-10 h-10 bg-arcade-card rounded-full flex items-center justify-center shadow-sm relative text-foreground transition-colors"
         >
           <MessageCircle size={20} />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border border-white"></span>
+          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border border-arcade-card"></span>
         </button>
       </div>
 
@@ -185,12 +185,12 @@ export default function HomePage() {
             <div key={tab.id} className="flex flex-col items-center gap-2">
               <button
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border ${isActive ? 'bg-[#111111] text-white border-transparent' : 'bg-white text-[#111111] border-gray-100 hover:bg-gray-50'
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border ${isActive ? 'bg-foreground text-background border-transparent' : 'bg-arcade-card text-foreground border-arcade-border hover:bg-background'
                   }`}
               >
                 <Icon size={24} strokeWidth={isActive ? 2 : 1.5} />
               </button>
-              <span className={`text-[12px] transition-colors ${isActive ? 'font-bold text-[#1a1a1a]' : 'font-medium text-[#b0b0b0]'}`}>
+              <span className={`text-[12px] transition-colors ${isActive ? 'font-bold text-foreground' : 'font-medium text-arcade-text-muted'}`}>
                 {tab.label}
               </span>
             </div>
@@ -200,15 +200,15 @@ export default function HomePage() {
 
       {/* Content Area */}
       <div className="px-6">
-        <div className="bg-white rounded-[2rem] p-5 shadow-sm">
+        <div className="bg-arcade-card rounded-[2rem] p-5 shadow-sm transition-colors">
           {activeTab === 'food' ? (
             <div className="text-center py-10">
-              <Utensils size={40} className="mx-auto mb-4 text-gray-300" />
-              <h3 className="text-lg font-bold text-gray-900 mb-2">Feeling Hungry?</h3>
-              <p className="text-sm text-gray-500 mb-6">Order snacks and drinks straight to your table.</p>
+              <Utensils size={40} className="mx-auto mb-4 text-arcade-border" />
+              <h3 className="text-lg font-bold text-foreground mb-2">Feeling Hungry?</h3>
+              <p className="text-sm text-arcade-text-secondary mb-6">Order snacks and drinks straight to your table.</p>
               <button
                 onClick={() => router.push('/food')}
-                className="bg-[#111111] text-white rounded-full py-4 px-8 font-bold text-sm w-full shadow-md"
+                className="bg-foreground text-background rounded-full py-4 px-8 font-bold text-sm w-full shadow-md"
               >
                 View Menu
               </button>
@@ -216,8 +216,8 @@ export default function HomePage() {
           ) : (
             <>
               {/* Where input */}
-              <div className="bg-[#F5F5F5] rounded-full px-5 py-4 mb-5 flex items-center">
-                <span className="text-sm font-medium text-gray-500">Jaaduwrld Art &amp; Arcade</span>
+              <div className="bg-background rounded-full px-5 py-4 mb-5 flex items-center transition-colors">
+                <span className="text-sm font-medium text-arcade-text-secondary">Jaaduwrld Art &amp; Arcade</span>
               </div>
 
               {/* Date Slider */}
@@ -232,17 +232,17 @@ export default function HomePage() {
                       key={dateStr}
                       onClick={() => store.setDate(dateStr)}
                       className={`flex flex-col items-center justify-center min-w-[72px] h-[84px] rounded-[1.25rem] snap-start transition-all ${isSelected
-                          ? 'bg-[#111111] text-white shadow-md'
-                          : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-100'
+                          ? 'bg-foreground text-background shadow-md'
+                          : 'bg-background text-arcade-text-secondary hover:brightness-95'
                         }`}
                     >
-                      <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                      <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isSelected ? 'opacity-80' : 'opacity-100'}`}>
                         {format(d, 'MMM')}
                       </span>
-                      <span className={`text-[20px] font-black leading-none mb-1 ${isSelected ? 'text-white' : 'text-gray-900'}`}>
+                      <span className={`text-[20px] font-black leading-none mb-1 ${isSelected ? 'text-background' : 'text-foreground'}`}>
                         {format(d, 'dd')}
                       </span>
-                      <span className={`text-[10px] font-semibold ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
+                      <span className={`text-[10px] font-semibold ${isSelected ? 'opacity-80' : 'opacity-100'}`}>
                         {format(d, 'EEE')}
                       </span>
                     </button>
@@ -256,20 +256,20 @@ export default function HomePage() {
               <div className="mb-6 mt-2">
                 <div className="flex items-center justify-between mb-8 px-1">
                   <div>
-                    <h3 className="text-[12px] font-extrabold text-gray-900 tracking-wider mb-1 uppercase">TIME</h3>
-                    <p className="text-[13px] text-gray-500 font-medium">
+                    <h3 className="text-[12px] font-extrabold text-foreground tracking-wider mb-1 uppercase">TIME</h3>
+                    <p className="text-[13px] text-arcade-text-secondary font-medium">
                       {format(new Date().setHours(store.startTime, 0), 'h:mm a')} - {format(new Date().setHours(store.endTime, 0), 'h:mm a')}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2 bg-white rounded-full px-2 py-1.5 shadow-sm border border-gray-100">
+                  <div className="flex items-center gap-2 bg-arcade-card rounded-full px-2 py-1.5 shadow-sm border border-arcade-border">
                     <button
                       onClick={() => store.setTimeRange(store.startTime, store.endTime - 1)}
                       disabled={store.endTime - store.startTime <= 1}
-                      className="w-7 h-7 rounded-full flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-30 disabled:bg-gray-50 transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center border border-arcade-border text-arcade-text-secondary disabled:opacity-30 disabled:bg-background transition-colors"
                     >
                       <Minus size={14} />
                     </button>
-                    <span className="text-[12px] font-bold text-gray-900 w-12 text-center">
+                    <span className="text-[12px] font-bold text-foreground w-12 text-center">
                       {(store.endTime - store.startTime) * 60} Mins
                     </span>
                     <button
@@ -280,7 +280,7 @@ export default function HomePage() {
                         }
                       }}
                       disabled={store.endTime - store.startTime >= 4 || store.endTime >= 21}
-                      className="w-7 h-7 rounded-full flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-30 disabled:bg-gray-50 transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center border border-arcade-border text-arcade-text-secondary disabled:opacity-30 disabled:bg-background transition-colors"
                     >
                       <Plus size={14} />
                     </button>
@@ -301,10 +301,10 @@ export default function HomePage() {
                 disabled={!store.selectedAssetId || waitlisting || isPastTime()}
                 className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
                   isPastTime()
-                    ? 'bg-gray-200 text-gray-500'
+                    ? 'bg-arcade-border text-arcade-text-secondary'
                     : hasTimeConflict()
                     ? 'bg-amber-500 text-white hover:bg-amber-600'
-                    : 'bg-[#111111] text-white hover:bg-black'
+                    : 'bg-foreground text-background'
                   }`}
               >
                 {isPastTime() ? (

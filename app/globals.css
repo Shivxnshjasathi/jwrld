@@ -4,18 +4,22 @@
 /* ─── Playo-Inspired Design Tokens ──────────────────────────────────────── */
 
 :root {
+  color-scheme: light dark;
   --arcade-green: #00C853;
   --arcade-green-dark: #00A844;
   --arcade-green-light: #E8F5E9;
   --arcade-blue-soft: #E8F0FE;
   --arcade-blue-accent: #4A90D9;
   --arcade-blue-banner: #2979FF;
+  
+  /* Light Theme Colors */
   --arcade-bg: #F5F5F5;
   --arcade-card: #FFFFFF;
   --arcade-text: #1A1A1A;
   --arcade-text-secondary: #555555;
   --arcade-text-muted: #999999;
   --arcade-border: #E8E8E8;
+  
   --arcade-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   --arcade-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.1);
   --arcade-radius: 16px;
@@ -25,6 +29,24 @@
 
   --background: #F5F5F5;
   --foreground: #1A1A1A;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Dark Theme Colors */
+    --arcade-bg: #000000;
+    --arcade-card: #1C1C1E;
+    --arcade-text: #FFFFFF;
+    --arcade-text-secondary: #A1A1AA;
+    --arcade-text-muted: #71717A;
+    --arcade-border: #27272A;
+    
+    --arcade-green-light: #064E3B;
+    --arcade-blue-soft: #1E3A8A;
+    
+    --background: #000000;
+    --foreground: #FFFFFF;
+  }
 }
 
 @theme inline {

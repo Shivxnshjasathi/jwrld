@@ -72,7 +72,7 @@ export default function FoodMenuPage() {
       <div className="bg-[#F5F5F5] px-6 pt-12 pb-4 sticky top-0 z-10">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.push('/home')}
+            onClick={() => router.back()}
             className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
           >
             <ArrowLeft size={20} className="text-[#1a1a1a]" />

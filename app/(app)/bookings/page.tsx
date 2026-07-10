@@ -156,7 +156,7 @@ function BookingsContent() {
               Book your first slot to get started!
             </p>
             <button
-              onClick={() => router.push('/home')}
+              onClick={() => router.replace('/home')}
               className="btn-green mt-6 !w-auto !px-8 mx-auto"
             >
               Browse Activities

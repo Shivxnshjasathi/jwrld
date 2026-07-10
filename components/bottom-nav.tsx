@@ -19,7 +19,7 @@ export default function BottomNav() {
 
   return (
     <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center px-4">
-      <nav className="bg-[#1C1C1E] rounded-full px-2 py-2 flex items-center gap-2 shadow-2xl">
+      <nav className="bg-arcade-card rounded-full px-2 py-2 flex items-center gap-2 shadow-2xl border border-arcade-border transition-colors">
         {NAV_ITEMS.map((item, index) => {
           const isActive = index === activeIndex || (activeIndex === -1 && index === 0);
           const Icon = item.icon;
@@ -27,9 +27,9 @@ export default function BottomNav() {
           return (
             <button
               key={item.href}
-              onClick={() => router.push(item.href)}
+              onClick={() => router.replace(item.href)}
               className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                isActive ? 'bg-white text-black' : 'text-gray-400 hover:text-white'
+                isActive ? 'bg-foreground text-background' : 'text-arcade-text-secondary hover:text-foreground'
               }`}
             >
               <Icon
