@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { getAssetsByCategory, subscribeToBookings, subscribeToAnnouncement, type Asset, type Booking, type Announcement } from '@/lib/firestore';
 import SliderTrack from '@/components/slider-track';
+import { toast } from 'react-hot-toast';
 
 const TABS = [
   { id: 'pool', label: 'Pool', icon: CircleDashed },
@@ -19,7 +20,7 @@ const TABS = [
 const HOURS = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 export default function HomePage() {
-  const { appUser } = useAuth();
+  const { user, appUser } = useAuth();
   const router = useRouter();
   const userName = appUser?.name || 'Player';
 
@@ -92,6 +93,28 @@ export default function HomePage() {
       if (bookedHours.includes(h)) return true;
     }
     return false;
+  };
+
+  const [waitlisting, setWaitlisting] = useState(false);
+
+  const handleWaitlist = async () => {
+    if (!user || !appUser) return;
+    setWaitlisting(true);
+    try {
+      const { joinWaitlist } = await import('@/lib/firestore');
+      await joinWaitlist({
+        userId: user.uid,
+        userName: appUser.name,
+        category: activeTab,
+        date: store.selectedDate,
+        startTime: store.startTime,
+        endTime: store.endTime,
+      });
+      toast.success('Successfully joined the waitlist for this slot!');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to join waitlist');
+    }
+    setWaitlisting(false);
   };
 
   const handleProceed = () => {
@@ -258,14 +281,20 @@ export default function HomePage() {
 
               {/* Search / Proceed Button */}
               <button
-                onClick={handleProceed}
-                disabled={hasTimeConflict() || !store.selectedAssetId}
-                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md ${hasTimeConflict()
-                    ? 'bg-gray-200 text-gray-500'
+                onClick={hasTimeConflict() ? handleWaitlist : handleProceed}
+                disabled={!store.selectedAssetId || waitlisting}
+                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${hasTimeConflict()
+                    ? 'bg-amber-500 text-white hover:bg-amber-600'
                     : 'bg-[#111111] text-white hover:bg-black'
                   }`}
               >
-                {hasTimeConflict() ? 'Slot Unavailable' : 'Search'}
+                {waitlisting ? (
+                  <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Joining...</>
+                ) : hasTimeConflict() ? (
+                  'Join Waitlist'
+                ) : (
+                  'Search'
+                )}
               </button>
             </>
           )}

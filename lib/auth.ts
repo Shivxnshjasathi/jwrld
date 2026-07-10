@@ -24,6 +24,7 @@ export interface AppUser {
   email: string | null;
   role: 'customer' | 'admin';
   photoURL: string | null;
+  walletBalance: number;
 }
 
 let confirmationResult: ConfirmationResult | null = null;
@@ -98,6 +99,7 @@ export async function signUpWithEmail(email: string, password: string, name: str
       email: result.user.email,
       role: 'customer',
       photoURL: null,
+      walletBalance: 0,
       createdAt: new Date().toISOString(),
     });
     
@@ -175,6 +177,7 @@ async function createOrUpdateUser(user: User) {
         email: user.email || null,
         role: 'customer',
         photoURL: user.photoURL || null,
+        walletBalance: 0,
         createdAt: new Date().toISOString(),
       });
     }

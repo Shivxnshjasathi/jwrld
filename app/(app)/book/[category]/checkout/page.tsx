@@ -18,6 +18,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [error, setError] = useState('');
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCode, setCouponCode] = useState('');
+  const [useWallet, setUseWallet] = useState(false);
   
   // Expandable policies state
   const [expandReschedule, setExpandReschedule] = useState(false);
@@ -45,12 +46,22 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   };
 
   const handlePayment = async () => {
-    if (!user || !store.selectedAssetId) return;
+    if (!user || !store.selectedAssetId || !appUser) return;
+
+    if (useWallet && (appUser.walletBalance || 0) < totalAmount) {
+      setError('Insufficient wallet balance.');
+      return;
+    }
 
     setLoading(true);
     setError('');
 
     try {
+      if (useWallet) {
+        const { deductWalletBalance } = await import('@/lib/wallet');
+        await deductWalletBalance(user.uid, totalAmount);
+      }
+
       await createBooking({
         userId: user.uid,
         userName: appUser?.name || 'Player',
@@ -61,7 +72,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         startTime: store.startTime,
         endTime: store.endTime,
         totalAmount,
-        status: 'pending',
+        status: useWallet ? 'confirmed' : 'pending', // Auto-confirm if paid via wallet
         createdAt: new Date().toISOString(),
         protection: store.protection,
       });
@@ -158,6 +169,43 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
               </p>
             </div>
           )}
+        </div>
+
+        {/* Payment Method */}
+        <div className="checkout-card">
+          <h3 className="text-sm font-bold text-gray-900 tracking-wide mb-3">PAYMENT METHOD</h3>
+          <div className="flex flex-col gap-3">
+            <label className={`flex items-center justify-between p-3 border rounded-xl cursor-pointer transition-all ${useWallet ? 'border-gray-900 bg-gray-50' : 'border-gray-100 hover:bg-gray-50'}`}>
+              <div className="flex items-center gap-3">
+                <input 
+                  type="radio" 
+                  name="paymentMethod" 
+                  checked={useWallet} 
+                  onChange={() => setUseWallet(true)}
+                  disabled={(appUser?.walletBalance || 0) < totalAmount}
+                  className="w-4 h-4 text-black focus:ring-black accent-black" 
+                />
+                <div>
+                  <span className="text-sm font-semibold text-gray-900 block">Arcade Wallet</span>
+                  <span className={`text-xs ${((appUser?.walletBalance || 0) < totalAmount) ? 'text-red-500' : 'text-gray-500'}`}>
+                    Balance: {formatPrice(appUser?.walletBalance || 0)}
+                  </span>
+                </div>
+              </div>
+            </label>
+            <label className={`flex items-center justify-between p-3 border rounded-xl cursor-pointer transition-all ${!useWallet ? 'border-gray-900 bg-gray-50' : 'border-gray-100 hover:bg-gray-50'}`}>
+              <div className="flex items-center gap-3">
+                <input 
+                  type="radio" 
+                  name="paymentMethod" 
+                  checked={!useWallet} 
+                  onChange={() => setUseWallet(false)}
+                  className="w-4 h-4 text-black focus:ring-black accent-black" 
+                />
+                <span className="text-sm font-semibold text-gray-900 block">Pay at Counter</span>
+              </div>
+            </label>
+          </div>
         </div>
 
         {/* Total Amount */}

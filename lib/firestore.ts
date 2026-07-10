@@ -40,6 +40,17 @@ export interface Booking {
   protection: boolean;
 }
 
+export interface WaitlistItem {
+  id: string;
+  userId: string;
+  userName: string;
+  category: string;
+  date: string;
+  startTime: number;
+  endTime: number;
+  createdAt: string;
+}
+
 export interface FoodItem {
   id: string;
   name: string;
@@ -172,11 +183,74 @@ export async function updateBookingStatus(bookingId: string, status: Booking['st
   await updateDoc(doc(db, 'bookings', bookingId), { status });
 }
 
+export async function extendBookingTime(booking: Booking, hoursToAdd: number): Promise<void> {
+  const db = getDb();
+  const newEndTime = booking.endTime + hoursToAdd;
+  
+  if (newEndTime > 21) {
+    throw new Error('Cannot extend beyond closing time (9 PM).');
+  }
+
+  // Check for conflicts for the extended period
+  const conflicts = await getBookingsForDate(booking.date, booking.category);
+  const hasConflict = conflicts.some(
+    (b) =>
+      b.id !== booking.id &&
+      b.assetId === booking.assetId &&
+      b.startTime < newEndTime &&
+      b.endTime > booking.endTime
+  );
+
+  if (hasConflict) {
+    throw new Error('Cannot extend: the next slot is already booked.');
+  }
+
+  // Deduct from wallet based on asset price (assumes 1 hour = base price)
+  const amountToDeduct = (booking.totalAmount / (booking.endTime - booking.startTime)) * hoursToAdd;
+  
+  const { deductWalletBalance } = await import('./wallet');
+  await deductWalletBalance(booking.userId, amountToDeduct);
+
+  // Update booking
+  await updateDoc(doc(db, 'bookings', booking.id), {
+    endTime: newEndTime,
+    totalAmount: booking.totalAmount + amountToDeduct
+  });
+}
+
 export async function getAllBookings(): Promise<Booking[]> {
   const db = getDb();
   const q = query(collection(db, 'bookings'), orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
+}
+
+// ─── Waitlist ────────────────────────────────────────────────────────────────
+
+export async function joinWaitlist(waitlist: Omit<WaitlistItem, 'id' | 'createdAt'>): Promise<string> {
+  const db = getDb();
+  // Check if user is already on waitlist for this slot
+  const q = query(
+    collection(db, 'waitlist'),
+    where('userId', '==', waitlist.userId),
+    where('category', '==', waitlist.category),
+    where('date', '==', waitlist.date)
+  );
+  const snapshot = await getDocs(q);
+  const existing = snapshot.docs.find(d => {
+    const data = d.data();
+    return data.startTime === waitlist.startTime && data.endTime === waitlist.endTime;
+  });
+
+  if (existing) {
+    throw new Error('You are already on the waitlist for this exact slot.');
+  }
+
+  const docRef = await addDoc(collection(db, 'waitlist'), {
+    ...waitlist,
+    createdAt: new Date().toISOString(),
+  });
+  return docRef.id;
 }
 
 // ─── Real-time Listeners ─────────────────────────────────────────────────────

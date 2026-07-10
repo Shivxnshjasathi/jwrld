@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import BottomNav from '@/components/bottom-nav';
+import LiveSessionWidget from '@/components/live-session-widget';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -37,6 +38,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className={`min-h-dvh bg-[#F5F5F5] ${showBottomNav ? 'pb-[var(--bottom-nav-height)]' : ''}`}>
       {children}
+      <LiveSessionWidget />
       {showBottomNav && <BottomNav />}
     </div>
   );
