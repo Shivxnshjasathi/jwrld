@@ -201,6 +201,9 @@ export function subscribeToBookings(
   return onSnapshot(q, (snapshot) => {
     const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
     callback(bookings);
+  }, (error) => {
+    console.error('[ArcadeZone] Bookings listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -221,6 +224,9 @@ export function subscribeToUserBookings(
   return onSnapshot(q, (snapshot) => {
     const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
     callback(bookings);
+  }, (error) => {
+    console.error('[ArcadeZone] User bookings listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -236,6 +242,9 @@ export function subscribeToAllBookings(
   return onSnapshot(q, (snapshot) => {
     const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
     callback(bookings);
+  }, (error) => {
+    console.error('[ArcadeZone] All bookings listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -250,6 +259,9 @@ export function subscribeToAssets(
   return onSnapshot(collection(db, 'assets'), (snapshot) => {
     const assets = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Asset));
     callback(assets);
+  }, (error) => {
+    console.error('[ArcadeZone] Assets listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -274,6 +286,9 @@ export function subscribeToFoodOrders(callback: (orders: FoodOrder[]) => void): 
   return onSnapshot(q, (snapshot) => {
     const orders = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as FoodOrder));
     callback(orders);
+  }, (error) => {
+    console.error('[ArcadeZone] Food orders listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -329,6 +344,9 @@ export function subscribeToMessages(userId: string, callback: (messages: Message
   return onSnapshot(q, (snapshot) => {
     const messages = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Message));
     callback(messages);
+  }, (error) => {
+    console.error('[ArcadeZone] Messages listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -342,6 +360,9 @@ export function subscribeToChats(callback: (chats: Chat[]) => void): Unsubscribe
   return onSnapshot(q, (snapshot) => {
     const chats = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Chat));
     callback(chats);
+  }, (error) => {
+    console.error('[ArcadeZone] Chats listener error:', error.message);
+    callback([]);
   });
 }
 
@@ -402,6 +423,9 @@ export function subscribeToAnnouncement(callback: (announcement: Announcement | 
     } else {
       callback(null);
     }
+  }, (error) => {
+    console.error('[ArcadeZone] Announcement listener error:', error.message);
+    callback(null);
   });
 }
 
@@ -422,6 +446,9 @@ export function subscribeToTodayBookings(callback: (bookings: Booking[]) => void
   return onSnapshot(q, (snapshot) => {
     const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
     callback(bookings);
+  }, (error) => {
+    console.error('[ArcadeZone] Today bookings listener error:', error.message);
+    callback([]);
   });
 }
 

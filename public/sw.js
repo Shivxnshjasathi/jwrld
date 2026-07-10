@@ -1,11 +1,17 @@
-const CACHE_NAME = 'arcadezone-v1';
+const CACHE_NAME = 'arcadezone-v2';
 const STATIC_ASSETS = [
   '/',
   '/home',
   '/login',
+  '/bookings',
+  '/profile',
+  '/settings',
+  '/food',
+  '/help',
+  '/privacy',
 ];
 
-// Install event — cache static assets
+// Install event — cache static assets + skip waiting immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -15,7 +21,7 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate event — clean old caches
+// Activate event — claim all clients immediately + clean old caches
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
@@ -29,7 +35,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event — network first, fallback to cache
+// Fetch event — Stale While Revalidate for pages, Cache First for static
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -37,26 +43,68 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip firebase and external API calls
-  if (url.hostname.includes('firebase') || url.hostname.includes('googleapis')) return;
+  // Skip Firebase/API calls — these must always be live
+  if (
+    url.hostname.includes('firebase') ||
+    url.hostname.includes('googleapis') ||
+    url.hostname.includes('firestore') ||
+    url.pathname.startsWith('/api/')
+  ) return;
 
+  // For page navigations: Stale-While-Revalidate (instant load + background update)
+  if (request.mode === 'navigate') {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        const fetchPromise = fetch(request).then((response) => {
+          if (response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        }).catch(() => {
+          // Offline — return cached or fallback
+          return cached || caches.match('/');
+        });
+        // Return cached immediately, update in background
+        return cached || fetchPromise;
+      })
+    );
+    return;
+  }
+
+  // For static assets (JS/CSS/images): Cache First
+  if (
+    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/) ||
+    url.pathname.startsWith('/_next/')
+  ) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        return fetch(request).then((response) => {
+          if (response.status === 200) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        });
+      })
+    );
+    return;
+  }
+
+  // Everything else: Network first, cache fallback
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Clone the response and cache it
         if (response.status === 200) {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
         }
         return response;
       })
       .catch(() => {
-        // Fallback to cache
         return caches.match(request).then((cachedResponse) => {
           if (cachedResponse) return cachedResponse;
-          // If no cache match, return offline page for navigate requests
           if (request.mode === 'navigate') {
             return caches.match('/');
           }

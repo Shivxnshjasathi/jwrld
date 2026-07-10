@@ -7,8 +7,9 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
   const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
-    const timer1 = setTimeout(() => setFadeOut(true), 1200);
-    const timer2 = setTimeout(() => setShowSplash(false), 1700);
+    // Faster splash — just enough to feel premium, not slow
+    const timer1 = setTimeout(() => setFadeOut(true), 600);
+    const timer2 = setTimeout(() => setShowSplash(false), 900);
     return () => {
       clearTimeout(timer1);
       clearTimeout(timer2);
@@ -20,38 +21,34 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
   return (
     <>
       <div
-        className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#111111] transition-opacity duration-500 ${
+        className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-[#111111] transition-opacity duration-300 ${
           fadeOut ? 'opacity-0' : 'opacity-100'
         }`}
       >
-        {/* Logo */}
-        <div className="relative mb-6">
-          <div className="w-20 h-20 rounded-2xl bg-white/10 flex items-center justify-center splash-pulse">
-            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        {/* Minimal logo */}
+        <div className="mb-6">
+          <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
+            <svg width="32\" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 4L4 36H16L20 28L24 36H36L20 4Z" fill="white" />
               <circle cx="20" cy="22" r="3" fill="#111111" />
             </svg>
           </div>
-          {/* Glow ring */}
-          <div className="absolute inset-0 w-20 h-20 rounded-2xl border border-white/20 splash-ring" />
         </div>
 
-        {/* Brand Text */}
-        <h1 className="text-2xl font-black text-white tracking-tight mb-1">
+        {/* Brand */}
+        <h1 className="text-xl font-black text-white tracking-tight mb-1">
           ArcadeZone
         </h1>
-        <p className="text-xs font-medium text-white/40 tracking-[0.2em] uppercase">
+        <p className="text-[10px] font-medium text-white/30 tracking-[0.25em] uppercase">
           Book · Play · Win
         </p>
 
-        {/* Loading dots */}
-        <div className="flex gap-1.5 mt-8">
-          <div className="w-1.5 h-1.5 rounded-full bg-white/60 splash-dot" style={{ animationDelay: '0ms' }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-white/60 splash-dot" style={{ animationDelay: '150ms' }} />
-          <div className="w-1.5 h-1.5 rounded-full bg-white/60 splash-dot" style={{ animationDelay: '300ms' }} />
+        {/* Simple spinner */}
+        <div className="mt-8">
+          <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
         </div>
       </div>
-      {/* Render children behind splash so they start loading */}
+      {/* Render children immediately behind splash for instant load */}
       <div className={fadeOut ? '' : 'invisible'}>{children}</div>
     </>
   );
