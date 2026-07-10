@@ -21,10 +21,10 @@ export default function HomePage() {
   const { appUser } = useAuth();
   const router = useRouter();
   const userName = appUser?.name || 'Player';
-  
+
   const [activeTab, setActiveTab] = useState('pool');
   const store = useBookingStore();
-  
+
   // -- Booking State --
   const [assets, setAssets] = useState<Asset[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -127,7 +127,7 @@ export default function HomePage() {
             <h1 className="text-[17px] font-bold text-gray-900 leading-tight">{userName}</h1>
           </div>
         </div>
-        <button 
+        <button
           onClick={() => router.push('/messages')}
           className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm relative text-gray-800"
         >
@@ -145,9 +145,8 @@ export default function HomePage() {
             <div key={tab.id} className="flex flex-col items-center gap-2">
               <button
                 onClick={() => setActiveTab(tab.id)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border ${
-                  isActive ? 'bg-[#111111] text-white border-transparent' : 'bg-white text-[#111111] border-gray-100 hover:bg-gray-50'
-                }`}
+                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border ${isActive ? 'bg-[#111111] text-white border-transparent' : 'bg-white text-[#111111] border-gray-100 hover:bg-gray-50'
+                  }`}
               >
                 <Icon size={24} strokeWidth={isActive ? 2 : 1.5} />
               </button>
@@ -167,7 +166,7 @@ export default function HomePage() {
               <Utensils size={40} className="mx-auto mb-4 text-gray-300" />
               <h3 className="text-lg font-bold text-gray-900 mb-2">Feeling Hungry?</h3>
               <p className="text-sm text-gray-500 mb-6">Order snacks and drinks straight to your table.</p>
-              <button 
+              <button
                 onClick={() => router.push('/food')}
                 className="bg-[#111111] text-white rounded-full py-4 px-8 font-bold text-sm w-full shadow-md"
               >
@@ -192,11 +191,10 @@ export default function HomePage() {
                     <button
                       key={dateStr}
                       onClick={() => store.setDate(dateStr)}
-                      className={`flex flex-col items-center justify-center min-w-[72px] h-[84px] rounded-[1.25rem] snap-start transition-all ${
-                        isSelected
+                      className={`flex flex-col items-center justify-center min-w-[72px] h-[84px] rounded-[1.25rem] snap-start transition-all ${isSelected
                           ? 'bg-[#111111] text-white shadow-md'
                           : 'bg-[#F5F5F5] text-gray-500 hover:bg-gray-100'
-                      }`}
+                        }`}
                     >
                       <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isSelected ? 'text-gray-300' : 'text-gray-500'}`}>
                         {format(d, 'MMM')}
@@ -212,46 +210,7 @@ export default function HomePage() {
                 })}
               </div>
 
-              {/* Availability Timeline */}
-              <div className="mb-6">
-                <h3 className="text-[12px] font-extrabold text-gray-900 tracking-wider mb-3 uppercase px-1">Availability</h3>
-                <div className="flex gap-[3px] px-1">
-                  {HOURS.map((h) => {
-                    const isBooked = bookedHours.includes(h);
-                    const isSelected = h >= store.startTime && h < store.endTime;
-                    return (
-                      <div key={h} className="flex-1 flex flex-col items-center gap-1.5">
-                        <div
-                          className={`w-full h-6 rounded-md transition-all duration-200 ${
-                            isSelected
-                              ? 'bg-[#111111]'
-                              : isBooked
-                              ? 'bg-red-100 border border-red-200'
-                              : 'bg-green-50 border border-green-200'
-                          }`}
-                        />
-                        <span className="text-[8px] font-bold text-gray-400">
-                          {h > 12 ? h - 12 : h}{h >= 12 ? 'p' : 'a'}
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="flex items-center gap-4 mt-3 px-1">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-green-50 border border-green-200" />
-                    <span className="text-[10px] text-gray-500 font-medium">Available</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-red-100 border border-red-200" />
-                    <span className="text-[10px] text-gray-500 font-medium">Booked</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2.5 h-2.5 rounded-sm bg-[#111111]" />
-                    <span className="text-[10px] text-gray-500 font-medium">Your selection</span>
-                  </div>
-                </div>
-              </div>
+
 
               {/* Time Range Slider */}
               <div className="mb-6 mt-2">
@@ -263,7 +222,7 @@ export default function HomePage() {
                     </p>
                   </div>
                   <div className="flex items-center gap-2 bg-white rounded-full px-2 py-1.5 shadow-sm border border-gray-100">
-                    <button 
+                    <button
                       onClick={() => store.setTimeRange(store.startTime, store.endTime - 1)}
                       disabled={store.endTime - store.startTime <= 1}
                       className="w-7 h-7 rounded-full flex items-center justify-center border border-gray-200 text-gray-500 disabled:opacity-30 disabled:bg-gray-50 transition-colors"
@@ -273,7 +232,7 @@ export default function HomePage() {
                     <span className="text-[12px] font-bold text-gray-900 w-12 text-center">
                       {(store.endTime - store.startTime) * 60} Mins
                     </span>
-                    <button 
+                    <button
                       onClick={() => {
                         const maxDuration = 4;
                         if (store.endTime - store.startTime < maxDuration && store.endTime < 21) {
@@ -307,11 +266,29 @@ export default function HomePage() {
 
                   {/* Track line */}
                   <div className="absolute top-[32px] left-[12px] right-[12px] h-[3px] bg-gray-200 rounded-full">
-                    <div 
+                    {/* Booked segments */}
+                    {HOURS.map(h => {
+                      if (bookedHours.includes(h)) {
+                        return (
+                          <div
+                            key={h}
+                            className="absolute top-0 h-full bg-red-500"
+                            style={{
+                              left: `${((h - 10) / 11) * 100}%`,
+                              width: `${(1 / 11) * 100}%`
+                            }}
+                          />
+                        );
+                      }
+                      return null;
+                    })}
+                    
+                    {/* Selection Indicator */}
+                    <div
                       className="absolute top-0 h-full bg-[#111111] rounded-full transition-all duration-150 pointer-events-none"
-                      style={{ 
-                        left: `${((store.startTime - 10) / 11) * 100}%`, 
-                        width: `${((store.endTime - store.startTime) / 11) * 100}%` 
+                      style={{
+                        left: `${((store.startTime - 10) / 11) * 100}%`,
+                        width: `${((store.endTime - store.startTime) / 11) * 100}%`
                       }}
                     >
                       <div className="absolute left-0 top-[6px] -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111]" />
@@ -319,7 +296,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  <input 
+                  <input
                     type="range"
                     min={10}
                     max={21 - (store.endTime - store.startTime)}
@@ -338,11 +315,10 @@ export default function HomePage() {
               <button
                 onClick={handleProceed}
                 disabled={hasTimeConflict() || !store.selectedAssetId}
-                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md ${
-                  hasTimeConflict()
+                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md ${hasTimeConflict()
                     ? 'bg-gray-200 text-gray-500'
                     : 'bg-[#111111] text-white hover:bg-black'
-                }`}
+                  }`}
               >
                 {hasTimeConflict() ? 'Slot Unavailable' : 'Search'}
               </button>

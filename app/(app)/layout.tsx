@@ -5,7 +5,6 @@ import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 import BottomNav from '@/components/bottom-nav';
-import InstallPrompt from '@/components/install-prompt';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();
@@ -37,7 +36,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     <div className={`min-h-dvh bg-[#F5F5F5] ${pathname === '/home' ? 'pb-[var(--bottom-nav-height)]' : ''}`}>
       {children}
       {pathname === '/home' && <BottomNav />}
-      <InstallPrompt />
     </div>
   );
 }
