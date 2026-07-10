@@ -14,7 +14,13 @@ import {
   type User,
   type ConfirmationResult,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import {
+  doc,
+  setDoc,
+  getDoc,
+  updateDoc,
+  type DocumentSnapshot,
+} from 'firebase/firestore';
 import { isFirebaseConfigured, getFirebaseAuth, getFirebaseDb } from './firebase';
 
 export interface AppUser {
@@ -25,6 +31,7 @@ export interface AppUser {
   role: 'customer' | 'admin';
   photoURL: string | null;
   walletBalance: number;
+  fcmToken?: string | null;
 }
 
 let confirmationResult: ConfirmationResult | null = null;
@@ -92,16 +99,26 @@ export async function signUpWithEmail(email: string, password: string, name: str
     // Create user doc with provided name and phone
     const db = getFirebaseDb();
     const userRef = doc(db, 'users', result.user.uid);
-    await setDoc(userRef, {
+    let fcmToken: string | null = null;
+    try {
+      const { requestNotificationPermission } = await import('./firebase');
+      fcmToken = await requestNotificationPermission();
+    } catch (e) {
+      console.error('Failed to get FCM token:', e);
+    }
+
+    const userData = {
       uid: result.user.uid,
-      phone: phone || null,
-      name: name || 'Arcade Player',
+      name,
+      phone,
       email: result.user.email,
       role: 'customer',
       photoURL: null,
       walletBalance: 0,
+      fcmToken,
       createdAt: new Date().toISOString(),
-    });
+    };
+    await setDoc(userRef, userData);
     
     return result.user;
   } catch (error) {
@@ -169,6 +186,14 @@ async function createOrUpdateUser(user: User) {
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
 
+    let fcmToken: string | null = null;
+    try {
+      const { requestNotificationPermission } = await import('./firebase');
+      fcmToken = await requestNotificationPermission();
+    } catch (e) {
+      console.error('Failed to get FCM token:', e);
+    }
+
     if (!userSnap.exists()) {
       await setDoc(userRef, {
         uid: user.uid,
@@ -178,8 +203,21 @@ async function createOrUpdateUser(user: User) {
         role: 'customer',
         photoURL: user.photoURL || null,
         walletBalance: 0,
+        fcmToken,
         createdAt: new Date().toISOString(),
       });
+    } else {
+      // User exists, just update their FCM token and latest sign-in
+      if (fcmToken) {
+        await updateDoc(userRef, {
+          fcmToken,
+          lastSignInTime: new Date().toISOString(),
+        });
+      } else {
+        await updateDoc(userRef, {
+          lastSignInTime: new Date().toISOString(),
+        });
+      }
     }
   } catch (error) {
     console.error('Error creating user doc:', error);

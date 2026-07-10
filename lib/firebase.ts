@@ -2,6 +2,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth, type Auth } from 'firebase/auth';
 import { initializeFirestore, persistentLocalCache, persistentMultipleTabManager, type Firestore } from 'firebase/firestore';
 import { getAnalytics, isSupported, type Analytics } from 'firebase/analytics';
+import { getMessaging, getToken, isSupported as isMessagingSupported } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -63,4 +64,62 @@ export async function getFirebaseAnalytics(): Promise<Analytics | null> {
     }
   }
   return _analytics;
+}
+
+export async function getFirebaseMessaging() {
+  if (typeof window === 'undefined') return null;
+  if (!isFirebaseConfigured) return null;
+  try {
+    const supported = await isMessagingSupported();
+    if (supported) {
+      return getMessaging(getFirebaseApp());
+    }
+  } catch (e) {
+    console.warn('Firebase Messaging not supported:', e);
+  }
+  return null;
+}
+
+export async function requestNotificationPermission(): Promise<string | null> {
+  const messaging = await getFirebaseMessaging();
+  if (!messaging) return null;
+
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === 'granted') {
+      const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
+      if (!vapidKey) {
+        console.warn('FCM VAPID key is missing in environment variables.');
+        return null;
+      }
+      
+      const configParams = new URLSearchParams({
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || '',
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '',
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '',
+      }).toString();
+
+      const registration = await navigator.serviceWorker.register(
+        `/firebase-messaging-sw.js?${configParams}`
+      );
+
+      const currentToken = await getToken(messaging, { 
+        vapidKey,
+        serviceWorkerRegistration: registration 
+      });
+      if (currentToken) {
+        return currentToken;
+      } else {
+        console.warn('No registration token available. Request permission to generate one.');
+      }
+    } else {
+      console.warn('Notification permission denied.');
+    }
+  } catch (err) {
+    console.error('An error occurred while retrieving token. ', err);
+  }
+  return null;
 }
