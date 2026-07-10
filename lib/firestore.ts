@@ -10,6 +10,8 @@ import {
   orderBy,
   onSnapshot,
   setDoc,
+  serverTimestamp,
+  type Timestamp,
   type Unsubscribe,
 } from 'firebase/firestore';
 import { isFirebaseConfigured, getFirebaseDb } from './firebase';
@@ -74,7 +76,7 @@ export interface Chat {
   userId: string;
   userName: string;
   lastMessage: string;
-  lastMessageAt: string;
+  lastMessageAt: number;
   unreadAdmin: number;
   unreadUser: number;
 }
@@ -83,7 +85,7 @@ export interface Message {
   id: string;
   text: string;
   sender: 'user' | 'admin';
-  createdAt: string;
+  createdAt: number;
 }
 
 // ─── Helper ──────────────────────────────────────────────────────────────────
@@ -377,7 +379,6 @@ export async function updateFoodOrderStatus(orderId: string, status: 'completed'
 export async function sendMessage(userId: string, userName: string, text: string, sender: 'user' | 'admin') {
   const db = getDb();
   const chatRef = doc(db, 'chats', userId);
-  const now = new Date().toISOString();
   
   // Update or create the chat document
   const chatDoc = await getDoc(chatRef);
@@ -386,7 +387,7 @@ export async function sendMessage(userId: string, userName: string, text: string
       userId,
       userName,
       lastMessage: text,
-      lastMessageAt: now,
+      lastMessageAt: serverTimestamp(),
       unreadAdmin: sender === 'user' ? 1 : 0,
       unreadUser: sender === 'admin' ? 1 : 0,
     });
@@ -394,7 +395,7 @@ export async function sendMessage(userId: string, userName: string, text: string
     const data = chatDoc.data() as Chat;
     await updateDoc(chatRef, {
       lastMessage: text,
-      lastMessageAt: now,
+      lastMessageAt: serverTimestamp(),
       unreadAdmin: sender === 'user' ? (data.unreadAdmin || 0) + 1 : 0,
       unreadUser: sender === 'admin' ? (data.unreadUser || 0) + 1 : 0,
     });
@@ -404,7 +405,7 @@ export async function sendMessage(userId: string, userName: string, text: string
   await addDoc(collection(db, `chats/${userId}/messages`), {
     text,
     sender,
-    createdAt: now,
+    createdAt: serverTimestamp(),
   });
 }
 
@@ -416,7 +417,16 @@ export function subscribeToMessages(userId: string, callback: (messages: Message
   const db = getFirebaseDb();
   const q = query(collection(db, `chats/${userId}/messages`), orderBy('createdAt', 'asc'));
   return onSnapshot(q, (snapshot) => {
-    const messages = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Message));
+    const messages = snapshot.docs.map((d) => {
+      const data = d.data();
+      // Handle both Timestamp objects (new) and ISO strings (old) gracefully
+      const createdAt = data.createdAt?.toMillis 
+        ? data.createdAt.toMillis() 
+        : (new Date(data.createdAt || Date.now()).getTime());
+      return { id: d.id, ...data, createdAt } as Message;
+    });
+    // Local sort to fix cross-type sorting artifacts in Firestore
+    messages.sort((a, b) => a.createdAt - b.createdAt);
     callback(messages);
   }, (error) => {
     console.error('[ArcadeZone] Messages listener error:', error.message);
@@ -432,7 +442,15 @@ export function subscribeToChats(callback: (chats: Chat[]) => void): Unsubscribe
   const db = getFirebaseDb();
   const q = query(collection(db, 'chats'), orderBy('lastMessageAt', 'desc'));
   return onSnapshot(q, (snapshot) => {
-    const chats = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Chat));
+    const chats = snapshot.docs.map((d) => {
+      const data = d.data();
+      const lastMessageAt = data.lastMessageAt?.toMillis 
+        ? data.lastMessageAt.toMillis() 
+        : (new Date(data.lastMessageAt || Date.now()).getTime());
+      return { id: d.id, ...data, lastMessageAt } as Chat;
+    });
+    // Local sort to fix cross-type sorting artifacts in Firestore
+    chats.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
     callback(chats);
   }, (error) => {
     console.error('[ArcadeZone] Chats listener error:', error.message);
