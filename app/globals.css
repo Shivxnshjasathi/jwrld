@@ -31,22 +31,20 @@
   --foreground: #1A1A1A;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    /* Dark Theme Colors */
-    --arcade-bg: #000000;
-    --arcade-card: #1C1C1E;
-    --arcade-text: #FFFFFF;
-    --arcade-text-secondary: #A1A1AA;
-    --arcade-text-muted: #71717A;
-    --arcade-border: #27272A;
-    
-    --arcade-green-light: #064E3B;
-    --arcade-blue-soft: #1E3A8A;
-    
-    --background: #000000;
-    --foreground: #FFFFFF;
-  }
+.dark {
+  /* Dark Theme Colors */
+  --arcade-bg: #000000;
+  --arcade-card: #1C1C1E;
+  --arcade-text: #FFFFFF;
+  --arcade-text-secondary: #A1A1AA;
+  --arcade-text-muted: #71717A;
+  --arcade-border: #27272A;
+  
+  --arcade-green-light: #064E3B;
+  --arcade-blue-soft: #1E3A8A;
+  
+  --background: #000000;
+  --foreground: #FFFFFF;
 }
 
 @theme inline {

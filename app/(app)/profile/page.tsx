@@ -1,8 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, LogOut, User, Phone, Mail, Shield, ChevronRight, Settings, HelpCircle, Star } from 'lucide-react';
+import { ArrowLeft, LogOut, User, Phone, Mail, Shield, ChevronRight, Settings, HelpCircle, Star, Sun, Moon } from 'lucide-react';
 import { useAuth, signOut } from '@/lib/auth';
+import { useAppStore } from '@/lib/store';
 import { doc, updateDoc } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
@@ -116,6 +117,22 @@ export default function ProfilePage() {
             </button>
           );
         })}
+
+        {/* Theme Toggle */}
+        <button
+          onClick={() => useAppStore.getState().toggleDarkMode()}
+          className="w-full bg-white rounded-[1.5rem] p-4 flex items-center justify-between shadow-sm transition-transform active:scale-[0.98] mt-4"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
+              {useAppStore((s) => s.darkMode) ? <Moon size={20} className="text-blue-500" /> : <Sun size={20} className="text-blue-500" />}
+            </div>
+            <span className="text-[14px] font-bold text-gray-900">Dark Mode</span>
+          </div>
+          <div className={`w-12 h-6 rounded-full p-1 transition-colors ${useAppStore((s) => s.darkMode) ? 'bg-blue-500' : 'bg-gray-200'}`}>
+            <div className={`w-4 h-4 rounded-full bg-white transition-transform ${useAppStore((s) => s.darkMode) ? 'translate-x-6' : 'translate-x-0'}`} />
+          </div>
+        </button>
 
         {/* Sign Out */}
         <button
