@@ -208,16 +208,34 @@ export default function AdminDashboard() {
           <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
             <button
               onClick={async () => {
-                if (!appUser?.fcmToken) {
-                  toast.error('You do not have a push token generated.');
+                let token = appUser?.fcmToken;
+                if (!token) {
+                  try {
+                    const { requestNotificationPermission, getFirebaseDb } = await import('@/lib/firebase');
+                    const { doc, updateDoc } = await import('firebase/firestore');
+                    const newToken = await requestNotificationPermission();
+                    if (newToken && user) {
+                      const db = getFirebaseDb();
+                      await updateDoc(doc(db, 'users', user.uid), { fcmToken: newToken });
+                      token = newToken;
+                      toast.success('Push token generated successfully!');
+                    }
+                  } catch (e) {
+                    console.error('Error generating token:', e);
+                  }
+                }
+
+                if (!token) {
+                  toast.error('Please allow notifications in your browser to receive push alerts.');
                   return;
                 }
+                
                 try {
                   const res = await fetch('/api/notify', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                      token: appUser.fcmToken,
+                      token,
                       title: 'Test Notification 🚀',
                       body: 'Firebase Cloud Messaging is working perfectly!'
                     })
