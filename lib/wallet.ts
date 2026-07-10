@@ -59,3 +59,10 @@ export async function searchUserByPhone(phone: string): Promise<AppUser | null> 
   }
   return null;
 }
+
+export async function getAllUsers(): Promise<AppUser[]> {
+  if (!isFirebaseConfigured) return [];
+  const db = getFirebaseDb();
+  const snap = await getDocs(collection(db, 'users'));
+  return snap.docs.map(doc => doc.data() as AppUser);
+}

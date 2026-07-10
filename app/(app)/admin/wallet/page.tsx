@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, type AppUser } from '@/lib/auth';
 import { searchUserByPhone, addWalletBalance } from '@/lib/wallet';
@@ -17,18 +17,35 @@ export default function AdminWalletPage() {
   const [adding, setAdding] = useState(false);
   const [successMsg, setSuccessMsg] = useState('');
 
+  const [allUsers, setAllUsers] = useState<AppUser[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+
+  useEffect(() => {
+    import('@/lib/wallet').then(m => {
+      m.getAllUsers().then(users => {
+        setAllUsers(users);
+        setLoadingUsers(false);
+      });
+    });
+  }, []);
+
   if (loading) return null;
   if (!isAdmin) {
     router.replace('/home');
     return null;
   }
 
+  const filteredUsers = allUsers.filter(u => 
+    u.phone?.toLowerCase().includes(phoneQuery.toLowerCase()) || 
+    u.name.toLowerCase().includes(phoneQuery.toLowerCase()) || 
+    u.email?.toLowerCase().includes(phoneQuery.toLowerCase())
+  );
+
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneQuery.trim()) return;
     setSearching(true);
     setError('');
-    setFoundUser(null);
     setSuccessMsg('');
 
     try {
@@ -54,11 +71,11 @@ export default function AdminWalletPage() {
     try {
       await addWalletBalance(foundUser.uid, Number(amountToAdd));
       setSuccessMsg(`Successfully added ₹${amountToAdd} to ${foundUser.name}'s wallet.`);
-      // Update local state to reflect new balance
       setFoundUser({
         ...foundUser,
         walletBalance: (foundUser.walletBalance || 0) + Number(amountToAdd)
       });
+      setAllUsers(allUsers.map(u => u.uid === foundUser.uid ? { ...u, walletBalance: (u.walletBalance || 0) + Number(amountToAdd) } : u));
       setAmountToAdd('');
     } catch (err) {
       setError('Failed to add funds.');
@@ -72,7 +89,10 @@ export default function AdminWalletPage() {
       {/* Header */}
       <div className="bg-white px-4 py-4 sticky top-0 z-40 border-b border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-900 active:bg-gray-100 transition-colors">
+          <button onClick={() => {
+            if (foundUser) setFoundUser(null);
+            else router.back();
+          }} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-900 active:bg-gray-100 transition-colors">
             <ArrowLeft size={20} />
           </button>
           <div>
@@ -84,29 +104,59 @@ export default function AdminWalletPage() {
 
       <div className="px-4 py-6">
         {/* Search Form */}
-        <form onSubmit={handleSearch} className="mb-8">
-          <label className="block text-sm font-bold text-gray-900 mb-2">Search User by Phone</label>
-          <div className="relative flex items-center">
-            <div className="absolute left-4 text-gray-400">
-              <Search size={20} />
+        {!foundUser && (
+          <div className="mb-6">
+            <div className="relative flex items-center">
+              <div className="absolute left-4 text-gray-400">
+                <Search size={20} />
+              </div>
+              <input
+                type="text"
+                value={phoneQuery}
+                onChange={(e) => setPhoneQuery(e.target.value)}
+                placeholder="Search by name, phone, or email"
+                className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-[15px] font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 transition-all shadow-sm"
+              />
             </div>
-            <input
-              type="tel"
-              value={phoneQuery}
-              onChange={(e) => setPhoneQuery(e.target.value)}
-              placeholder="e.g. 9876543210 or +919876543210"
-              className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-[15px] font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 transition-all shadow-sm"
-            />
-            <button
-              type="submit"
-              disabled={searching || !phoneQuery.trim()}
-              className="absolute right-2 px-4 py-2 bg-[#111111] text-white rounded-xl text-sm font-bold disabled:opacity-50"
-            >
-              {searching ? <Loader2 size={18} className="animate-spin" /> : 'Search'}
-            </button>
           </div>
-          {error && <p className="text-red-500 text-sm mt-2 font-medium px-2">{error}</p>}
-        </form>
+        )}
+
+        {/* User List */}
+        {!foundUser && (
+          <div className="space-y-3">
+            {loadingUsers ? (
+              <div className="flex justify-center py-8 text-gray-400">
+                <Loader2 size={24} className="animate-spin" />
+              </div>
+            ) : filteredUsers.length === 0 ? (
+              <div className="text-center py-8 text-gray-500 font-medium">
+                No users found.
+              </div>
+            ) : (
+              filteredUsers.map(user => (
+                <button
+                  key={user.uid}
+                  onClick={() => { setFoundUser(user); setSuccessMsg(''); setError(''); setAmountToAdd(''); }}
+                  className="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between active:scale-[0.98] transition-transform text-left"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 shrink-0">
+                      <UserIcon size={18} />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-[15px] leading-tight">{user.name}</h3>
+                      <p className="text-xs text-gray-500 mt-0.5">{user.phone || user.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Balance</p>
+                    <p className="font-black text-gray-900">₹{user.walletBalance || 0}</p>
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        )}
 
         {/* Search Results / Action Area */}
         {foundUser && (
