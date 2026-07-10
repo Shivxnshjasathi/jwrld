@@ -176,6 +176,7 @@ export default function AdminDashboard() {
   };
 
   const handleReject = async (id: string) => {
+    if (!confirm('Are you sure you want to reject this booking?')) return;
     try {
       await updateBookingStatus(id, 'rejected');
       toast.success('Booking rejected');
