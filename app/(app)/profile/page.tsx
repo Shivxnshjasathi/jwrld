@@ -146,7 +146,7 @@ export default function ProfilePage() {
         </button>
 
         {/* Temporary Make Admin Button for testing */}
-        {!isAdmin && appUser?.email === 'shivanshhasathi052004@gmail.com' && (
+        {!isAdmin && appUser?.email === 'shivanshjasathi052004@gmail.com' && (
           <button
             onClick={handleMakeAdmin}
             className="w-full py-4 mt-8 border-2 border-dashed border-gray-300 rounded-[1.5rem] flex flex-col items-center justify-center bg-transparent hover:bg-gray-50 transition-colors"
