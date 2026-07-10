@@ -32,10 +32,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   // Allow access in demo mode (Firebase not configured) or when authenticated
   if (!isAuthenticated && isFirebaseConfigured) return null;
 
+  const showBottomNav = ['/home', '/bookings', '/profile'].includes(pathname);
+
   return (
-    <div className={`min-h-dvh bg-[#F5F5F5] ${pathname === '/home' ? 'pb-[var(--bottom-nav-height)]' : ''}`}>
+    <div className={`min-h-dvh bg-[#F5F5F5] ${showBottomNav ? 'pb-[var(--bottom-nav-height)]' : ''}`}>
       {children}
-      {pathname === '/home' && <BottomNav />}
+      {showBottomNav && <BottomNav />}
     </div>
   );
 }
