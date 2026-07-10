@@ -3,10 +3,10 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { MessageCircle, MapPin, Calendar, ChevronDown, CircleDashed, Target, Gamepad2, Utensils, Search, Minus, Plus } from 'lucide-react';
+import { MessageCircle, CircleDashed, Target, Gamepad2, Utensils, Minus, Plus, X, Megaphone } from 'lucide-react';
 import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
-import { getAssetsByCategory, subscribeToBookings, type Asset, type Booking } from '@/lib/firestore';
+import { getAssetsByCategory, subscribeToBookings, subscribeToAnnouncement, type Asset, type Booking, type Announcement } from '@/lib/firestore';
 
 const TABS = [
   { id: 'pool', label: 'Pool', icon: CircleDashed },
@@ -14,6 +14,8 @@ const TABS = [
   { id: 'ps5', label: 'PS5', icon: Gamepad2 },
   { id: 'food', label: 'Food', icon: Utensils },
 ];
+
+const HOURS = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 export default function HomePage() {
   const { appUser } = useAuth();
@@ -27,12 +29,23 @@ export default function HomePage() {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
 
-  const selectedDate = new Date(store.selectedDate + 'T00:00:00');
+  // -- Announcement --
+  const [announcement, setAnnouncement] = useState<Announcement | null>(null);
+  const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  useEffect(() => {
+    const unsub = subscribeToAnnouncement((data) => {
+      setAnnouncement(data);
+      setBannerDismissed(false);
+    });
+    return () => unsub();
+  }, []);
 
   useEffect(() => {
     if (activeTab !== 'food') {
       store.setCategory(activeTab);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab]);
 
   useEffect(() => {
@@ -52,6 +65,7 @@ export default function HomePage() {
     if (activeTab !== 'food' && assets.length > 0) {
       store.setAsset(assets[0].id, assets[0].name, assets[0].price);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [assets, activeTab]);
 
   useEffect(() => {
@@ -72,11 +86,6 @@ export default function HomePage() {
     })
   ));
 
-  const handleDateSelect = (date: Date) => {
-    const dateStr = format(date, 'yyyy-MM-dd');
-    store.setDate(dateStr);
-  };
-
   const hasTimeConflict = () => {
     for (let h = store.startTime; h < store.endTime; h++) {
       if (bookedHours.includes(h)) return true;
@@ -92,6 +101,17 @@ export default function HomePage() {
 
   return (
     <div className="min-h-dvh bg-[#F5F5F5] pb-32">
+      {/* Announcement Banner */}
+      {announcement?.active && announcement.text && !bannerDismissed && (
+        <div className="mx-4 mt-3 bg-[#111111] text-white rounded-2xl px-4 py-3 flex items-center gap-3 animate-slide-up shadow-lg">
+          <Megaphone size={18} className="text-amber-400 shrink-0" />
+          <p className="text-xs font-semibold flex-1">{announcement.text}</p>
+          <button onClick={() => setBannerDismissed(true)} className="shrink-0 p-1">
+            <X size={14} className="text-white/60" />
+          </button>
+        </div>
+      )}
+
       {/* Header */}
       <div className="pt-12 px-6 flex items-center justify-between mb-8">
         <div className="flex items-center gap-3">
@@ -156,9 +176,9 @@ export default function HomePage() {
             </div>
           ) : (
             <>
-              {/* Where input (Mimicking the screenshot) */}
+              {/* Where input */}
               <div className="bg-[#F5F5F5] rounded-full px-5 py-4 mb-5 flex items-center">
-                <span className="text-sm font-medium text-gray-500">Jaaduwrld Art & Arcade</span>
+                <span className="text-sm font-medium text-gray-500">Jaaduwrld Art &amp; Arcade</span>
               </div>
 
               {/* Date Slider */}
@@ -192,8 +212,49 @@ export default function HomePage() {
                 })}
               </div>
 
+              {/* Availability Timeline */}
+              <div className="mb-6">
+                <h3 className="text-[12px] font-extrabold text-gray-900 tracking-wider mb-3 uppercase px-1">Availability</h3>
+                <div className="flex gap-[3px] px-1">
+                  {HOURS.map((h) => {
+                    const isBooked = bookedHours.includes(h);
+                    const isSelected = h >= store.startTime && h < store.endTime;
+                    return (
+                      <div key={h} className="flex-1 flex flex-col items-center gap-1.5">
+                        <div
+                          className={`w-full h-6 rounded-md transition-all duration-200 ${
+                            isSelected
+                              ? 'bg-[#111111]'
+                              : isBooked
+                              ? 'bg-red-100 border border-red-200'
+                              : 'bg-green-50 border border-green-200'
+                          }`}
+                        />
+                        <span className="text-[8px] font-bold text-gray-400">
+                          {h > 12 ? h - 12 : h}{h >= 12 ? 'p' : 'a'}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="flex items-center gap-4 mt-3 px-1">
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-sm bg-green-50 border border-green-200" />
+                    <span className="text-[10px] text-gray-500 font-medium">Available</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-sm bg-red-100 border border-red-200" />
+                    <span className="text-[10px] text-gray-500 font-medium">Booked</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-2.5 h-2.5 rounded-sm bg-[#111111]" />
+                    <span className="text-[10px] text-gray-500 font-medium">Your selection</span>
+                  </div>
+                </div>
+              </div>
+
               {/* Time Range Slider */}
-              <div className="mb-6 mt-6">
+              <div className="mb-6 mt-2">
                 <div className="flex items-center justify-between mb-8 px-1">
                   <div>
                     <h3 className="text-[12px] font-extrabold text-gray-900 tracking-wider mb-1 uppercase">TIME</h3>
@@ -246,7 +307,6 @@ export default function HomePage() {
 
                   {/* Track line */}
                   <div className="absolute top-[32px] left-[12px] right-[12px] h-[3px] bg-gray-200 rounded-full">
-                    {/* Highlighted portion */}
                     <div 
                       className="absolute top-0 h-full bg-[#111111] rounded-full transition-all duration-150 pointer-events-none"
                       style={{ 
@@ -254,15 +314,11 @@ export default function HomePage() {
                         width: `${((store.endTime - store.startTime) / 11) * 100}%` 
                       }}
                     >
-                      {/* Left thumb arrow */}
                       <div className="absolute left-0 top-[6px] -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111]" />
-                      
-                      {/* Right thumb arrow */}
                       <div className="absolute right-0 top-[6px] translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111]" />
                     </div>
                   </div>
 
-                  {/* Native input (invisible but interactive) */}
                   <input 
                     type="range"
                     min={10}

@@ -372,3 +372,56 @@ export async function seedAssets() {
     await setDoc(doc(db, 'assets', assetId), asset);
   }
 }
+
+// ─── Announcements ──────────────────────────────────────────────────────────
+
+export interface Announcement {
+  text: string;
+  active: boolean;
+  createdAt: string;
+}
+
+export async function setAnnouncement(text: string, active: boolean) {
+  const db = getDb();
+  await setDoc(doc(db, 'settings', 'announcement'), {
+    text,
+    active,
+    createdAt: new Date().toISOString(),
+  });
+}
+
+export function subscribeToAnnouncement(callback: (announcement: Announcement | null) => void): Unsubscribe {
+  if (!isFirebaseConfigured) {
+    callback(null);
+    return () => {};
+  }
+  const db = getFirebaseDb();
+  return onSnapshot(doc(db, 'settings', 'announcement'), (snap) => {
+    if (snap.exists()) {
+      callback(snap.data() as Announcement);
+    } else {
+      callback(null);
+    }
+  });
+}
+
+// ─── Live Availability ───────────────────────────────────────────────────────
+
+export function subscribeToTodayBookings(callback: (bookings: Booking[]) => void): Unsubscribe {
+  if (!isFirebaseConfigured) {
+    callback([]);
+    return () => {};
+  }
+  const db = getFirebaseDb();
+  const today = new Date();
+  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+  const q = query(
+    collection(db, 'bookings'),
+    where('date', '==', todayStr)
+  );
+  return onSnapshot(q, (snapshot) => {
+    const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
+    callback(bookings);
+  });
+}
+

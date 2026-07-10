@@ -23,8 +23,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-arcade-bg">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-3 border-arcade-green border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm font-medium text-arcade-text-muted">Loading ArcadeZone...</p>
+          <div className="w-12 h-12 border-3 border-[#111111] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-bold text-[#111111]">Loading ArcadeZone...</p>
         </div>
       </div>
     );

@@ -500,3 +500,70 @@ body {
 .status-dot.available { background: var(--arcade-green); }
 .status-dot.occupied { background: #F44336; }
 .status-dot.maintenance { background: #FFC107; }
+
+/* ─── Dark Mode ───────────────────────────────────────────────────────────── */
+
+.dark {
+  --arcade-bg: #0A0A0A;
+  --arcade-card: #1A1A1A;
+  --arcade-text: #F5F5F5;
+  --arcade-text-secondary: #AAAAAA;
+  --arcade-text-muted: #666666;
+  --arcade-border: #2A2A2A;
+  --arcade-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --arcade-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --background: #0A0A0A;
+  --foreground: #F5F5F5;
+}
+
+.dark body {
+  background: #0A0A0A;
+  color: #F5F5F5;
+}
+
+.dark .bg-\[\#F5F5F5\] { background-color: #0A0A0A !important; }
+.dark .bg-white { background-color: #1A1A1A !important; }
+.dark .text-gray-900 { color: #F5F5F5 !important; }
+.dark .text-gray-500 { color: #888888 !important; }
+.dark .text-gray-400 { color: #777777 !important; }
+.dark .text-\[\#1a1a1a\] { color: #F5F5F5 !important; }
+.dark .border-gray-100 { border-color: #2A2A2A !important; }
+.dark .border-gray-200 { border-color: #333333 !important; }
+.dark .bg-gray-100 { background-color: #2A2A2A !important; }
+.dark .bg-gray-200 { background-color: #333333 !important; }
+.dark .bg-gray-50 { background-color: #222222 !important; }
+.dark .bg-\[\#F5F5F5\] { background-color: #0A0A0A !important; }
+
+.dark .checkout-card { background: #1A1A1A; }
+.dark .bottom-nav { background: #111111; border-top-color: #222222; }
+.dark .bottom-sheet { background: #1A1A1A; }
+.dark .install-prompt { background: #1A1A1A; }
+
+/* ─── Splash Screen ───────────────────────────────────────────────────────── */
+
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+@keyframes splashRing {
+  0% { transform: scale(1); opacity: 0.5; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+@keyframes splashDot {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+.splash-pulse {
+  animation: splashPulse 2s ease-in-out infinite;
+}
+
+.splash-ring {
+  animation: splashRing 1.5s ease-out infinite;
+}
+
+.splash-dot {
+  animation: splashDot 1s ease-in-out infinite;
+}

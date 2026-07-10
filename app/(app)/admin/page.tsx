@@ -17,6 +17,9 @@ import {
   ChevronDown,
   CheckCircle,
   MessageCircle,
+  BarChart3,
+  Megaphone,
+  Send,
 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import {
@@ -29,9 +32,12 @@ import {
   seedAssets,
   subscribeToFoodOrders,
   updateFoodOrderStatus,
+  setAnnouncement,
+  subscribeToAnnouncement,
   type Asset,
   type Booking,
   type FoodOrder,
+  type Announcement,
 } from '@/lib/firestore';
 import { formatTime, formatPrice, getCategoryIcon, getCategoryLabel } from '@/lib/utils';
 
@@ -54,6 +60,11 @@ export default function AdminDashboard() {
   // Food orders state
   const [foodOrders, setFoodOrders] = useState<FoodOrder[]>([]);
 
+  // Announcement state
+  const [announcement, setAnnouncementState] = useState<Announcement | null>(null);
+  const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [announcementText, setAnnouncementText] = useState('');
+
   const todayStr = format(new Date(), 'yyyy-MM-dd');
 
   useEffect(() => {
@@ -70,10 +81,16 @@ export default function AdminDashboard() {
       setFoodOrders(data);
     });
 
+    const unsubAnnouncement = subscribeToAnnouncement((data) => {
+      setAnnouncementState(data);
+      if (data?.text) setAnnouncementText(data.text);
+    });
+
     return () => {
       unsubAssets();
       unsubBookings();
       unsubFoodOrders();
+      unsubAnnouncement();
     };
   }, []);
 
@@ -191,6 +208,20 @@ export default function AdminDashboard() {
             >
               <MessageCircle size={14} />
               Messages
+            </button>
+            <button
+              onClick={() => router.push('/admin/revenue')}
+              className="flex-1 md:flex-none px-4 md:px-5 py-2.5 bg-white text-gray-900 rounded-full text-xs font-bold shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <BarChart3 size={14} />
+              Revenue
+            </button>
+            <button
+              onClick={() => setShowAnnouncementModal(true)}
+              className="flex-1 md:flex-none px-4 md:px-5 py-2.5 bg-white text-gray-900 rounded-full text-xs font-bold shadow-sm border border-gray-100 hover:bg-gray-50 transition-colors flex items-center justify-center gap-1.5"
+            >
+              <Megaphone size={14} />
+              Banner
             </button>
             <button
               onClick={handleSeedAssets}
@@ -552,6 +583,66 @@ export default function AdminDashboard() {
               >
                 {walkInSubmitting ? 'Adding...' : 'Add Walk-in Booking'}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Announcement Modal */}
+      {showAnnouncementModal && (
+        <div className="fixed inset-0 z-50 bg-black/50 flex items-end lg:items-center justify-center animate-fade-in">
+          <div className="bg-white w-full lg:w-[480px] lg:rounded-2xl rounded-t-2xl p-6 animate-slide-up">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-bold text-arcade-text">Announcement Banner</h3>
+              <button onClick={() => setShowAnnouncementModal(false)} className="p-1">
+                <XCircle size={22} className="text-arcade-text-muted" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs font-semibold text-arcade-text-muted uppercase tracking-wider">Banner Message</label>
+                <textarea
+                  value={announcementText}
+                  onChange={(e) => setAnnouncementText(e.target.value)}
+                  placeholder='e.g. "Happy Hour! 50% off all Pool tables 🎱"'
+                  rows={3}
+                  className="mt-1 w-full px-4 py-3 border-2 border-arcade-border rounded-xl text-sm font-medium focus:border-arcade-green focus:outline-none resize-none"
+                />
+              </div>
+
+              {announcement?.active && (
+                <div className="bg-[#111111] text-white rounded-xl px-4 py-3">
+                  <p className="text-xs font-semibold">🔴 Live: {announcement.text}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={async () => {
+                    await setAnnouncement(announcementText, true);
+                    toast.success('Banner is now live!');
+                    setShowAnnouncementModal(false);
+                  }}
+                  disabled={!announcementText.trim()}
+                  className="flex-1 btn-green flex items-center justify-center gap-2 !py-3"
+                >
+                  <Send size={14} /> Push Live
+                </button>
+                {announcement?.active && (
+                  <button
+                    onClick={async () => {
+                      await setAnnouncement('', false);
+                      setAnnouncementText('');
+                      toast.success('Banner removed');
+                      setShowAnnouncementModal(false);
+                    }}
+                    className="px-6 py-3 bg-red-50 text-red-600 rounded-full text-xs font-bold"
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

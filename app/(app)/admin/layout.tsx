@@ -1,20 +1,26 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { useBookingStore } from '@/lib/store';
 import { Shield, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { loading } = useAuth();
+  const { loading, isAdmin } = useAuth();
   const router = useRouter();
   const adminAuthenticated = useBookingStore(state => state.adminAuthenticated);
   const setAdminAuthenticated = useBookingStore(state => state.setAdminAuthenticated);
   const [password, setPassword] = useState('');
   const [error, setError] = useState(false);
 
-  if (loading) {
+  useEffect(() => {
+    if (!loading && !isAdmin) {
+      router.replace('/home');
+    }
+  }, [loading, isAdmin, router]);
+
+  if (loading || !isAdmin) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-[#F5F5F5]">
         <div className="w-10 h-10 border-3 border-[#111111] border-t-transparent rounded-full animate-spin" />

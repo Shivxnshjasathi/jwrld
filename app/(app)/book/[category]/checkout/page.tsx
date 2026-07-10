@@ -18,6 +18,10 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [error, setError] = useState('');
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCode, setCouponCode] = useState('');
+  
+  // Expandable policies state
+  const [expandReschedule, setExpandReschedule] = useState(false);
+  const [expandCancel, setExpandCancel] = useState(false);
 
   const totalAmount = store.getTotalAmount();
   const selectedDate = new Date(store.selectedDate + 'T00:00:00');
@@ -176,8 +180,18 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           </h3>
           <p className="text-xs text-gray-500 leading-relaxed">
             Rescheduling is allowed 1.0 Hour prior to slot time. Rescheduling of a booking can be done
-            only 3 times. Once resch...
-            <button className="text-gray-900 font-bold ml-1">See More</button>
+            only 3 times.{' '}
+            {expandReschedule ? (
+              <>
+                Once rescheduled, further modifications may incur additional charges. Subject to availability of the same asset category.
+                <button onClick={() => setExpandReschedule(false)} className="text-gray-900 font-bold ml-1">See Less</button>
+              </>
+            ) : (
+              <>
+                Once resch...
+                <button onClick={() => setExpandReschedule(true)} className="text-gray-900 font-bold ml-1">See More</button>
+              </>
+            )}
           </p>
         </div>
 
@@ -187,9 +201,18 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
             CANCELLATION POLICY
           </h3>
           <p className="text-xs text-gray-500 leading-relaxed">
-            Cancellation is allowed up to 2 hours before the slot. A cancellation fee of 10% will be charged.
-            Refund will be credited...
-            <button className="text-gray-900 font-bold ml-1">See More</button>
+            Cancellation is allowed up to 2 hours before the slot. A cancellation fee of 10% will be charged.{' '}
+            {expandCancel ? (
+              <>
+                Refund will be credited to the original payment method within 5-7 business days. Last-minute cancellations (under 2 hours) are non-refundable.
+                <button onClick={() => setExpandCancel(false)} className="text-gray-900 font-bold ml-1">See Less</button>
+              </>
+            ) : (
+              <>
+                Refund will be credited...
+                <button onClick={() => setExpandCancel(true)} className="text-gray-900 font-bold ml-1">See More</button>
+              </>
+            )}
           </p>
         </div>
 

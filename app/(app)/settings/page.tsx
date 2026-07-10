@@ -1,28 +1,24 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Settings } from 'lucide-react';
+import { ArrowLeft, Moon, Sun } from 'lucide-react';
+import { useAppStore } from '@/lib/store';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { darkMode, toggleDarkMode } = useAppStore();
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5] pb-24">
-      {/* Header */}
-      <div className="bg-[#F5F5F5] px-4 md:px-6 pt-12 pb-6 sticky top-0 z-10 border-b border-gray-200">
-        <div className="flex items-center gap-3 max-w-7xl mx-auto">
+    <div className="min-h-dvh bg-[#F5F5F5]">
+      <div className="bg-[#F5F5F5] px-6 pt-12 pb-4 sticky top-0 z-10">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100"
+            className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
           >
-            <ArrowLeft size={20} className="text-gray-900" />
+            <ArrowLeft size={20} className="text-[#1a1a1a]" />
           </button>
-          <div>
-            <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">Settings</h1>
-            <p className="text-[12px] md:text-[13px] text-gray-500 font-medium mt-0.5">
-              Manage your preferences
-            </p>
-          </div>
+          <h1 className="text-xl font-bold text-gray-900 leading-tight">Settings</h1>
         </div>
       </div>
 
@@ -51,11 +47,25 @@ export default function SettingsPage() {
           </div>
 
           <div className="flex items-center justify-between py-3">
-            <div>
-              <p className="text-sm font-bold text-gray-900">Dark Mode</p>
-              <p className="text-xs text-gray-500">The app natively follows your system theme</p>
+            <div className="flex items-center gap-3">
+              {darkMode ? <Moon size={18} className="text-gray-900" /> : <Sun size={18} className="text-gray-900" />}
+              <div>
+                <p className="text-sm font-bold text-gray-900">Dark Mode</p>
+                <p className="text-xs text-gray-500">{darkMode ? 'Dark theme active' : 'Light theme active'}</p>
+              </div>
             </div>
-            <div className="text-xs font-bold bg-gray-100 px-3 py-1 rounded-full text-gray-500">Auto</div>
+            <button
+              onClick={toggleDarkMode}
+              className={`w-12 h-6 rounded-full relative transition-colors duration-300 ${
+                darkMode ? 'bg-[#111111]' : 'bg-gray-200'
+              }`}
+            >
+              <div
+                className={`w-4 h-4 bg-white rounded-full absolute top-1 shadow-sm transition-all duration-300 ${
+                  darkMode ? 'right-1' : 'left-1'
+                }`}
+              />
+            </button>
           </div>
         </div>
 

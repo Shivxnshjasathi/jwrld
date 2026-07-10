@@ -27,6 +27,11 @@ interface BookingState {
   getTotalAmount: () => number;
 }
 
+interface AppState {
+  darkMode: boolean;
+  toggleDarkMode: () => void;
+}
+
 const today = new Date();
 const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 
@@ -74,4 +79,25 @@ export const useBookingStore = create<BookingState>((set, get) => ({
     const subtotal = basePrice + tax + protectionFee;
     return Math.max(0, subtotal - state.couponDiscount);
   },
+}));
+
+// ─── App-level store (dark mode, etc.) ───────────────────────────────────────
+
+function getInitialDarkMode(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const saved = localStorage.getItem('arcadezone-dark-mode');
+    if (saved !== null) return JSON.parse(saved);
+  } catch { /* ignore */ }
+  return false;
+}
+
+export const useAppStore = create<AppState>((set) => ({
+  darkMode: getInitialDarkMode(),
+  toggleDarkMode: () =>
+    set((state) => {
+      const next = !state.darkMode;
+      try { localStorage.setItem('arcadezone-dark-mode', JSON.stringify(next)); } catch { /* ignore */ }
+      return { darkMode: next };
+    }),
 }));
