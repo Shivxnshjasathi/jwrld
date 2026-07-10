@@ -95,6 +95,22 @@ export default function HomePage() {
     return false;
   };
 
+  const isPastTime = () => {
+    const now = new Date();
+    const [year, month, day] = store.selectedDate.split('-').map(Number);
+    const selectedDateObj = new Date(year, month - 1, day);
+    
+    // If selected date is in the past, return true
+    if (selectedDateObj.setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) return true;
+    
+    // If selected date is today, check if start time is <= current hour
+    if (selectedDateObj.getTime() === new Date().setHours(0,0,0,0)) {
+      if (store.startTime <= now.getHours()) return true;
+    }
+    
+    return false;
+  };
+
   const [waitlisting, setWaitlisting] = useState(false);
 
   const handleWaitlist = async () => {
@@ -281,14 +297,19 @@ export default function HomePage() {
 
               {/* Search / Proceed Button */}
               <button
-                onClick={hasTimeConflict() ? handleWaitlist : handleProceed}
-                disabled={!store.selectedAssetId || waitlisting}
-                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${hasTimeConflict()
+                onClick={hasTimeConflict() && !isPastTime() ? handleWaitlist : handleProceed}
+                disabled={!store.selectedAssetId || waitlisting || isPastTime()}
+                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
+                  isPastTime()
+                    ? 'bg-gray-200 text-gray-500'
+                    : hasTimeConflict()
                     ? 'bg-amber-500 text-white hover:bg-amber-600'
                     : 'bg-[#111111] text-white hover:bg-black'
                   }`}
               >
-                {waitlisting ? (
+                {isPastTime() ? (
+                  'Time has passed'
+                ) : waitlisting ? (
                   <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Joining...</>
                 ) : hasTimeConflict() ? (
                   'Join Waitlist'
