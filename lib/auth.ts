@@ -252,10 +252,11 @@ export function useAuth() {
     }
 
     const auth = getFirebaseAuth();
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
-        await fetchAppUser(firebaseUser);
+        // Fetch user data asynchronously without blocking the UI loading state
+        fetchAppUser(firebaseUser).catch(console.error);
       } else {
         setAppUser(null);
       }
