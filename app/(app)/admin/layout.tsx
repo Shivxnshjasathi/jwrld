@@ -7,7 +7,7 @@ import { useBookingStore } from '@/lib/store';
 import { Shield, ArrowRight, ArrowLeft } from 'lucide-react';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const { loading, isAdmin } = useAuth();
+  const { loading, profileLoading, isAdmin } = useAuth();
   const router = useRouter();
   const adminAuthenticated = useBookingStore(state => state.adminAuthenticated);
   const setAdminAuthenticated = useBookingStore(state => state.setAdminAuthenticated);
@@ -15,12 +15,12 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!loading && !isAdmin) {
+    if (!loading && !profileLoading && !isAdmin) {
       router.replace('/home');
     }
-  }, [loading, isAdmin, router]);
+  }, [loading, profileLoading, isAdmin, router]);
 
-  if (loading || !isAdmin) {
+  if (loading || profileLoading || !isAdmin) {
     return (
       <div className="min-h-dvh flex items-center justify-center bg-[#F5F5F5]">
         <div className="w-10 h-10 border-3 border-[#111111] border-t-transparent rounded-full animate-spin" />

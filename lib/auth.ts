@@ -228,6 +228,7 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [appUser, setAppUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   const fetchAppUser = useCallback(async (firebaseUser: User) => {
     if (!isFirebaseConfigured) return;
@@ -245,9 +246,8 @@ export function useAuth() {
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
-      // If Firebase is not configured, stop loading but leave user as null
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(false);
+      setProfileLoading(false);
       return;
     }
 
@@ -256,9 +256,10 @@ export function useAuth() {
       setUser(firebaseUser);
       if (firebaseUser) {
         // Fetch user data asynchronously without blocking the UI loading state
-        fetchAppUser(firebaseUser).catch(console.error);
+        fetchAppUser(firebaseUser).finally(() => setProfileLoading(false)).catch(console.error);
       } else {
         setAppUser(null);
+        setProfileLoading(false);
       }
       setLoading(false);
     });
@@ -270,6 +271,7 @@ export function useAuth() {
     user,
     appUser,
     loading,
+    profileLoading,
     isAdmin: appUser?.role === 'admin',
     isAuthenticated: !!user,
     isFirebaseReady: isFirebaseConfigured,
