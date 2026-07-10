@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Book pool tables, snooker, and PS5 gaming stations at ArcadeZone. Premium arcade booking made easy.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#F5F5F5',
-    theme_color: '#00C853',
+    background_color: '#111111',
+    theme_color: '#111111',
     orientation: 'portrait',
     categories: ['entertainment', 'games', 'sports'],
     icons: [
