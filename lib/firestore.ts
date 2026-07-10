@@ -15,6 +15,7 @@ import {
   type Unsubscribe,
 } from 'firebase/firestore';
 import { isFirebaseConfigured, getFirebaseDb } from './firebase';
+import { sendPushToUser, sendPushToAdmins } from './notify-client';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -172,6 +173,13 @@ export async function createBooking(booking: Omit<Booking, 'id'>): Promise<strin
     ...booking,
     createdAt: new Date().toISOString(),
   });
+  
+  // Notify admins
+  sendPushToAdmins(
+    'New Booking Request',
+    `New booking request for ${booking.assetName}`
+  ).catch(console.error);
+
   return docRef.id;
 }
 
@@ -182,7 +190,21 @@ export async function cancelBooking(bookingId: string) {
 
 export async function updateBookingStatus(bookingId: string, status: Booking['status']) {
   const db = getDb();
-  await updateDoc(doc(db, 'bookings', bookingId), { status });
+  const bookingRef = doc(db, 'bookings', bookingId);
+  const snap = await getDoc(bookingRef);
+  
+  await updateDoc(bookingRef, { status });
+  
+  // Notify user of status change
+  if (snap.exists()) {
+    const data = snap.data() as Booking;
+    const readableStatus = status === 'confirmed' ? 'approved' : status;
+    sendPushToUser(
+      data.userId,
+      'Booking Update',
+      `Your booking for ${data.assetName} has been ${readableStatus}.`
+    ).catch(console.error);
+  }
 }
 
 export async function extendBookingTime(booking: Booking, hoursToAdd: number): Promise<void> {
@@ -349,6 +371,13 @@ export async function createFoodOrder(orderData: Omit<FoodOrder, 'id' | 'created
     ...orderData,
     createdAt: new Date().toISOString(),
   });
+  
+  // Notify admins
+  sendPushToAdmins(
+    'New Food Order',
+    `New order for ${orderData.items.length} items`
+  ).catch(console.error);
+
   return docRef.id;
 }
 
@@ -370,7 +399,19 @@ export function subscribeToFoodOrders(callback: (orders: FoodOrder[]) => void): 
 
 export async function updateFoodOrderStatus(orderId: string, status: 'completed' | 'rejected') {
   const db = getDb();
-  await updateDoc(doc(db, 'foodOrders', orderId), { status });
+  const orderRef = doc(db, 'foodOrders', orderId);
+  const snap = await getDoc(orderRef);
+  
+  await updateDoc(orderRef, { status });
+  
+  if (snap.exists()) {
+    const data = snap.data() as FoodOrder;
+    sendPushToUser(
+      data.userId,
+      'Food Order Update',
+      `Your food order is now ${status}.`
+    ).catch(console.error);
+  }
 }
 
 
@@ -407,6 +448,13 @@ export async function sendMessage(userId: string, userName: string, text: string
     sender,
     createdAt: serverTimestamp(),
   });
+  
+  // Trigger push notifications
+  if (sender === 'user') {
+    sendPushToAdmins('New Message from ' + userName, text).catch(console.error);
+  } else {
+    sendPushToUser(userId, 'Message from Admin', text).catch(console.error);
+  }
 }
 
 export function subscribeToMessages(userId: string, callback: (messages: Message[]) => void): Unsubscribe {
