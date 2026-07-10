@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { MessageCircle, CircleDashed, Target, Gamepad2, Utensils, Minus, Plus, X, Megaphone } from 'lucide-react';
 import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { getAssetsByCategory, subscribeToBookings, subscribeToAnnouncement, type Asset, type Booking, type Announcement } from '@/lib/firestore';
+import SliderTrack from '@/components/slider-track';
 
 const TABS = [
   { id: 'pool', label: 'Pool', icon: CircleDashed },
@@ -247,68 +248,12 @@ export default function HomePage() {
                   </div>
                 </div>
 
-                <div className="relative pt-2 pb-10 px-1">
-                  {/* Ticks and Labels */}
-                  <div className="absolute top-0 left-[12px] right-[12px] flex justify-between pointer-events-none">
-                    {[10, 12, 14, 16, 18, 20].map(h => {
-                      const totalRange = 21 - 10;
-                      const percent = ((h - 10) / totalRange) * 100;
-                      return (
-                        <div key={h} className="absolute flex flex-col items-center -translate-x-1/2" style={{ left: `${percent}%` }}>
-                          <span className="text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap">
-                            {h > 12 ? h - 12 : h} {h >= 12 ? 'PM' : 'AM'}
-                          </span>
-                          <div className="w-[1.5px] h-1.5 bg-gray-300 rounded-full"></div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  {/* Track line */}
-                  <div className="absolute top-[32px] left-[12px] right-[12px] h-[3px] bg-gray-200 rounded-full">
-                    {/* Booked segments */}
-                    {HOURS.map(h => {
-                      if (bookedHours.includes(h)) {
-                        return (
-                          <div
-                            key={h}
-                            className="absolute top-0 h-full bg-red-500"
-                            style={{
-                              left: `${((h - 10) / 11) * 100}%`,
-                              width: `${(1 / 11) * 100}%`
-                            }}
-                          />
-                        );
-                      }
-                      return null;
-                    })}
-                    
-                    {/* Selection Indicator */}
-                    <div
-                      className="absolute top-0 h-full bg-[#111111] rounded-full transition-all duration-150 pointer-events-none"
-                      style={{
-                        left: `${((store.startTime - 10) / 11) * 100}%`,
-                        width: `${((store.endTime - store.startTime) / 11) * 100}%`
-                      }}
-                    >
-                      <div className="absolute left-0 top-[6px] -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111]" />
-                      <div className="absolute right-0 top-[6px] translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111]" />
-                    </div>
-                  </div>
-
-                  <input
-                    type="range"
-                    min={10}
-                    max={21 - (store.endTime - store.startTime)}
-                    step={1}
-                    value={store.startTime}
-                    onChange={(e) => {
-                      const newStart = parseInt(e.target.value);
-                      store.setTimeRange(newStart, newStart + (store.endTime - store.startTime));
-                    }}
-                    className="absolute top-[20px] left-0 right-0 w-full opacity-0 cursor-pointer h-8 z-10"
-                  />
-                </div>
+                <SliderTrack
+                  startTime={store.startTime}
+                  endTime={store.endTime}
+                  bookedHours={bookedHours}
+                  onRangeChange={(start, end) => store.setTimeRange(start, end)}
+                />
               </div>
 
               {/* Search / Proceed Button */}
