@@ -95,6 +95,23 @@ export default function HomePage() {
     return false;
   };
 
+  const userBookedHours = Array.from(new Set(
+    activeBookings
+      .filter(b => b.userId === user?.uid)
+      .flatMap((b) => {
+        const hours = [];
+        for (let h = b.startTime; h < b.endTime; h++) hours.push(h);
+        return hours;
+      })
+  ));
+
+  const hasUserConflict = () => {
+    for (let h = store.startTime; h < store.endTime; h++) {
+      if (userBookedHours.includes(h)) return true;
+    }
+    return false;
+  };
+
   const isPastTime = () => {
     const now = new Date();
     const [year, month, day] = store.selectedDate.split('-').map(Number);
@@ -297,11 +314,13 @@ export default function HomePage() {
 
               {/* Search / Proceed Button */}
               <button
-                onClick={hasTimeConflict() && !isPastTime() ? handleWaitlist : handleProceed}
-                disabled={!store.selectedAssetId || waitlisting || isPastTime()}
+                onClick={hasUserConflict() ? undefined : hasTimeConflict() && !isPastTime() ? handleWaitlist : handleProceed}
+                disabled={!store.selectedAssetId || waitlisting || isPastTime() || hasUserConflict()}
                 className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
                   isPastTime()
                     ? 'bg-arcade-border text-arcade-text-secondary'
+                    : hasUserConflict()
+                    ? 'bg-red-500 text-white'
                     : hasTimeConflict()
                     ? 'bg-amber-500 text-white hover:bg-amber-600'
                     : 'bg-foreground text-background'
@@ -311,6 +330,8 @@ export default function HomePage() {
                   'Time has passed'
                 ) : waitlisting ? (
                   <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Joining...</>
+                ) : hasUserConflict() ? (
+                  'Already Booked'
                 ) : hasTimeConflict() ? (
                   'Join Waitlist'
                 ) : (

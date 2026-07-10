@@ -2,7 +2,7 @@
 
 import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, X, ChevronRight, Shield, Tag } from 'lucide-react';
+import { ArrowLeft, X, ChevronRight, Shield, Tag, CheckCircle } from 'lucide-react';
 import { format, parse, isToday, isTomorrow, addDays } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { useAuth } from '@/lib/auth';
@@ -16,6 +16,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const { user, appUser } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [useWallet, setUseWallet] = useState(false);
@@ -77,8 +78,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         protection: store.protection,
       });
 
-      store.reset();
-      router.replace('/bookings?success=true');
+      setShowSuccessModal(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create booking');
     }
@@ -288,6 +288,29 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           )}
         </button>
       </div>
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl p-8 w-full max-w-sm flex flex-col items-center text-center shadow-xl animate-scale-in">
+            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle size={40} className="text-green-500" />
+            </div>
+            <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Booking Confirmed!</h2>
+            <p className="text-sm text-gray-500 mb-8 font-medium leading-relaxed">
+              You have successfully booked {store.selectedAssetName} for {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}.
+            </p>
+            <button
+              onClick={() => {
+                store.reset();
+                router.replace('/bookings?success=true');
+              }}
+              className="w-full bg-[#111111] text-white py-4 rounded-full font-bold shadow-md hover:bg-black transition-colors"
+            >
+              View My Bookings
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
