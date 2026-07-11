@@ -189,11 +189,11 @@ export default function LoginPage() {
         </div>
 
         {/* Login/Signup Card (Glassmorphism) */}
-        <div className="glass-panel rounded-2xl p-lg md:p-xl relative overflow-hidden border-white/10 shadow-xl shadow-black/50">
+        <div className="glass-panel rounded-2xl p-6 md:p-8 relative overflow-hidden border-white/10 shadow-xl shadow-black/50">
           {/* Subtle Inner Glow (Top Left) */}
           <div className="absolute top-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
           
-          <form onSubmit={handleSubmit} className="space-y-lg relative z-10">
+          <form onSubmit={handleSubmit} className="space-y-6 relative z-10">
             
             {/* Sign Up Fields */}
             {authMode === 'signup' && (
@@ -202,13 +202,13 @@ export default function LoginPage() {
                   <div className="flex-1 space-y-sm">
                     <label className="font-label-md text-label-md text-on-surface-variant block">First Name</label>
                     <div className="relative">
-                      <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]">badge</span>
+                      <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]">badge</span>
                       <input
                         type="text"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
                         placeholder="Neon"
-                        className="input-dark w-full rounded-lg py-md pl-11 pr-md text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
+                        className="input-dark w-full rounded-lg py-3 pl-10 pr-3 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
                       />
                     </div>
                   </div>
@@ -219,7 +219,7 @@ export default function LoginPage() {
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       placeholder="Rider"
-                      className="input-dark w-full rounded-lg py-md px-md text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
+                      className="input-dark w-full rounded-lg py-3 px-3 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
                     />
                   </div>
                 </div>
@@ -227,13 +227,13 @@ export default function LoginPage() {
                 <div className="space-y-sm pt-2">
                   <label className="font-label-md text-label-md text-on-surface-variant block">Phone Number</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]">call</span>
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]">call</span>
                     <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                       placeholder="9876543210"
-                      className="input-dark w-full rounded-lg py-md pl-11 pr-md text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
+                      className="input-dark w-full rounded-lg py-3 pl-10 pr-3 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
                     />
                   </div>
                 </div>
@@ -247,9 +247,9 @@ export default function LoginPage() {
                 <div className="space-y-sm">
                   <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="email">Email Address</label>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>mail</span>
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>mail</span>
                     <input 
-                      className="input-dark w-full rounded-lg py-md pl-11 pr-md text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0" 
+                      className="input-dark w-full rounded-lg py-3 pl-10 pr-3 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0" 
                       id="email" 
                       name="email" 
                       type="email"
@@ -275,9 +275,9 @@ export default function LoginPage() {
                     )}
                   </div>
                   <div className="relative">
-                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>lock</span>
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>lock</span>
                     <input 
-                      className="input-dark w-full rounded-lg py-md pl-11 pr-11 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0 tracking-widest" 
+                      className="input-dark w-full rounded-lg py-3 pl-10 pr-10 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0 tracking-widest" 
                       id="password" 
                       name="password" 
                       type={showPassword ? 'text' : 'password'}
@@ -288,7 +288,7 @@ export default function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-white transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-white transition-colors"
                     >
                       <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility' : 'visibility_off'}</span>
                     </button>
@@ -327,7 +327,7 @@ export default function LoginPage() {
             <button 
               type="submit"
               disabled={loading}
-              className="btn-gradient w-full rounded-lg py-md px-lg font-label-md text-label-md text-background font-bold flex items-center justify-center gap-sm disabled:opacity-50 mt-8"
+              className="btn-gradient w-full rounded-lg py-3 px-6 font-label-md text-label-md text-background font-bold flex items-center justify-center gap-sm disabled:opacity-50 mt-8"
             >
               {loading ? (
                 <>
