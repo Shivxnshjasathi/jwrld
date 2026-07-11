@@ -13,7 +13,22 @@ function formatPrivateKey(key: string | undefined): string | undefined {
   }
   
   // Replace unescaped literal '\n' characters with actual newlines
-  return formatted.replace(/\\n/g, '\n');
+  formatted = formatted.replace(/\\n/g, '\n');
+  
+  // Vercel sometimes flattens multiline env variables into a single line with spaces
+  if (formatted.includes('-----BEGIN PRIVATE KEY-----') && !formatted.includes('\n')) {
+    formatted = formatted.replace('-----BEGIN PRIVATE KEY----- ', '-----BEGIN PRIVATE KEY-----\n');
+    formatted = formatted.replace(' -----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
+    
+    // Now split and replace spaces with newlines ONLY in the key body
+    const parts = formatted.split('\n');
+    if (parts.length === 3) {
+      parts[1] = parts[1].replace(/ /g, '\n');
+      formatted = parts.join('\n');
+    }
+  }
+  
+  return formatted;
 }
 
 export function getFirebaseAdminApp() {
