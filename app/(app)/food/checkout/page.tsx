@@ -85,7 +85,7 @@ export default function FoodCheckoutPage() {
 
       <div className="relative z-10 w-full max-w-md min-w-[360px] px-5 mx-auto pt-24">
         {/* Header */}
-        <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-md border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
+        <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-4 border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
           <button
             onClick={() => router.back()}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200 mr-sm hover:bg-white/10"
@@ -101,17 +101,17 @@ export default function FoodCheckoutPage() {
         {/* Table Number */}
         <section className="mb-6 mt-6">
           <h2 className="font-headline-md text-[20px] font-bold mb-4 text-on-surface">Where are you seated?</h2>
-          <div className="relative glass-panel rounded-2xl border border-white/10 p-5">
-            <label htmlFor="tableNumber" className="font-label-sm text-[12px] font-bold text-on-surface-variant block mb-3 uppercase tracking-widest">Table / Station</label>
+          <div className="relative glass-panel rounded-2xl border border-white/10 p-4">
+            <label htmlFor="tableNumber" className="font-label-sm text-[12px] font-bold text-on-surface-variant block mb-2 uppercase tracking-widest">Table / Station</label>
             <div className="relative">
-              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>chair</span>
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>chair</span>
               <input
                 id="tableNumber"
                 type="text"
                 value={tableNumber}
                 onChange={(e) => setTableNumber(e.target.value)}
                 placeholder="e.g. Pool Table 1, PS5 Station 2..."
-                className="w-full bg-[#050505] border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-4 pl-12 pr-4 text-[14px] font-bold text-white placeholder-on-surface-variant/50 transition-all shadow-inner"
+                className="w-full bg-[#050505] border border-white/10 focus:border-primary focus:ring-1 focus:ring-primary rounded-xl py-3 pl-10 pr-3 text-[14px] font-bold text-white placeholder-on-surface-variant/50 transition-all shadow-inner"
               />
             </div>
           </div>
@@ -120,7 +120,7 @@ export default function FoodCheckoutPage() {
         {/* Order Summary */}
         <section className="mb-8">
           <h2 className="font-headline-md text-[20px] font-bold mb-4 text-on-surface">Order Summary</h2>
-          <div className="glass-panel rounded-2xl border border-white/10 p-5 relative overflow-hidden group">
+          <div className="glass-panel rounded-2xl border border-white/10 p-4 relative overflow-hidden group">
             {/* Inner Glow */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl pointer-events-none transition-all group-hover:bg-primary/10"></div>
             
@@ -136,9 +136,9 @@ export default function FoodCheckoutPage() {
               ))}
             </div>
             
-            <div className="border-t border-dashed border-white/20 my-5 relative z-10" />
+            <div className="border-t border-dashed border-white/20 my-4 relative z-10" />
             
-            <div className="flex justify-between items-end relative z-10 bg-white/5 p-4 rounded-xl border border-white/5">
+            <div className="flex justify-between items-end relative z-10 bg-white/5 p-3 rounded-xl border border-white/5">
               <span className="font-bold text-[12px] text-on-surface-variant uppercase tracking-widest">Total</span>
               <span className="font-display-md text-[28px] font-black text-primary neon-text-primary leading-none">₹{totalAmount}</span>
             </div>
@@ -152,7 +152,7 @@ export default function FoodCheckoutPage() {
         <button 
           onClick={handlePlaceOrder} 
           disabled={!tableNumber.trim() || isSubmitting}
-          className="btn-gradient w-full py-4 rounded-xl font-bold text-[14px] uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2 neon-glow-primary text-background disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(221,183,255,0.4)]"
+          className="btn-gradient w-full py-3 rounded-xl font-bold text-[14px] uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2 neon-glow-primary text-background disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(221,183,255,0.4)]"
         >
           <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>
             {isSubmitting ? 'hourglass_empty' : 'send'}

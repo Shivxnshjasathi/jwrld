@@ -147,7 +147,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     <div className="min-h-dvh bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary/30">
       
       {/* Header */}
-      <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-md border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
+      <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-4 border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
         <button
           onClick={() => router.back()}
           className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
@@ -155,60 +155,60 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div>
-          <h1 className="text-[20px] font-bold text-on-surface leading-tight header-glow">Checkout</h1>
-          <p className="text-[11px] text-primary font-bold tracking-widest uppercase">Jaaduwrld</p>
+          <h1 className="text-[16px] font-bold text-on-surface leading-tight header-glow">Checkout</h1>
+          <p className="text-[10px] text-primary font-bold tracking-widest uppercase">Jaaduwrld</p>
         </div>
       </header>
 
-      <div className="px-5 space-y-4 pt-6 pb-32">
+      <div className="px-5 space-y-3 pt-4 pb-32">
         {/* Booking Summary Card */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 relative overflow-hidden group">
+        <div className="glass-panel p-3 rounded-xl border border-white/10 relative overflow-hidden group">
           <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-secondary"></div>
           <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-[16px] font-bold text-white">
+              <p className="text-[14px] font-bold text-white">
                 {getDateLabel()}, {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}
               </p>
-              <p className="text-[14px] text-primary mt-1 font-bold">
+              <p className="text-[12px] text-primary mt-0.5 font-bold">
                 {store.selectedAssetName}
               </p>
             </div>
             <button
               onClick={handleRemoveBooking}
-              className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 transition-colors text-on-surface-variant hover:text-red-400"
+              className="w-7 h-7 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 transition-colors text-on-surface-variant hover:text-red-400"
             >
-              <span className="material-symbols-outlined text-[16px]">close</span>
+              <span className="material-symbols-outlined text-[14px]">close</span>
             </button>
           </div>
         </div>
 
         {/* Apply Coupon */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10">
+        <div className="glass-panel p-3 rounded-xl border border-white/10">
           <button
             onClick={() => setShowCouponInput(!showCouponInput)}
             className="flex items-center justify-between w-full text-on-surface hover:text-primary transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-container-high border border-white/5 flex items-center justify-center text-primary">
-                <span className="material-symbols-outlined text-[18px]">local_offer</span>
+              <div className="w-8 h-8 rounded-full bg-surface-container-high border border-white/5 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-[16px]">local_offer</span>
               </div>
-              <span className="text-[14px] font-bold">Apply Coupon</span>
+              <span className="text-[13px] font-bold">Apply Coupon</span>
             </div>
-            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+            <span className="material-symbols-outlined text-[18px]">chevron_right</span>
           </button>
 
           {showCouponInput && (
-            <div className="mt-4 flex gap-2 animate-fade-in">
+            <div className="mt-3 flex gap-2 animate-fade-in">
               <input
                 type="text"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 placeholder="Enter coupon code"
-                className="flex-1 px-4 py-3 bg-[#050505] border border-white/10 rounded-full text-[14px] font-bold text-white focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none transition-all placeholder:text-on-surface-variant/50 uppercase"
+                className="flex-1 px-3 py-2 bg-[#050505] border border-white/10 rounded-lg text-[13px] font-bold text-white focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none transition-all placeholder:text-on-surface-variant/50 uppercase"
               />
               <button
                 onClick={handleApplyCoupon}
-                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-[14px] font-bold border border-white/20 transition-all active:scale-95"
+                className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[13px] font-bold border border-white/20 transition-all active:scale-95"
               >
                 Apply
               </button>
@@ -216,9 +216,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           )}
 
           {store.couponDiscount > 0 && (
-            <div className="mt-4 bg-secondary/10 border border-secondary/30 rounded-xl px-4 py-3 animate-scale-in">
-              <p className="text-[12px] font-bold text-secondary flex items-center gap-2">
-                <span className="material-symbols-outlined text-[16px]">celebration</span>
+            <div className="mt-3 bg-secondary/10 border border-secondary/30 rounded-lg px-3 py-2 animate-scale-in">
+              <p className="text-[11px] font-bold text-secondary flex items-center gap-2">
+                <span className="material-symbols-outlined text-[14px]">celebration</span>
                 Wohoo! you can avail {store.couponDiscount} off
               </p>
             </div>
@@ -226,10 +226,10 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         </div>
 
         {/* Payment Method */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10">
-          <h3 className="text-[12px] font-bold text-on-surface-variant tracking-widest uppercase mb-4">PAYMENT METHOD</h3>
-          <div className="flex flex-col gap-3">
-            <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
+        <div className="glass-panel p-3 rounded-xl border border-white/10">
+          <h3 className="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase mb-3">PAYMENT METHOD</h3>
+          <div className="flex flex-col gap-2">
+            <label className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
               <div className="flex items-center gap-3">
                 <input 
                   type="radio" 
@@ -240,17 +240,17 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                   className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
                 />
                 <div>
-                  <span className="text-[14px] font-bold text-white block flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[16px] text-primary">account_balance_wallet</span>
+                  <span className="text-[13px] font-bold text-white block flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[14px] text-primary">account_balance_wallet</span>
                     Arcade Wallet
                   </span>
-                  <span className={`text-[12px] font-bold mt-1 block ${((appUser?.walletBalance || 0) < totalAmount) ? 'text-red-400' : 'text-secondary'}`}>
+                  <span className={`text-[11px] font-bold mt-0.5 block ${((appUser?.walletBalance || 0) < totalAmount) ? 'text-red-400' : 'text-secondary'}`}>
                     Balance: {formatPrice(appUser?.walletBalance || 0)}
                   </span>
                 </div>
               </div>
             </label>
-            <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${!useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
+            <label className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${!useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
               <div className="flex items-center gap-3">
                 <input 
                   type="radio" 
@@ -259,8 +259,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                   onChange={() => setUseWallet(false)}
                   className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
                 />
-                <span className="text-[14px] font-bold text-white block flex items-center gap-2">
-                  <span className="material-symbols-outlined text-[16px] text-primary">storefront</span>
+                <span className="text-[13px] font-bold text-white block flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[14px] text-primary">storefront</span>
                   Pay at Counter
                 </span>
               </div>
@@ -269,40 +269,40 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         </div>
 
         {/* Total Amount */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10">
+        <div className="glass-panel p-4 rounded-xl border border-white/10">
           <button 
             onClick={() => setShowTotalBreakdown(!showTotalBreakdown)}
             className="flex items-center justify-between w-full"
           >
             <div>
-              <p className="text-[12px] font-bold text-on-surface-variant tracking-widest uppercase">TOTAL AMOUNT</p>
+              <p className="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase">TOTAL AMOUNT</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[20px] font-black text-primary neon-text-primary">{formatPrice(totalAmount)}</span>
-              <span className={`material-symbols-outlined text-[20px] text-on-surface-variant transition-transform ${showTotalBreakdown ? 'rotate-90' : ''}`}>
+              <span className="text-[18px] font-black text-primary neon-text-primary">{formatPrice(totalAmount)}</span>
+              <span className={`material-symbols-outlined text-[18px] text-on-surface-variant transition-transform ${showTotalBreakdown ? 'rotate-90' : ''}`}>
                 chevron_right
               </span>
             </div>
           </button>
           
           {showTotalBreakdown && (
-            <div className="mt-4 pt-4 border-t border-white/10 space-y-2 animate-fade-in">
-              <div className="flex justify-between text-[14px]">
+            <div className="mt-3 pt-3 border-t border-white/10 space-y-1.5 animate-fade-in">
+              <div className="flex justify-between text-[13px]">
                 <span className="text-on-surface-variant">Base Price ({store.endTime - store.startTime} hrs)</span>
                 <span className="text-white">{formatPrice((store.selectedAssetPrice || 0) * (store.endTime - store.startTime))}</span>
               </div>
-              <div className="flex justify-between text-[14px]">
+              <div className="flex justify-between text-[13px]">
                 <span className="text-on-surface-variant">GST (18%)</span>
                 <span className="text-white">{formatPrice((store.selectedAssetPrice || 0) * (store.endTime - store.startTime) * 0.18)}</span>
               </div>
               {store.protection && (
-                <div className="flex justify-between text-[14px]">
+                <div className="flex justify-between text-[13px]">
                   <span className="text-on-surface-variant">Protection Plan</span>
                   <span className="text-white">₹9.00</span>
                 </div>
               )}
               {store.couponDiscount > 0 && (
-                <div className="flex justify-between text-[14px] text-secondary font-bold">
+                <div className="flex justify-between text-[13px] text-secondary font-bold">
                   <span>Coupon Discount</span>
                   <span>-{formatPrice(store.couponDiscount)}</span>
                 </div>
@@ -312,11 +312,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         </div>
 
         {/* Reschedule Policy */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 bg-white/5">
-          <h3 className="text-[12px] font-bold text-white tracking-widest uppercase mb-2">
+        <div className="glass-panel p-4 rounded-xl border border-white/10 bg-white/5">
+          <h3 className="text-[10px] font-bold text-white tracking-widest uppercase mb-1.5">
             RESCHEDULE POLICIES
           </h3>
-          <p className="text-[12px] text-on-surface-variant leading-relaxed">
+          <p className="text-[11px] text-on-surface-variant leading-relaxed">
             Rescheduling is allowed 1.0 Hour prior to slot time. Rescheduling of a booking can be done
             only 3 times.{' '}
             {expandReschedule ? (
@@ -334,11 +334,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         </div>
 
         {/* Cancellation Policy */}
-        <div className="glass-panel p-5 rounded-2xl border border-white/10 bg-white/5">
-          <h3 className="text-[12px] font-bold text-white tracking-widest uppercase mb-2">
+        <div className="glass-panel p-4 rounded-xl border border-white/10 bg-white/5">
+          <h3 className="text-[10px] font-bold text-white tracking-widest uppercase mb-1.5">
             CANCELLATION POLICY
           </h3>
-          <p className="text-[12px] text-on-surface-variant leading-relaxed">
+          <p className="text-[11px] text-on-surface-variant leading-relaxed">
             Cancellation is allowed up to 2 hours before the slot. A cancellation fee of 10% will be charged.{' '}
             {expandCancel ? (
               <>
@@ -355,23 +355,23 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         </div>
 
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-[14px] font-bold p-4 rounded-xl animate-scale-in flex items-center gap-2">
-            <span className="material-symbols-outlined text-[18px]">error</span>
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-[13px] font-bold p-3 rounded-xl animate-scale-in flex items-center gap-2">
+            <span className="material-symbols-outlined text-[16px]">error</span>
             {error}
           </div>
         )}
       </div>
 
       {/* Sticky Pay Button */}
-      <div className="fixed bottom-0 pb-8 left-0 right-0 px-5 z-40 pointer-events-none">
+      <div className="fixed bottom-0 pb-6 left-0 right-0 px-5 z-40 pointer-events-none">
         <button
           onClick={handlePayment}
           disabled={loading}
-          className="btn-gradient w-full py-4 rounded-xl font-bold text-[14px] uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2 neon-glow-primary text-background pointer-events-auto"
+          className="btn-gradient w-full py-3.5 rounded-xl font-bold text-[13px] uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2 neon-glow-primary text-background pointer-events-auto"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <span className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin" />
+              <span className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
               Processing...
             </span>
           ) : (
