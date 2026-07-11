@@ -175,8 +175,8 @@ export default function AdminDashboard() {
               <a onClick={() => router.push('/admin/settings')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Settings</a>
               <a onClick={() => router.push('/admin/history')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">History</a>
               <a onClick={() => router.push('/admin/wallet')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Wallet</a>
-              <a onClick={() => router.push('/admin/messages')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Messages</a>
               <a onClick={() => router.push('/admin/events')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Events</a>
+              <a onClick={() => router.push('/admin/broadcast')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Broadcast</a>
               <a onClick={() => router.push('/admin/revenue')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Revenue</a>
             </nav>
 
@@ -562,8 +562,9 @@ export default function AdminDashboard() {
             <a onClick={() => router.push('/admin/history')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-tertiary">history</span> History</a>
             <a onClick={() => router.push('/admin/wallet')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-primary">account_balance_wallet</span> Wallet</a>
             <a onClick={() => router.push('/admin/messages')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-secondary">forum</span> Messages</a>
-            <a onClick={() => router.push('/admin/revenue')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-tertiary">payments</span> Revenue</a>
             <a onClick={() => router.push('/admin/events')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-primary">event_available</span> Events</a>
+            <a onClick={() => router.push('/admin/broadcast')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-secondary">campaign</span> Broadcast</a>
+            <a onClick={() => router.push('/admin/revenue')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-tertiary">payments</span> Revenue</a>
           </nav>
         </div>
       )}

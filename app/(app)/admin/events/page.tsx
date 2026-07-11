@@ -13,7 +13,7 @@ export default function AdminEventsPage() {
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
-  const { isAdmin } = useAuth();
+  const { isAdmin, profileLoading } = useAuth();
 
   // Form state
   const [title, setTitle] = useState('');
@@ -25,11 +25,6 @@ export default function AdminEventsPage() {
   const [maxParticipants, setMaxParticipants] = useState(16);
 
   useEffect(() => {
-    if (isAdmin === false) {
-      router.replace('/');
-      return;
-    }
-    
     const db = getFirebaseDb();
     const q = query(collection(db, 'events'), orderBy('createdAt', 'desc'));
     const unsubscribe = onSnapshot(q, (snap) => {
