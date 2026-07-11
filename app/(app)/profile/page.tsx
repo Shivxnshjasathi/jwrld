@@ -8,6 +8,7 @@ import { getFirebaseDb } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
 
 const MENU_ITEMS = [
+  { icon: 'event_available', label: 'Tournaments & Events', href: '/events', color: 'text-primary' },
   { icon: 'calendar_month', label: 'My Bookings', href: '/bookings', color: 'text-secondary' },
   { icon: 'help', label: 'Help & Support', href: '/help', color: 'text-primary' },
   { icon: 'shield', label: 'Privacy Policy', href: '/privacy', color: 'text-on-surface-variant' },
@@ -84,6 +85,35 @@ export default function ProfilePage() {
                 {appUser?.name || 'Arcade Player'}
               </p>
               <p className="text-on-surface-variant text-[14px] mt-1">{appUser?.email}</p>
+            </div>
+          </div>
+
+          {/* Gamification Section */}
+          <div className="glass-panel rounded-xl p-md mt-md">
+            <div className="flex justify-between items-end mb-sm">
+              <div>
+                <h3 className="font-body-lg text-[18px] text-on-surface font-bold uppercase tracking-wider text-primary">
+                  {appUser?.tier || 'Bronze'} Tier
+                </h3>
+                <p className="text-[12px] text-on-surface-variant">Jaadu XP</p>
+              </div>
+              <div className="text-right">
+                <p className="font-display-md text-[24px] font-bold text-white leading-none">
+                  {appUser?.xp || 0}
+                </p>
+                <p className="text-[10px] text-on-surface-variant">
+                  {appUser?.tier === 'Diamond' ? 'Max Rank' : `Next tier at ${appUser?.tier === 'Gold' ? '10000' : (appUser?.tier === 'Silver' ? '5000' : '1000')} XP`}
+                </p>
+              </div>
+            </div>
+            
+            <div className="w-full bg-surface-container-high h-2 rounded-full overflow-hidden relative">
+              <div 
+                className="absolute top-0 left-0 h-full bg-primary rounded-full" 
+                style={{ 
+                  width: `${appUser?.tier === 'Diamond' ? 100 : Math.min(100, Math.max(0, ((appUser?.xp || 0) / (appUser?.tier === 'Gold' ? 10000 : (appUser?.tier === 'Silver' ? 5000 : 1000))) * 100))}%` 
+                }}
+              ></div>
             </div>
           </div>
 

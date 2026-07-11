@@ -36,6 +36,19 @@ service cloud.firestore {
       );
     }
 
+    // Events & Tournaments
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Event Registrations
+    match /event_registrations/{regId} {
+      allow read: if isOwner(resource.data.userId) || isAdmin();
+      allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
+      allow update, delete: if isAdmin();
+    }
+    
     // Chats and messages for the messaging feature
     match /chats/{userId} {
       allow read, write: if request.auth != null;

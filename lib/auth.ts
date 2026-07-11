@@ -33,6 +33,8 @@ export interface AppUser {
   photoURL: string | null;
   walletBalance: number;
   fcmToken?: string | null;
+  xp: number;
+  tier: 'Bronze' | 'Silver' | 'Gold' | 'Diamond';
 }
 
 let confirmationResult: ConfirmationResult | null = null;
@@ -117,6 +119,8 @@ export async function signUpWithEmail(email: string, password: string, name: str
       photoURL: null,
       walletBalance: 0,
       fcmToken,
+      xp: 0,
+      tier: 'Bronze',
       createdAt: new Date().toISOString(),
     };
     await setDoc(userRef, userData);
@@ -199,6 +203,8 @@ export async function signInAsGuest(): Promise<User | null> {
       photoURL: null,
       walletBalance: 0,
       fcmToken,
+      xp: 0,
+      tier: 'Bronze',
       createdAt: new Date().toISOString(),
     };
     await setDoc(userRef, userData);
@@ -245,6 +251,8 @@ async function createOrUpdateUser(user: User) {
         photoURL: user.photoURL || null,
         walletBalance: 0,
         fcmToken,
+        xp: 0,
+        tier: 'Bronze',
         createdAt: new Date().toISOString(),
       });
     } else {

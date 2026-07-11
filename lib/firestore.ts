@@ -104,6 +104,28 @@ export interface GlobalSettings {
   allowGuestBooking: boolean;
 }
 
+export interface Event {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  time: string;
+  entryFee: number;
+  prizePool: string;
+  maxParticipants: number;
+  currentParticipants: number;
+  status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
+  createdAt: string;
+}
+
+export interface EventRegistration {
+  id: string;
+  eventId: string;
+  userId: string;
+  userName: string;
+  registeredAt: string;
+}
+
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
 function getDb() {
@@ -111,6 +133,25 @@ function getDb() {
     throw new Error('Firebase not configured. Add your credentials to .env.local');
   }
   return getFirebaseDb();
+}
+
+export async function awardXP(userId: string, amount: number) {
+  if (!userId) return;
+  const db = getDb();
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+  
+  if (userSnap.exists()) {
+    const data = userSnap.data();
+    const newXp = (data.xp || 0) + amount;
+    
+    let newTier = 'Bronze';
+    if (newXp >= 10000) newTier = 'Diamond';
+    else if (newXp >= 5000) newTier = 'Gold';
+    else if (newXp >= 1000) newTier = 'Silver';
+    
+    await updateDoc(userRef, { xp: newXp, tier: newTier });
+  }
 }
 
 // ─── Assets ──────────────────────────────────────────────────────────────────
@@ -244,6 +285,12 @@ export async function updateBookingStatus(bookingId: string, status: Booking['st
       'Booking Update',
       `Your booking for ${data.assetName} has been ${readableStatus}.`
     ).catch(console.error);
+    
+    // Gamification: Award XP on completion (e.g. 10 XP per ₹100 spent -> XP = totalAmount / 10)
+    if (status === 'completed' && data.userId) {
+      const xpToAward = Math.floor(data.totalAmount / 10);
+      awardXP(data.userId, xpToAward).catch(console.error);
+    }
   }
 }
 
@@ -451,6 +498,12 @@ export async function updateFoodOrderStatus(orderId: string, status: 'completed'
       'Food Order Update',
       `Your food order is now ${status}.`
     ).catch(console.error);
+    
+    // Gamification: Award XP on completion
+    if (status === 'completed' && data.userId) {
+      const xpToAward = Math.floor(data.totalAmount / 10);
+      awardXP(data.userId, xpToAward).catch(console.error);
+    }
   }
 }
 

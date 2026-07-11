@@ -2,9 +2,55 @@
 
 import { useRouter } from 'next/navigation';
 import { useAppStore } from '@/lib/store';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/lib/auth';
+import { requestNotificationPermission } from '@/lib/firebase';
+import { toast } from 'react-hot-toast';
 
 export default function SettingsPage() {
   const router = useRouter();
+  const { appUser } = useAuth();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (appUser?.fcmToken) {
+      setNotificationsEnabled(true);
+    }
+  }, [appUser]);
+
+  const handleTogglePush = async () => {
+    if (notificationsEnabled) {
+      toast('Notifications are already enabled for this device.', { icon: 'ℹ️' });
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const token = await requestNotificationPermission();
+      if (token) {
+        setNotificationsEnabled(true);
+        toast.success('Push notifications enabled!');
+        
+        // Wait! We also need to update user doc if not done by requestNotificationPermission.
+        // Actually requestNotificationPermission just returns the token. We need to save it to Firestore.
+        // I will do that inside the component or update lib/firebase to do it.
+        // Let's call an API or updateDoc directly.
+        const { doc, updateDoc } = await import('firebase/firestore');
+        const { getFirebaseDb } = await import('@/lib/firebase');
+        if (appUser) {
+          const db = getFirebaseDb();
+          await updateDoc(doc(db, 'users', appUser.uid), { fcmToken: token });
+        }
+      } else {
+        toast.error('Permission denied or failed to get token.');
+      }
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to enable notifications');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-dvh bg-[#0A0A0B] text-on-surface selection:bg-primary/30 pb-24 font-body-md relative overflow-hidden">
@@ -32,9 +78,13 @@ export default function SettingsPage() {
               <p className="text-[14px] font-bold text-white">Push Notifications</p>
               <p className="text-[12px] text-on-surface-variant mt-1">Receive alerts for bookings and messages</p>
             </div>
-            <div className="w-12 h-6 bg-white/5 rounded-full relative cursor-not-allowed border border-white/10">
-              <div className="w-4 h-4 bg-on-surface-variant/50 rounded-full absolute right-1 top-1"></div>
-            </div>
+            <button 
+              onClick={handleTogglePush}
+              disabled={isLoading}
+              className={`w-12 h-6 rounded-full relative transition-colors ${notificationsEnabled ? 'bg-primary' : 'bg-white/5 border border-white/10'}`}
+            >
+              <div className={`w-4 h-4 rounded-full absolute top-1 transition-all ${notificationsEnabled ? 'bg-background right-1' : 'bg-on-surface-variant/50 left-1'}`}></div>
+            </button>
           </div>
 
           <div className="flex items-center justify-between py-4 border-b border-white/10">
