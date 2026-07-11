@@ -35,9 +35,9 @@ export function getCategoryIcon(category: string): string {
 }
 
 export const ASSET_PRICES: Record<string, number> = {
-  pool: 400,
-  snooker: 500,
-  ps5: 350,
+  pool: 100,
+  snooker: 250,
+  ps5: 100,
 };
 
 export const OPERATING_HOURS = {
@@ -46,7 +46,7 @@ export const OPERATING_HOURS = {
 };
 
 export const CATEGORIES = [
-  { id: 'pool', name: '8-Ball Pool', count: 3, price: 400 },
-  { id: 'snooker', name: 'Snooker', count: 2, price: 500 },
-  { id: 'ps5', name: 'PS5 Gaming', count: 4, price: 350 },
+  { id: 'pool', name: '8-Ball Pool', count: 3, price: 100 },
+  { id: 'snooker', name: 'Snooker', count: 2, price: 250 },
+  { id: 'ps5', name: 'PS5 Gaming', count: 2, price: 100 },
 ];

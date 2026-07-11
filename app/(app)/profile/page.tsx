@@ -61,21 +61,21 @@ export default function ProfilePage() {
       </header>
 
       <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto md:grid md:grid-cols-12 md:gap-gutter relative z-10">
-        
+
         {/* Left Column: Digital Wallet / ID Card */}
         <section className="md:col-span-5 lg:col-span-4 mb-xl">
           <h1 className="font-headline-md text-[28px] md:text-[32px] font-bold mb-lg text-white">Profile</h1>
-          
+
           {/* ID Card Component */}
           <div className="card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between">
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none"></div>
             <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none"></div>
-            
+
             <div className="flex justify-between items-start z-10 relative">
               <span className="material-symbols-outlined text-on-surface/80 text-[32px]">contactless</span>
               <span className="font-label-md text-[14px] text-on-surface/60 uppercase tracking-widest font-bold">Jaadu Pass</span>
             </div>
-            
+
             <div className="z-10 relative mt-auto">
               <p className="font-label-sm text-[12px] text-on-surface-variant mb-xs font-bold uppercase tracking-wider">
                 {isAdmin ? 'Admin Access' : 'Player Access'}
@@ -89,7 +89,7 @@ export default function ProfilePage() {
 
           <div className="grid grid-cols-2 gap-md mt-md">
             {isAdmin && (
-              <button 
+              <button
                 onClick={() => router.push('/admin')}
                 className="col-span-2 glass-panel rounded-lg py-sm px-md flex items-center justify-center gap-sm hover:bg-white/10 transition-colors border-primary/30 text-primary"
               >
@@ -97,9 +97,9 @@ export default function ProfilePage() {
                 <span className="font-label-md text-[14px] font-bold">Admin Dashboard</span>
               </button>
             )}
-            
+
             {!isAdmin && appUser?.email === 'shivanshjasathi052004@gmail.com' && (
-              <button 
+              <button
                 onClick={handleMakeAdmin}
                 className="col-span-2 glass-panel rounded-lg py-sm px-md flex items-center justify-center gap-sm hover:bg-white/10 transition-colors border-dashed border-white/20 text-on-surface-variant"
               >
@@ -113,10 +113,10 @@ export default function ProfilePage() {
         {/* Right Column: Settings & Actions */}
         <section className="md:col-span-7 lg:col-span-8">
           <h2 className="font-headline-md text-[24px] font-bold mb-lg text-white">Account Actions</h2>
-          
+
           <div className="space-y-md">
             {MENU_ITEMS.map((item, idx) => (
-              <div 
+              <div
                 key={item.label}
                 onClick={() => item.href !== '#' && router.push(item.href)}
                 className="glass-panel rounded-xl p-md flex items-center justify-between group hover:bg-white/[0.08] transition-all cursor-pointer"
@@ -135,10 +135,10 @@ export default function ProfilePage() {
               </div>
             ))}
 
-            </div>
+          </div>
           {/* Settings & Sign Out */}
           <div className="mt-xl border-t border-outline-variant/20 pt-lg space-y-sm">
-            <button 
+            <button
               onClick={() => router.push('/settings')}
               className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-white/10 transition-colors"
             >
@@ -148,7 +148,7 @@ export default function ProfilePage() {
               </div>
               <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
             </button>
-            <button 
+            <button
               onClick={handleSignOut}
               className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-error/10 transition-colors border-error/20"
             >

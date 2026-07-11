@@ -108,9 +108,9 @@ export async function getAssets(): Promise<Asset[]> {
 
 export async function getAssetsByCategory(category: string): Promise<Asset[]> {
   const assets: Asset[] = [
-    { id: 'pool-table-1', name: 'Pool Table 1', category: 'pool', status: 'active', price: 400 },
-    { id: 'snooker-table-1', name: 'Snooker Table 1', category: 'snooker', status: 'active', price: 500 },
-    { id: 'ps5-station-1', name: 'PS5 Station 1', category: 'ps5', status: 'active', price: 350 },
+    { id: 'pool-table-1', name: 'Pool Table 1', category: 'pool', status: 'active', price: 100 },
+    { id: 'snooker-table-1', name: 'Snooker Table 1', category: 'snooker', status: 'active', price: 250 },
+    { id: 'ps5-station-1', name: 'PS5 Station 1', category: 'ps5', status: 'active', price: 100 },
   ];
   return assets.filter(a => a.category === category && a.status === 'active');
 }

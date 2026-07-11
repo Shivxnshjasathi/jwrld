@@ -8,12 +8,12 @@ import type { FoodItem } from '@/lib/firestore';
 const SNACKS = [
   { id: 'fries', name: 'French Fries', price: 150, desc: 'Crispy golden fries with our secret seasoning.', image: 'https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&q=80&w=600' },
   { id: 'nachos', name: 'Loaded Nachos', price: 200, desc: 'Tortilla chips loaded with cheese and jalapenos.', image: 'https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?auto=format&fit=crop&q=80&w=600' },
-  { id: 'burger', name: 'Wagyu Bytes', price: 250, desc: 'Premium wagyu slider with black truffle aioli.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAab6cbW54Zx1n7-moUVohFUkV-6SEpmkkGDOZkshAo-rV5G0xiersXIzV_9ga7Tmt8g-0JiBfud_nhpy91CRUBASCyt0ZGSbpBiHLc1JonR9lP_4qXmX6e43tYgxfNXUekuAspqUd2qMTMqFiymj-hqf3uyXVyjTa2ROraoUDUpSY4gWBHpexz7SGmz-G8oBsKpL7sO0FAUCrK4JcndxKRxAE_jdy-X6P9rTtxffSPHyioU5HJHYQQkymswmKFBCEnQDrBeTjX715z' },
-  { id: 'pizza', name: 'Pixel Margherita', price: 300, desc: 'San Marzano base, fior di latte on charcoal crust.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuC93chL3YhTJgAsp-9u4AbRsK3X-R8o-gy48npuFsR9PpED604u-rdVqr2Kg9QsrQd7WND4UzoJx2YksrYaI7DW8XospNqdGj7qneaZss6cT5VBI0HHZK0OnXK3eDasfYOxsbds7RSOzJOKlzpCSeW4pYuOGkC2BJKvzXNK_W6bixoi6KgCkswORL4o7UggQNyHYgZD_RdfmssvfHc3Y9iqb4-StE9UCQs80iap-jFRImJPzc9b8rZo2XmPxo4r2rYB5SdZxWgaBJQS' },
+  { id: 'burger', name: 'Wagyu Bytes', price: 250, desc: 'Premium wagyu slider with black truffle aioli.', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&q=80&w=600' },
+  { id: 'pizza', name: 'Pixel Margherita', price: 300, desc: 'San Marzano base, fior di latte on charcoal crust.', image: 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?auto=format&fit=crop&q=80&w=600' },
 ];
 
 const DRINKS = [
-  { id: 'mocktail', name: 'Neon Nectar', price: 180, desc: 'Blue curacao essence, yuzu, sparkling tonic.', image: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBcUsMJi23y5PFT4g8MBPkayZMkeae3oHq8BH81kGvpwKLg686f8tPvksnrMUtm3gHJjyGdtFuyIz9slr5uaDvdrdmYDnWUYp1t6bM3PFfU81f9jiBRVcsS3V4XByezmir7xDk0C7EyoSBgrDkTz6qWvy3STwPafboRRsNfcuhJ10gTTipVPdJPucoBN1P8RCb5qdqDYlRt9JwTWLaUgXzyrrlknU5dmt4mkJo3VmXeUpJQzxNmBITN6mhfVjTj_2ZPgaZ0uN0N4u9_' },
+  { id: 'mocktail', name: 'Neon Nectar', price: 180, desc: 'Blue curacao essence, yuzu, sparkling tonic.', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?auto=format&fit=crop&q=80&w=600' },
   { id: 'coke', name: 'Coca Cola', price: 60, desc: 'Classic chilled cola.', image: 'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?auto=format&fit=crop&q=80&w=600' },
   { id: 'redbull', name: 'Red Bull', price: 150, desc: 'Energy drink to keep you gaming.', image: 'https://images.unsplash.com/photo-1543363136-3fde621c7d24?auto=format&fit=crop&q=80&w=600' },
   { id: 'coldcoffee', name: 'Cold Coffee', price: 180, desc: 'Iced coffee blended with cream.', image: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?auto=format&fit=crop&q=80&w=600' },

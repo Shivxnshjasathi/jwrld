@@ -277,7 +277,7 @@ export default function AdminDashboard() {
                       <span className={`material-symbols-outlined text-[32px] ${
                         isOccupied ? 'text-error/80' : isAvailable ? 'text-secondary/80' : 'text-on-surface-variant'
                       }`}>
-                        {asset.category === 'pool' || asset.category === 'snooker' ? 'pool' : 'sports_esports'}
+                        {asset.category === 'pool' || asset.category === 'snooker' ? 'adjust' : 'sports_esports'}
                       </span>
                       
                       <div className="text-center z-10">

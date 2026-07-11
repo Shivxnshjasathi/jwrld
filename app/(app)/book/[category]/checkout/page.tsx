@@ -30,6 +30,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   // Expandable policies state
   const [expandReschedule, setExpandReschedule] = useState(false);
   const [expandCancel, setExpandCancel] = useState(false);
+  const [showTotalBreakdown, setShowTotalBreakdown] = useState(false);
 
   const totalAmount = store.getTotalAmount();
   const selectedDate = new Date(store.selectedDate + 'T00:00:00');
@@ -46,9 +47,22 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   };
 
   const handleApplyCoupon = () => {
-    if (couponCode.toLowerCase() === 'arcade10') {
-      store.applyCoupon(22.5);
+    const code = couponCode.toLowerCase();
+    const duration = store.endTime - store.startTime;
+    const basePrice = (store.selectedAssetPrice || 0) * duration;
+    
+    // Calculate discounts based on basePrice before tax
+    if (code === 'jaadu10') {
+      store.applyCoupon(basePrice * 0.10);
       setShowCouponInput(false);
+    } else if (code === 'jaadu20') {
+      store.applyCoupon(basePrice * 0.20);
+      setShowCouponInput(false);
+    } else if (code === 'jaadu30') {
+      store.applyCoupon(basePrice * 0.30);
+      setShowCouponInput(false);
+    } else {
+      setError('Invalid coupon code');
     }
   };
 
@@ -256,15 +270,45 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
         {/* Total Amount */}
         <div className="glass-panel p-5 rounded-2xl border border-white/10">
-          <button className="flex items-center justify-between w-full">
+          <button 
+            onClick={() => setShowTotalBreakdown(!showTotalBreakdown)}
+            className="flex items-center justify-between w-full"
+          >
             <div>
               <p className="text-[12px] font-bold text-on-surface-variant tracking-widest uppercase">TOTAL AMOUNT</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[20px] font-black text-primary neon-text-primary">{formatPrice(totalAmount)}</span>
-              <span className="material-symbols-outlined text-[20px] text-on-surface-variant">chevron_right</span>
+              <span className={`material-symbols-outlined text-[20px] text-on-surface-variant transition-transform ${showTotalBreakdown ? 'rotate-90' : ''}`}>
+                chevron_right
+              </span>
             </div>
           </button>
+          
+          {showTotalBreakdown && (
+            <div className="mt-4 pt-4 border-t border-white/10 space-y-2 animate-fade-in">
+              <div className="flex justify-between text-[14px]">
+                <span className="text-on-surface-variant">Base Price ({store.endTime - store.startTime} hrs)</span>
+                <span className="text-white">{formatPrice((store.selectedAssetPrice || 0) * (store.endTime - store.startTime))}</span>
+              </div>
+              <div className="flex justify-between text-[14px]">
+                <span className="text-on-surface-variant">GST (18%)</span>
+                <span className="text-white">{formatPrice((store.selectedAssetPrice || 0) * (store.endTime - store.startTime) * 0.18)}</span>
+              </div>
+              {store.protection && (
+                <div className="flex justify-between text-[14px]">
+                  <span className="text-on-surface-variant">Protection Plan</span>
+                  <span className="text-white">₹9.00</span>
+                </div>
+              )}
+              {store.couponDiscount > 0 && (
+                <div className="flex justify-between text-[14px] text-secondary font-bold">
+                  <span>Coupon Discount</span>
+                  <span>-{formatPrice(store.couponDiscount)}</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Reschedule Policy */}

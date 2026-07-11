@@ -305,7 +305,7 @@ export default function HomePage() {
                       onClick={() => store.setDate(dateStr)}
                       className={`flex-shrink-0 flex flex-col items-center justify-center w-[72px] h-[90px] rounded-xl cursor-pointer animate-slide-up-fade opacity-0 transition-transform ${delayClass} ${
                         isSelected 
-                          ? 'gradient-bg-primary text-black shadow-[0_0_20px_rgba(45,212,191,0.5)] transform hover:scale-105'
+                          ? 'gradient-bg-primary text-black transform hover:scale-105'
                           : 'glass-card text-on-surface-variant hover:border-secondary/40 hover:text-white'
                       }`}
                     >

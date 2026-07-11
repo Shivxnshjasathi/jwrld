@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 
 /**
  * A hook that intercepts the browser's back button when a modal is open.
@@ -9,6 +9,12 @@ import { useEffect } from 'react';
  * @param onClose Callback to fire when the back button is pressed
  */
 export function useModalBackHandler(isOpen: boolean, onClose: () => void) {
+  const onCloseRef = useRef(onClose);
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
 
@@ -20,7 +26,7 @@ export function useModalBackHandler(isOpen: boolean, onClose: () => void) {
       // The back button was pressed, removing the dummy state
       // We prevent default behavior and close the modal instead
       e.preventDefault();
-      onClose();
+      onCloseRef.current();
     };
 
     window.addEventListener('popstate', handlePopState);
@@ -35,5 +41,5 @@ export function useModalBackHandler(isOpen: boolean, onClose: () => void) {
         window.history.back();
       }
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 }
