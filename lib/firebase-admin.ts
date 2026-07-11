@@ -3,8 +3,17 @@ import { getMessaging } from 'firebase-admin/messaging';
 
 function formatPrivateKey(key: string | undefined): string | undefined {
   if (!key) return undefined;
+  
+  let formatted = key.trim();
+  // Remove surrounding quotes if they exist (common Vercel env issue)
+  if (formatted.startsWith('"') && formatted.endsWith('"')) {
+    formatted = formatted.slice(1, -1);
+  } else if (formatted.startsWith("'") && formatted.endsWith("'")) {
+    formatted = formatted.slice(1, -1);
+  }
+  
   // Replace unescaped literal '\n' characters with actual newlines
-  return key.replace(/\\n/g, '\n');
+  return formatted.replace(/\\n/g, '\n');
 }
 
 export function getFirebaseAdminApp() {

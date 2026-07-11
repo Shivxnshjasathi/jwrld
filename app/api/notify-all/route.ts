@@ -63,6 +63,6 @@ export async function POST(req: Request) {
     });
   } catch (error) {
     console.error('Error sending push broadcast:', error);
-    return NextResponse.json({ error: 'Failed to send broadcast', details: (error as Error).message }, { status: 500 });
+    return NextResponse.json({ error: `Failed to send broadcast: ${(error as Error).message}` }, { status: 500 });
   }
 }
