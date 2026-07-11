@@ -83,7 +83,7 @@ export default function FoodCheckoutPage() {
       {/* Background Glow */}
       <div className="ambient-glow"></div>
 
-      <div className="relative z-10 w-full max-w-md px-5 mx-auto pt-24">
+      <div className="relative z-10 w-full max-w-md min-w-[360px] px-5 mx-auto pt-24">
         {/* Header */}
         <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-md border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
           <button
@@ -148,7 +148,7 @@ export default function FoodCheckoutPage() {
       </div>
 
       {/* Place Order Button */}
-      <div className="fixed bottom-0 pb-8 left-0 right-0 px-5 z-40 max-w-md mx-auto w-full">
+      <div className="fixed bottom-0 pb-8 left-0 right-0 px-5 z-40 max-w-md min-w-[360px] mx-auto w-full">
         <button 
           onClick={handlePlaceOrder} 
           disabled={!tableNumber.trim() || isSubmitting}

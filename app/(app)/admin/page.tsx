@@ -175,6 +175,9 @@ export default function AdminDashboard() {
 
           {/* Trailing */}
           <div className="flex items-center gap-md">
+            <button onClick={() => router.push('/admin/messages')} className="hover:opacity-80 transition-opacity text-on-surface-variant md:hidden">
+              <span className="material-symbols-outlined text-[20px]">forum</span>
+            </button>
             <button onClick={() => setShowAnnouncementModal(true)} className="hover:opacity-80 transition-opacity text-on-surface-variant">
               <span className="material-symbols-outlined text-[20px]">campaign</span>
             </button>
