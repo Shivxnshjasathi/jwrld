@@ -20,7 +20,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCode, setCouponCode] = useState('');
-  const [useWallet, setUseWallet] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'counter' | 'upi'>('counter');
+  const [globalSettings, setGlobalSettings] = useState<any>(null);
+
+  useEffect(() => {
+    getGlobalSettings().then(setGlobalSettings).catch(console.error);
+  }, []);
   
   // Guest details state
   const [showGuestModal, setShowGuestModal] = useState(false);
@@ -114,7 +119,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
   const executeBooking = async (userName: string) => {
     if (!user || !store.selectedAssetId) return;
-    if (useWallet && (appUser?.walletBalance || 0) < totalAmount) {
+    if (paymentMethod === 'wallet' && (appUser?.walletBalance || 0) < totalAmount) {
       setError('Insufficient wallet balance.');
       return;
     }
@@ -123,7 +128,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     setError('');
 
     try {
-      if (useWallet) {
+      if (paymentMethod === 'wallet') {
         const { deductWalletBalance } = await import('@/lib/wallet');
         await deductWalletBalance(user.uid, totalAmount);
       }
@@ -146,7 +151,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         startTime: store.startTime,
         endTime: store.endTime,
         totalAmount,
-        status: useWallet ? 'confirmed' : 'pending',
+        status: paymentMethod === 'wallet' ? 'confirmed' : 'pending',
+        paymentMethod,
         createdAt: new Date().toISOString(),
         protection: store.protection,
       });
@@ -272,13 +278,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         <div className="glass-panel p-3 rounded-xl border border-white/10">
           <h3 className="text-[10px] font-bold text-on-surface-variant tracking-widest uppercase mb-3">PAYMENT METHOD</h3>
           <div className="flex flex-col gap-2">
-            <label className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
+            <label className={`flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'wallet' ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
               <div className="flex items-center gap-3">
                 <input 
                   type="radio" 
                   name="paymentMethod" 
-                  checked={useWallet} 
-                  onChange={() => setUseWallet(true)}
+                  checked={paymentMethod === 'wallet'} 
+                  onChange={() => setPaymentMethod('wallet')}
                   disabled={(appUser?.walletBalance || 0) < totalAmount}
                   className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
                 />
@@ -293,13 +299,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                 </div>
               </div>
             </label>
-            <label className={`flex items-center justify-between p-3 border rounded-lg cursor-pointer transition-all ${!useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
+            <label className={`flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'counter' ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
               <div className="flex items-center gap-3">
                 <input 
                   type="radio" 
                   name="paymentMethod" 
-                  checked={!useWallet} 
-                  onChange={() => setUseWallet(false)}
+                  checked={paymentMethod === 'counter'} 
+                  onChange={() => setPaymentMethod('counter')}
                   className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
                 />
                 <span className="text-[13px] font-bold text-white block flex items-center gap-2">
@@ -308,6 +314,31 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                 </span>
               </div>
             </label>
+            {globalSettings?.upiId && (
+              <label className={`flex flex-col p-3 border rounded-lg cursor-pointer transition-all ${paymentMethod === 'upi' ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="radio" 
+                    name="paymentMethod" 
+                    checked={paymentMethod === 'upi'} 
+                    onChange={() => setPaymentMethod('upi')}
+                    className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
+                  />
+                  <span className="text-[13px] font-bold text-white block flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[14px] text-primary">qr_code_scanner</span>
+                    Pay via UPI
+                  </span>
+                </div>
+                {paymentMethod === 'upi' && (
+                  <div className="mt-3 ml-7 p-3 bg-surface-container rounded-lg border border-primary/20">
+                    <p className="text-[12px] text-white font-bold mb-1">UPI ID: <span className="text-primary tracking-wider">{globalSettings.upiId}</span></p>
+                    <p className="text-[11px] text-on-surface-variant leading-relaxed">
+                      Pay using the UPI ID above and send the payment screenshot & transaction details in the <strong className="text-secondary">support chat</strong> to confirm your booking.
+                    </p>
+                  </div>
+                )}
+              </label>
+            )}
           </div>
         </div>
 

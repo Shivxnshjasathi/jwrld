@@ -41,6 +41,7 @@ export interface Booking {
   status: 'pending' | 'approved' | 'rejected' | 'completed' | 'cancelled' | 'confirmed';
   createdAt: string;
   protection: boolean;
+  paymentMethod?: string;
 }
 
 export interface WaitlistItem {
@@ -102,6 +103,7 @@ export interface Coupon {
 
 export interface GlobalSettings {
   allowGuestBooking: boolean;
+  upiId?: string;
 }
 
 export interface Event {

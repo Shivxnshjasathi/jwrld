@@ -41,6 +41,19 @@ export default function AdminSettingsPage() {
     setSaving(false);
   };
 
+  const handleUpdateString = async (key: keyof GlobalSettings, value: string) => {
+    if (!settings) return;
+    setSettings({ ...settings, [key]: value });
+    setSaving(true);
+    try {
+      await updateGlobalSettings({ [key]: value });
+      toast.success('Setting updated');
+    } catch (e) {
+      toast.error('Failed to update setting');
+    }
+    setSaving(false);
+  };
+
   return (
     <div className="w-full py-xl px-gutter md:px-xl min-h-screen">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-lg">
@@ -81,8 +94,30 @@ export default function AdminSettingsPage() {
               </button>
             </div>
 
-            {/* Space for future settings */}
-            
+            {/* Payment Settings */}
+            <h2 className="text-xl font-bold text-white mb-6 mt-10">Payment Settings</h2>
+            <div className="py-4">
+              <label className="block text-[14px] font-bold text-white mb-2">UPI ID</label>
+              <p className="text-on-surface-variant text-[14px] mb-4">
+                This UPI ID will be shown to users when they choose to pay via UPI at checkout.
+              </p>
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={settings?.upiId || ''}
+                  onChange={(e) => setSettings({ ...settings!, upiId: e.target.value })}
+                  placeholder="e.g. yourname@upi"
+                  className="w-full bg-surface-container rounded-xl px-4 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none"
+                />
+                <button
+                  disabled={saving}
+                  onClick={() => handleUpdateString('upiId', settings?.upiId || '')}
+                  className="bg-primary text-background font-bold px-6 py-3 rounded-xl hover:bg-primary/90 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  Save
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
