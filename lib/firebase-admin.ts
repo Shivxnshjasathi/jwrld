@@ -15,20 +15,26 @@ function formatPrivateKey(key: string | undefined): string | undefined {
   // Replace unescaped literal '\n' characters with actual newlines
   formatted = formatted.replace(/\\n/g, '\n');
   
-  // Vercel sometimes flattens multiline env variables into a single line with spaces
-  if (formatted.includes('-----BEGIN PRIVATE KEY-----') && !formatted.includes('\n')) {
-    formatted = formatted.replace('-----BEGIN PRIVATE KEY----- ', '-----BEGIN PRIVATE KEY-----\n');
-    formatted = formatted.replace(' -----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----');
-    
-    // Now split and replace spaces with newlines ONLY in the key body
-    const parts = formatted.split('\n');
-    if (parts.length === 3) {
-      parts[1] = parts[1].replace(/ /g, '\n');
-      formatted = parts.join('\n');
+  // Extract Base64 and rebuild to ensure perfect PEM format for OpenSSL
+  const isPem = formatted.includes('BEGIN PRIVATE KEY') && formatted.includes('END PRIVATE KEY');
+  
+  let cleanBase64 = '';
+  if (isPem) {
+    // Extract everything between the header and footer
+    const matches = formatted.match(/-----BEGIN PRIVATE KEY-----([\s\S]+?)-----END PRIVATE KEY-----/);
+    if (matches && matches[1]) {
+      cleanBase64 = matches[1].replace(/\s+/g, '');
+    } else {
+      return formatted;
     }
+  } else {
+    // Assume they just pasted the raw base64 string
+    cleanBase64 = formatted.replace(/\s+/g, '');
   }
   
-  return formatted;
+  // Reconstruct the key with exactly 64 characters per line (standard PEM format)
+  const lines = cleanBase64.match(/.{1,64}/g) || [];
+  return `-----BEGIN PRIVATE KEY-----\n${lines.join('\n')}\n-----END PRIVATE KEY-----\n`;
 }
 
 export function getFirebaseAdminApp() {
