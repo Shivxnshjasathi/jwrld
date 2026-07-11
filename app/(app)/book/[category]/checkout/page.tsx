@@ -187,8 +187,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     }
   };
 
+  useEffect(() => {
+    if (!store.selectedAssetId) {
+      goBack(`/book/${category}`);
+    }
+  }, [store.selectedAssetId, category]);
+
   if (!store.selectedAssetId) {
-    goBack(`/book/${category}`);
     return null;
   }
 
