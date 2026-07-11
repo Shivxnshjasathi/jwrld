@@ -22,8 +22,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (loading || profileLoading || !isAdmin) {
     return (
-      <div className="min-h-dvh flex items-center justify-center bg-[#F5F5F5]">
-        <div className="w-10 h-10 border-3 border-[#111111] border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-dvh flex items-center justify-center bg-[#0A0A0B]">
+        <div className="w-10 h-10 border-3 border-secondary border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -41,21 +41,24 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (!adminAuthenticated) {
     return (
-      <div className="min-h-dvh bg-[#F5F5F5] flex flex-col items-center justify-center p-4">
-        <div className="w-full max-w-sm bg-white rounded-[1.5rem] p-8 shadow-sm relative">
+      <div className="min-h-dvh bg-[#0A0A0B] flex flex-col items-center justify-center p-4 relative overflow-hidden font-body-md text-on-surface">
+        {/* Background Ambient Glow */}
+        <div className="ambient-glow"></div>
+        
+        <div className="w-full max-w-sm glass-panel rounded-[1.5rem] p-8 relative z-10 border border-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)]">
           <button
             onClick={() => router.replace('/home')}
-            className="absolute top-4 left-4 w-8 h-8 rounded-full bg-[#F5F5F5] flex items-center justify-center hover:bg-gray-200 transition-colors"
+            className="absolute top-4 left-4 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors text-on-surface-variant hover:text-primary active:scale-95"
           >
-            <ArrowLeft size={16} className="text-gray-900" />
+            <ArrowLeft size={16} />
           </button>
 
-          <div className="w-16 h-16 bg-[#111111] rounded-full flex items-center justify-center mx-auto mb-6 mt-4">
-            <Shield size={28} className="text-white" />
+          <div className="w-16 h-16 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-6 mt-4 border border-white/5 shadow-[0_0_20px_rgba(45,212,191,0.2)]">
+            <Shield size={28} className="text-secondary neon-text-secondary" />
           </div>
           
-          <h1 className="text-xl font-black text-gray-900 text-center mb-2">Admin Access</h1>
-          <p className="text-sm text-gray-500 text-center mb-8">Enter the master password to continue</p>
+          <h1 className="text-xl font-display-md font-bold text-white text-center mb-2 header-glow tracking-tighter">Admin Access</h1>
+          <p className="text-[14px] text-on-surface-variant text-center mb-8">Enter the master password to continue</p>
           
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
@@ -67,18 +70,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   setError(false);
                 }}
                 placeholder="Password"
-                className={`w-full bg-[#F5F5F5] rounded-full px-5 py-4 text-center font-medium focus:outline-none focus:ring-2 transition-all ${
-                  error ? 'focus:ring-red-500 ring-2 ring-red-500' : 'focus:ring-[#111111]'
+                className={`w-full bg-black/40 rounded-full px-5 py-4 text-center font-bold text-white border transition-all ${
+                  error 
+                    ? 'border-error focus:ring-2 focus:ring-error focus:outline-none' 
+                    : 'border-white/10 focus:border-primary focus:ring-1 focus:ring-primary focus:outline-none focus:shadow-[0_0_15px_rgba(168,85,247,0.3)]'
                 }`}
                 autoFocus
               />
-              {error && <p className="text-red-500 text-xs font-bold text-center mt-2">Incorrect password</p>}
+              {error && <p className="text-error text-[12px] font-bold text-center mt-2">Incorrect password</p>}
             </div>
             
             <button
               type="submit"
               disabled={!password}
-              className="w-full bg-[#111111] text-white rounded-full py-4 font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-colors hover:bg-black"
+              className="w-full bg-primary text-background rounded-full py-4 font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-all hover:bg-primary/90 active:scale-95 shadow-[0_0_15px_rgba(221,183,255,0.4)]"
             >
               Unlock <ArrowRight size={18} />
             </button>

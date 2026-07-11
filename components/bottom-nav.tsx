@@ -1,45 +1,49 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
-import { Home, Calendar, User } from 'lucide-react';
+// Force cache invalidation
 
 const NAV_ITEMS = [
-  { href: '/home', label: 'Home', icon: Home },
-  { href: '/bookings', label: 'Bookings', icon: Calendar },
-  { href: '/profile', label: 'Profile', icon: User },
+  { href: '/home', label: 'Home', icon: 'home' },
+  { href: '/bookings', label: 'Bookings', icon: 'event' },
+  { href: '/profile', label: 'Profile', icon: 'person' },
 ];
 
 export default function BottomNav() {
   const pathname = usePathname();
   const router = useRouter();
 
-  const activeIndex = NAV_ITEMS.findIndex((item) =>
-    pathname.startsWith(item.href)
-  );
-
   return (
-    <div className="fixed bottom-6 left-0 right-0 z-50 flex justify-center px-4">
-      <nav className="bg-arcade-card rounded-full px-2 py-2 flex items-center gap-2 shadow-2xl border border-arcade-border transition-colors">
-        {NAV_ITEMS.map((item, index) => {
-          const isActive = index === activeIndex || (activeIndex === -1 && index === 0);
-          const Icon = item.icon;
-
+    <nav className="fixed bottom-0 left-0 right-0 w-full bg-black/60 backdrop-blur-2xl border-t border-white/10 z-50 flex justify-around items-center px-lg py-5 shadow-[0_-10px_30px_rgba(0,0,0,0.5)]">
+      {NAV_ITEMS.map((item) => {
+        const isActive = pathname.startsWith(item.href) || (pathname === '/' && item.href === '/home');
+        
+        if (isActive) {
           return (
             <button
               key={item.href}
               onClick={() => router.replace(item.href)}
-              className={`flex items-center justify-center w-12 h-12 rounded-full transition-all duration-300 ${
-                isActive ? 'bg-foreground text-background' : 'text-arcade-text-secondary hover:text-foreground'
-              }`}
+              className="flex flex-col items-center justify-center text-primary drop-shadow-[0_0_12px_rgba(168,85,247,0.9)] after:content-[''] after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full after:mt-1.5 hover:text-primary/80 transition-all active:scale-90 duration-300"
             >
-              <Icon
-                size={22}
-                strokeWidth={isActive ? 2.5 : 2}
-              />
+              <span className="material-symbols-outlined font-label-md text-label-md text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>
+                {item.icon}
+              </span>
             </button>
           );
-        })}
-      </nav>
-    </div>
+        }
+
+        return (
+          <button
+            key={item.href}
+            onClick={() => router.replace(item.href)}
+            className="flex flex-col items-center justify-center text-white/40 hover:text-secondary hover:drop-shadow-[0_0_10px_rgba(45,212,191,0.6)] transition-all active:scale-90 duration-300"
+          >
+            <span className="material-symbols-outlined font-label-md text-label-md text-[28px]">
+              {item.icon}
+            </span>
+          </button>
+        );
+      })}
+    </nav>
   );
 }

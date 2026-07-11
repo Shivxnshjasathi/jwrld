@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arcadezone-v2';
+const CACHE_NAME = 'arcadezone-v3';
 const STATIC_ASSETS = [
   '/',
   '/home',

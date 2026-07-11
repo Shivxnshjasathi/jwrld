@@ -1,21 +1,21 @@
 'use client';
+// Force cache invalidation
 
 import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { Calendar, Clock, X, CheckCircle2, CircleDashed, Target, Gamepad2, Utensils, Receipt, Download, Share2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { useAuth } from '@/lib/auth';
 import { subscribeToUserBookings, cancelBooking, type Booking } from '@/lib/firestore';
 import { formatTime, formatPrice, getCategoryLabel } from '@/lib/utils';
 
-const getLucideIcon = (category: string) => {
+const getMaterialIcon = (category: string) => {
   switch (category) {
-    case 'pool': return <CircleDashed size={20} className="text-gray-900" />;
-    case 'snooker': return <Target size={20} className="text-gray-900" />;
-    case 'ps5': return <Gamepad2 size={20} className="text-gray-900" />;
-    case 'food': return <Utensils size={20} className="text-gray-900" />;
-    default: return <CircleDashed size={20} className="text-gray-900" />;
+    case 'pool': return 'sports_baseball';
+    case 'snooker': return 'sports_esports';
+    case 'ps5': return 'videogame_asset';
+    case 'food': return 'restaurant';
+    default: return 'sports_esports';
   }
 };
 
@@ -64,7 +64,7 @@ function BookingsContent() {
             const key = `reminder-${b.id}`;
             if (!sessionStorage.getItem(key)) {
               sessionStorage.setItem(key, 'true');
-              toast(`⏰ Your ${b.assetName} session starts in ${diff} minutes!`, { duration: 6000 });
+              toast(`⏰ Your ${b.assetName} session starts in ${diff} minutes!`, { duration: 6000, style: { background: '#131314', color: '#ddb7ff', border: '1px solid rgba(221,183,255,0.2)' } });
             }
           }
         });
@@ -94,14 +94,14 @@ function BookingsContent() {
     try {
       const { default: html2canvas } = await import('html2canvas');
       const canvas = await html2canvas(receiptRef.current, {
-        backgroundColor: '#ffffff',
+        backgroundColor: '#0A0A0B',
         scale: 2,
       });
       const link = document.createElement('a');
-      link.download = `arcadezone-receipt-${receiptBooking?.id?.slice(0, 6)}.png`;
+      link.download = `jaaduwrld-receipt-${receiptBooking?.id?.slice(0, 6)}.png`;
       link.href = canvas.toDataURL('image/png');
       link.click();
-      toast.success('Receipt downloaded!');
+      toast.success('Receipt downloaded!', { style: { background: '#131314', color: '#44e2cd' }});
     } catch {
       toast.error('Could not download receipt');
     }
@@ -109,11 +109,11 @@ function BookingsContent() {
 
   const handleShareReceipt = async () => {
     if (!receiptBooking) return;
-    const text = `🎮 ArcadeZone Receipt\n${receiptBooking.assetName}\n📅 ${receiptBooking.date}\n⏰ ${formatTime(receiptBooking.startTime)} - ${formatTime(receiptBooking.endTime)}\n💰 ${formatPrice(receiptBooking.totalAmount)}\nStatus: ${receiptBooking.status.toUpperCase()}`;
+    const text = `🎮 Jaaduwrld Receipt\n${receiptBooking.assetName}\n📅 ${receiptBooking.date}\n⏰ ${formatTime(receiptBooking.startTime)} - ${formatTime(receiptBooking.endTime)}\n💰 ${formatPrice(receiptBooking.totalAmount)}\nStatus: ${receiptBooking.status.toUpperCase()}`;
     
     if (navigator.share) {
       try {
-        await navigator.share({ title: 'ArcadeZone Receipt', text });
+        await navigator.share({ title: 'Jaaduwrld Receipt', text });
       } catch { /* cancelled */ }
     } else {
       await navigator.clipboard.writeText(text);
@@ -125,237 +125,261 @@ function BookingsContent() {
   const pastBookings = bookings.filter((b) => b.status === 'completed' || b.status === 'cancelled' || b.status === 'rejected');
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5]">
+    <div className="min-h-dvh bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary/30">
+      
+      {/* TopAppBar */}
+      <header className="fixed top-0 w-full bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm flex justify-between items-center px-gutter py-md z-50 max-w-container-max mx-auto">
+        <div className="flex items-center gap-sm cursor-pointer" onClick={() => router.push('/home')}>
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-white/20 bg-surface-container flex items-center justify-center">
+            {user?.photoURL ? (
+              <img src={user.photoURL} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span className="material-symbols-outlined text-on-surface-variant">person</span>
+            )}
+          </div>
+        </div>
+        <h1 className="font-display-md text-[24px] font-bold tracking-tighter text-on-surface cursor-pointer header-glow" onClick={() => router.push('/home')}>
+          Jaaduwrld
+        </h1>
+        <button className="text-on-surface-variant hover:text-primary transition-colors">
+          <span className="material-symbols-outlined">notifications</span>
+        </button>
+      </header>
+
       {/* Success Toast */}
       {showSuccess && (
-        <div className="fixed top-4 left-4 right-4 z-50 bg-[#111111] text-white p-4 rounded-[2rem] shadow-lg flex items-center gap-3 animate-slide-up">
-          <CheckCircle2 size={22} className="text-white" />
+        <div className="fixed top-24 left-4 right-4 z-50 glass-panel border border-secondary/50 neon-glow-secondary p-4 rounded-2xl flex items-center gap-3 animate-slide-up">
+          <span className="material-symbols-outlined text-secondary">check_circle</span>
           <div>
-            <p className="font-bold text-sm">Booking Requested! 🕒</p>
-            <p className="text-xs opacity-90 mt-0.5">Your request is pending admin approval.</p>
+            <p className="font-bold text-sm text-secondary">Booking Requested! 🕒</p>
+            <p className="text-xs text-on-surface-variant mt-0.5">Your request is pending admin approval.</p>
           </div>
         </div>
       )}
 
-      <div className="px-6 pt-12 pb-6">
-        <h1 className="text-2xl font-bold text-gray-900">My Bookings</h1>
-      </div>
+      <main className="pt-[100px] px-gutter max-w-container-max mx-auto md:px-xl pb-32">
+        <div className="mb-lg">
+          <h2 className="font-headline-lg text-[32px] font-bold text-on-surface mb-xs">My Bookings</h2>
+          <p className="font-body-md text-[16px] text-on-surface-variant">Manage your arcade reservations.</p>
+        </div>
 
-      <div className="px-6 space-y-4 pb-32">
-        {loading ? (
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="skeleton h-[120px] rounded-2xl" />
-            ))}
-          </div>
-        ) : bookings.length === 0 ? (
-          <div className="text-center py-16">
-            <p className="text-5xl mb-4">🎮</p>
-            <p className="text-base font-semibold text-arcade-text">No bookings yet</p>
-            <p className="text-sm text-arcade-text-muted mt-1">
-              Book your first slot to get started!
-            </p>
-            <button
-              onClick={() => router.replace('/home')}
-              className="btn-green mt-6 !w-auto !px-8 mx-auto"
-            >
-              Browse Activities
-            </button>
-          </div>
-        ) : (
-          <>
-            {/* Upcoming */}
-            {upcomingBookings.length > 0 && (
-              <div>
-                <h2 className="text-sm font-bold text-arcade-text-muted uppercase tracking-wider mb-3">
-                  Upcoming ({upcomingBookings.length})
-                </h2>
-                <div className="space-y-3">
-                  {upcomingBookings.map((booking) => (
-                    <div key={booking.id} className="checkout-card animate-fade-in">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 rounded-full bg-[#F5F5F5] flex items-center justify-center shrink-0">
-                            {getLucideIcon(booking.category)}
-                          </div>
-                          <div>
-                            <p className="text-sm font-bold text-arcade-text">{booking.assetName}</p>
-                            <p className="text-xs text-arcade-text-muted mt-0.5">
-                              {getCategoryLabel(booking.category)}
-                            </p>
-                            <div className="flex items-center gap-3 mt-2">
-                              <span className="flex items-center gap-1 text-xs text-arcade-text-secondary">
-                                <Calendar size={12} />
-                                {format(new Date(booking.date + 'T00:00:00'), 'dd MMM yyyy')}
-                              </span>
-                              <span className="flex items-center gap-1 text-xs text-arcade-text-secondary">
-                                <Clock size={12} />
-                                {formatTime(booking.startTime)} - {formatTime(booking.endTime === 24 ? 0 : booking.endTime)}
-                              </span>
+        <div className="space-y-8">
+          {loading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="glass-card h-[120px] rounded-2xl animate-pulse bg-white/5" />
+              ))}
+            </div>
+          ) : bookings.length === 0 ? (
+            <div className="text-center py-16">
+              <span className="material-symbols-outlined text-[64px] text-primary/50 mb-4">sports_esports</span>
+              <p className="text-base font-bold text-on-surface">No bookings yet</p>
+              <p className="text-sm text-on-surface-variant mt-1">Book your first slot to get started!</p>
+              <button
+                onClick={() => router.replace('/home')}
+                className="btn-gradient rounded-full px-8 py-3 font-bold text-[14px] text-background mt-6 neon-glow-primary active:scale-95 transition-all"
+              >
+                Browse Activities
+              </button>
+            </div>
+          ) : (
+            <>
+              {/* Upcoming */}
+              {upcomingBookings.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-4">
+                    Upcoming ({upcomingBookings.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {upcomingBookings.map((booking) => (
+                      <div key={booking.id} className="glass-card p-4 rounded-xl relative overflow-hidden group border border-primary/20 hover:border-primary/50 transition-colors">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-secondary"></div>
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className="w-12 h-12 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center shrink-0 text-primary">
+                              <span className="material-symbols-outlined">{getMaterialIcon(booking.category)}</span>
                             </div>
-                            <div className="flex items-center gap-3 mt-2">
-                              <p className="text-sm font-bold text-arcade-text">
-                                {formatPrice(booking.totalAmount)}
+                            <div>
+                              <p className="text-[16px] font-bold text-on-surface">{booking.assetName}</p>
+                              <p className="text-[12px] text-on-surface-variant mt-0.5">
+                                {getCategoryLabel(booking.category)}
                               </p>
-                              {booking.status === 'pending' && (
-                                <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                                  Pending Approval
+                              <div className="flex items-center gap-3 mt-3">
+                                <span className="flex items-center gap-1 text-[12px] text-on-surface-variant">
+                                  <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                                  {format(new Date(booking.date + 'T00:00:00'), 'dd MMM yyyy')}
                                 </span>
-                              )}
-                              {booking.status === 'approved' && (
-                                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                                  Approved
+                                <span className="flex items-center gap-1 text-[12px] text-on-surface-variant">
+                                  <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                  {formatTime(booking.startTime)} - {formatTime(booking.endTime === 24 ? 0 : booking.endTime)}
                                 </span>
-                              )}
-                              {booking.status === 'confirmed' && (
-                                <span className="px-2 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded-full uppercase tracking-wider">
-                                  Confirmed
-                                </span>
-                              )}
+                              </div>
+                              <div className="flex items-center gap-3 mt-3">
+                                <p className="text-[14px] font-bold text-primary">
+                                  {formatPrice(booking.totalAmount)}
+                                </p>
+                                {booking.status === 'pending' && (
+                                  <span className="px-2 py-0.5 bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                    Pending Approval
+                                  </span>
+                                )}
+                                {booking.status === 'approved' && (
+                                  <span className="px-2 py-0.5 bg-secondary/20 text-secondary border border-secondary/30 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                    Approved
+                                  </span>
+                                )}
+                                {booking.status === 'confirmed' && (
+                                  <span className="px-2 py-0.5 bg-secondary/20 text-secondary border border-secondary/30 text-[10px] font-bold rounded-full uppercase tracking-wider">
+                                    Confirmed
+                                  </span>
+                                )}
+                              </div>
                             </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-2">
+                            <button
+                              onClick={() => setReceiptBooking(booking)}
+                              className="p-2 rounded-full hover:bg-white/10 transition-colors text-on-surface-variant hover:text-primary"
+                            >
+                              <span className="material-symbols-outlined text-[20px]">receipt_long</span>
+                            </button>
+                            <button
+                              onClick={() => handleCancel(booking.id)}
+                              disabled={cancellingId === booking.id}
+                              className="p-2 rounded-full hover:bg-red-500/20 transition-colors text-on-surface-variant hover:text-red-400"
+                            >
+                              {cancellingId === booking.id ? (
+                                <span className="w-5 h-5 border-2 border-red-400 border-t-transparent rounded-full animate-spin block" />
+                              ) : (
+                                <span className="material-symbols-outlined text-[20px]">close</span>
+                              )}
+                            </button>
                           </div>
                         </div>
-                        <div className="flex flex-col items-center gap-2">
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Past */}
+              {pastBookings.length > 0 && (
+                <div>
+                  <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">
+                    Past ({pastBookings.length})
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {pastBookings.map((booking) => (
+                      <div key={booking.id} className="glass-panel p-4 rounded-xl opacity-60 hover:opacity-100 transition-opacity border border-white/5">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className="w-12 h-12 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center shrink-0 text-on-surface-variant">
+                              <span className="material-symbols-outlined">{getMaterialIcon(booking.category)}</span>
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <p className="text-[16px] font-bold text-on-surface">{booking.assetName}</p>
+                                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                  booking.status === 'cancelled' || booking.status === 'rejected'
+                                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                                    : 'bg-white/5 text-on-surface-variant border-white/10'
+                                }`}>
+                                  {booking.status}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-3 mt-2">
+                                <span className="flex items-center gap-1 text-[12px] text-on-surface-variant">
+                                  <span className="material-symbols-outlined text-[14px]">calendar_month</span>
+                                  {format(new Date(booking.date + 'T00:00:00'), 'dd MMM yyyy')}
+                                </span>
+                                <span className="flex items-center gap-1 text-[12px] text-on-surface-variant">
+                                  <span className="material-symbols-outlined text-[14px]">schedule</span>
+                                  {formatTime(booking.startTime)} - {formatTime(booking.endTime === 24 ? 0 : booking.endTime)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
                           <button
                             onClick={() => setReceiptBooking(booking)}
-                            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                            className="p-2 rounded-full hover:bg-white/10 transition-colors text-on-surface-variant hover:text-white"
                           >
-                            <Receipt size={16} className="text-gray-500" />
-                          </button>
-                          <button
-                            onClick={() => handleCancel(booking.id)}
-                            disabled={cancellingId === booking.id}
-                            className="p-2 rounded-full hover:bg-red-50 transition-colors"
-                          >
-                            {cancellingId === booking.id ? (
-                              <span className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin block" />
-                            ) : (
-                              <X size={16} className="text-red-400" />
-                            )}
+                            <span className="material-symbols-outlined text-[20px]">receipt_long</span>
                           </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
-            )}
-
-            {/* Past */}
-            {pastBookings.length > 0 && (
-              <div>
-                <h2 className="text-sm font-bold text-arcade-text-muted uppercase tracking-wider mb-3">
-                  Past ({pastBookings.length})
-                </h2>
-                <div className="space-y-3">
-                  {pastBookings.map((booking) => (
-                    <div key={booking.id} className="checkout-card opacity-60">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-3">
-                          <div className="w-12 h-12 rounded-full bg-[#F5F5F5] flex items-center justify-center shrink-0">
-                            {getLucideIcon(booking.category)}
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <p className="text-sm font-bold text-arcade-text">{booking.assetName}</p>
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
-                                booking.status === 'cancelled'
-                                  ? 'bg-red-100 text-red-600'
-                                  : 'bg-gray-100 text-gray-500'
-                              }`}>
-                                {booking.status}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-3 mt-1.5">
-                              <span className="flex items-center gap-1 text-xs text-arcade-text-muted">
-                                <Calendar size={12} />
-                                {format(new Date(booking.date + 'T00:00:00'), 'dd MMM yyyy')}
-                              </span>
-                              <span className="flex items-center gap-1 text-xs text-arcade-text-muted">
-                                <Clock size={12} />
-                                {formatTime(booking.startTime)} - {formatTime(booking.endTime === 24 ? 0 : booking.endTime)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => setReceiptBooking(booking)}
-                          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                        >
-                          <Receipt size={16} className="text-gray-400" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+              )}
+            </>
+          )}
+        </div>
+      </main>
 
       {/* Receipt Modal */}
       {receiptBooking && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-6 animate-fade-in" onClick={() => setReceiptBooking(null)}>
-          <div className="w-full max-w-sm animate-scale-in" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fade-in overflow-y-auto" onClick={() => setReceiptBooking(null)}>
+          <div className="w-full flex flex-col items-center justify-center animate-scale-in" onClick={e => e.stopPropagation()}>
             {/* Printable receipt area */}
-            <div ref={receiptRef} className="bg-white rounded-3xl p-6 shadow-2xl">
-              <div className="text-center mb-6">
-                <h2 className="text-lg font-black text-gray-900 tracking-tight">ArcadeZone</h2>
-                <p className="text-[10px] text-gray-400 font-medium tracking-[0.2em] uppercase mt-0.5">Booking Receipt</p>
+            <div ref={receiptRef} className="bg-[#131314] rounded-[2rem] p-8 shadow-2xl relative overflow-hidden border border-white/10 w-[320px] shrink-0">
+              <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
+              
+              <div className="text-center mb-8 mt-2">
+                <h2 className="text-[28px] font-display-md font-bold text-white tracking-tight">Jaaduwrld</h2>
+                <p className="text-[10px] text-primary font-bold tracking-[0.2em] uppercase mt-1">Digital Pass</p>
               </div>
 
-              <div className="border-t border-dashed border-gray-200 my-4" />
+              <div className="border-t border-dashed border-white/20 my-6" />
 
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-500 font-medium">Asset</span>
-                  <span className="text-xs font-bold text-gray-900">{receiptBooking.assetName}</span>
+              <div className="space-y-4">
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-[12px] text-on-surface-variant font-medium whitespace-nowrap">Asset</span>
+                  <span className="text-[14px] font-bold text-white text-right">{receiptBooking.assetName}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-500 font-medium">Category</span>
-                  <span className="text-xs font-bold text-gray-900">{getCategoryLabel(receiptBooking.category)}</span>
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-[12px] text-on-surface-variant font-medium whitespace-nowrap">Category</span>
+                  <span className="text-[14px] font-bold text-white text-right">{getCategoryLabel(receiptBooking.category)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-500 font-medium">Date</span>
-                  <span className="text-xs font-bold text-gray-900">{format(new Date(receiptBooking.date + 'T00:00:00'), 'dd MMM yyyy')}</span>
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-[12px] text-on-surface-variant font-medium whitespace-nowrap">Date</span>
+                  <span className="text-[14px] font-bold text-white text-right">{format(new Date(receiptBooking.date + 'T00:00:00'), 'dd MMM yyyy')}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-500 font-medium">Time</span>
-                  <span className="text-xs font-bold text-gray-900">{formatTime(receiptBooking.startTime)} — {formatTime(receiptBooking.endTime)}</span>
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-[12px] text-on-surface-variant font-medium whitespace-nowrap">Time</span>
+                  <span className="text-[14px] font-bold text-secondary text-right">{formatTime(receiptBooking.startTime)} — {formatTime(receiptBooking.endTime)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-xs text-gray-500 font-medium">Status</span>
-                  <span className={`text-xs font-bold uppercase ${
-                    receiptBooking.status === 'approved' || receiptBooking.status === 'confirmed' ? 'text-green-600' :
-                    receiptBooking.status === 'cancelled' || receiptBooking.status === 'rejected' ? 'text-red-600' : 'text-amber-600'
+                <div className="flex justify-between items-start gap-4">
+                  <span className="text-[12px] text-on-surface-variant font-medium whitespace-nowrap">Status</span>
+                  <span className={`text-[12px] font-bold uppercase px-2 py-1 rounded-full text-right ${
+                    receiptBooking.status === 'approved' || receiptBooking.status === 'confirmed' ? 'bg-secondary/20 text-secondary' :
+                    receiptBooking.status === 'cancelled' || receiptBooking.status === 'rejected' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-300'
                   }`}>{receiptBooking.status}</span>
                 </div>
               </div>
 
-              <div className="border-t border-dashed border-gray-200 my-4" />
+              <div className="border-t border-dashed border-white/20 my-6" />
 
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-gray-900">Total</span>
-                <span className="text-xl font-black text-gray-900">{formatPrice(receiptBooking.totalAmount)}</span>
+              <div className="flex justify-between items-center bg-white/5 p-4 rounded-xl">
+                <span className="text-[14px] font-bold text-on-surface-variant">Total</span>
+                <span className="text-[24px] font-black text-primary">{formatPrice(receiptBooking.totalAmount)}</span>
               </div>
 
-              <p className="text-[9px] text-gray-400 text-center mt-4">Booking ID: {receiptBooking.id?.slice(0, 12)}</p>
+              <p className="text-[10px] text-on-surface-variant/50 text-center mt-6 font-mono">ID: {receiptBooking.id}</p>
             </div>
 
             {/* Action buttons */}
-            <div className="flex gap-3 mt-4">
+            <div className="flex gap-4 mt-6 w-[320px]">
               <button
                 onClick={handleDownloadReceipt}
-                className="flex-1 py-3 bg-[#111111] text-white rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-md"
+                className="flex-1 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-xl text-[14px] font-bold flex items-center justify-center gap-2 transition-all active:scale-95"
               >
-                <Download size={14} /> Download
+                <span className="material-symbols-outlined text-[18px]">download</span> Download
               </button>
               <button
                 onClick={handleShareReceipt}
-                className="flex-1 py-3 bg-white text-gray-900 rounded-full text-xs font-bold flex items-center justify-center gap-2 shadow-sm border border-gray-200"
+                className="flex-1 py-3 bg-primary text-background hover:bg-primary/90 rounded-xl text-[14px] font-bold flex items-center justify-center gap-2 transition-all active:scale-95 shadow-[0_0_15px_rgba(221,183,255,0.4)]"
               >
-                <Share2 size={14} /> Share
+                <span className="material-symbols-outlined text-[18px]">share</span> Share
               </button>
             </div>
           </div>
@@ -368,11 +392,11 @@ function BookingsContent() {
 export default function BookingsPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-dvh bg-[#F5F5F5] p-6">
-        <div className="skeleton h-8 w-40 mb-6 mt-4" />
-        <div className="space-y-3">
+      <div className="min-h-dvh bg-[#0A0A0B] p-6 pt-24">
+        <div className="glass-panel h-8 w-40 mb-6 rounded-lg animate-pulse" />
+        <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="skeleton h-[120px] rounded-2xl" />
+            <div key={i} className="glass-card h-[120px] rounded-2xl animate-pulse" />
           ))}
         </div>
       </div>

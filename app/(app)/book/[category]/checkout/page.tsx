@@ -2,12 +2,11 @@
 
 import { useState, use } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, X, ChevronRight, Shield, Tag, CheckCircle } from 'lucide-react';
-import { format, parse, isToday, isTomorrow, addDays } from 'date-fns';
+import { format, isToday, isTomorrow } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { useAuth } from '@/lib/auth';
 import { createBooking } from '@/lib/firestore';
-import { formatTime, formatPrice, getCategoryLabel } from '@/lib/utils';
+import { formatTime, formatPrice } from '@/lib/utils';
 
 export default function CheckoutPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = use(params);
@@ -91,57 +90,57 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   }
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5]">
+    <div className="min-h-dvh bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary/30">
+      
       {/* Header */}
-      <div className="bg-[#F5F5F5] px-6 pt-12 pb-6">
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => router.back()}
-            className="w-10 h-10 rounded-full bg-white flex items-center justify-center shadow-sm hover:bg-gray-50 transition-colors"
-          >
-            <ArrowLeft size={20} className="text-[#1a1a1a]" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 leading-tight">Checkout</h1>
-            <p className="text-[11px] text-gray-500 font-medium">ArcadeZone</p>
-          </div>
+      <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-md border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
+        <button
+          onClick={() => router.back()}
+          className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
+        >
+          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+        </button>
+        <div>
+          <h1 className="text-[20px] font-bold text-on-surface leading-tight header-glow">Checkout</h1>
+          <p className="text-[11px] text-primary font-bold tracking-widest uppercase">ArcadeZone</p>
         </div>
-      </div>
+      </header>
 
-      <div className="px-6 space-y-4 pb-32">
+      <div className="px-5 space-y-4 pt-6 pb-32">
         {/* Booking Summary Card */}
-        <div className="checkout-card">
-          <div className="flex items-start justify-between">
+        <div className="glass-panel p-5 rounded-2xl border border-white/10 relative overflow-hidden group">
+          <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-secondary"></div>
+          <div className="flex items-start justify-between relative z-10">
             <div>
-              <p className="text-base font-bold text-arcade-text">
+              <p className="text-[16px] font-bold text-white">
                 {getDateLabel()}, {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}
               </p>
-              <p className="text-sm text-arcade-text-secondary mt-1">
+              <p className="text-[14px] text-primary mt-1 font-bold">
                 {store.selectedAssetName}
               </p>
             </div>
             <button
               onClick={handleRemoveBooking}
-              className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors"
+              className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-red-500/20 transition-colors text-on-surface-variant hover:text-red-400"
             >
-              <X size={16} className="text-arcade-text-muted" />
+              <span className="material-symbols-outlined text-[16px]">close</span>
             </button>
           </div>
         </div>
 
         {/* Apply Coupon */}
-        <div className="checkout-card">
+        <div className="glass-panel p-5 rounded-2xl border border-white/10">
           <button
             onClick={() => setShowCouponInput(!showCouponInput)}
-            className="flex items-center justify-between w-full"
+            className="flex items-center justify-between w-full text-on-surface hover:text-primary transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-[#F5F5F5] flex items-center justify-center">
-                <Tag size={16} className="text-[#111111]" />
+              <div className="w-10 h-10 rounded-full bg-surface-container-high border border-white/5 flex items-center justify-center text-primary">
+                <span className="material-symbols-outlined text-[18px]">local_offer</span>
               </div>
-              <span className="text-sm font-semibold text-gray-900">Apply Coupon</span>
+              <span className="text-[14px] font-bold">Apply Coupon</span>
             </div>
-            <ChevronRight size={18} className="text-gray-400" />
+            <span className="material-symbols-outlined text-[20px]">chevron_right</span>
           </button>
 
           {showCouponInput && (
@@ -151,11 +150,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
                 placeholder="Enter coupon code"
-                className="flex-1 px-4 py-3 bg-[#F5F5F5] rounded-full text-sm font-medium focus:ring-2 focus:ring-black focus:outline-none transition-colors"
+                className="flex-1 px-4 py-3 bg-[#050505] border border-white/10 rounded-full text-[14px] font-bold text-white focus:ring-1 focus:ring-primary focus:border-primary focus:outline-none transition-all placeholder:text-on-surface-variant/50 uppercase"
               />
               <button
                 onClick={handleApplyCoupon}
-                className="px-6 py-3 bg-[#111111] text-white rounded-full text-sm font-bold"
+                className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-full text-[14px] font-bold border border-white/20 transition-all active:scale-95"
               >
                 Apply
               </button>
@@ -163,19 +162,20 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           )}
 
           {store.couponDiscount > 0 && (
-            <div className="mt-4 bg-[#F5F5F5] rounded-xl px-4 py-3 animate-scale-in">
-              <p className="text-xs font-semibold text-[#111111]">
-                🎉 Wohoo! you can avail {store.couponDiscount} off
+            <div className="mt-4 bg-secondary/10 border border-secondary/30 rounded-xl px-4 py-3 animate-scale-in">
+              <p className="text-[12px] font-bold text-secondary flex items-center gap-2">
+                <span className="material-symbols-outlined text-[16px]">celebration</span>
+                Wohoo! you can avail {store.couponDiscount} off
               </p>
             </div>
           )}
         </div>
 
         {/* Payment Method */}
-        <div className="checkout-card">
-          <h3 className="text-sm font-bold text-gray-900 tracking-wide mb-3">PAYMENT METHOD</h3>
+        <div className="glass-panel p-5 rounded-2xl border border-white/10">
+          <h3 className="text-[12px] font-bold text-on-surface-variant tracking-widest uppercase mb-4">PAYMENT METHOD</h3>
           <div className="flex flex-col gap-3">
-            <label className={`flex items-center justify-between p-3 border rounded-xl cursor-pointer transition-all ${useWallet ? 'border-gray-900 bg-gray-50' : 'border-gray-100 hover:bg-gray-50'}`}>
+            <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
               <div className="flex items-center gap-3">
                 <input 
                   type="radio" 
@@ -183,128 +183,143 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                   checked={useWallet} 
                   onChange={() => setUseWallet(true)}
                   disabled={(appUser?.walletBalance || 0) < totalAmount}
-                  className="w-4 h-4 text-black focus:ring-black accent-black" 
+                  className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
                 />
                 <div>
-                  <span className="text-sm font-semibold text-gray-900 block">Arcade Wallet</span>
-                  <span className={`text-xs ${((appUser?.walletBalance || 0) < totalAmount) ? 'text-red-500' : 'text-gray-500'}`}>
+                  <span className="text-[14px] font-bold text-white block flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[16px] text-primary">account_balance_wallet</span>
+                    Arcade Wallet
+                  </span>
+                  <span className={`text-[12px] font-bold mt-1 block ${((appUser?.walletBalance || 0) < totalAmount) ? 'text-red-400' : 'text-secondary'}`}>
                     Balance: {formatPrice(appUser?.walletBalance || 0)}
                   </span>
                 </div>
               </div>
             </label>
-            <label className={`flex items-center justify-between p-3 border rounded-xl cursor-pointer transition-all ${!useWallet ? 'border-gray-900 bg-gray-50' : 'border-gray-100 hover:bg-gray-50'}`}>
+            <label className={`flex items-center justify-between p-4 border rounded-xl cursor-pointer transition-all ${!useWallet ? 'border-primary/50 bg-primary/10 shadow-[0_0_15px_rgba(221,183,255,0.1)]' : 'border-white/5 bg-white/5 hover:border-white/20'}`}>
               <div className="flex items-center gap-3">
                 <input 
                   type="radio" 
                   name="paymentMethod" 
                   checked={!useWallet} 
                   onChange={() => setUseWallet(false)}
-                  className="w-4 h-4 text-black focus:ring-black accent-black" 
+                  className="w-4 h-4 text-primary focus:ring-primary accent-primary bg-background border-white/20" 
                 />
-                <span className="text-sm font-semibold text-gray-900 block">Pay at Counter</span>
+                <span className="text-[14px] font-bold text-white block flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[16px] text-primary">storefront</span>
+                  Pay at Counter
+                </span>
               </div>
             </label>
           </div>
         </div>
 
         {/* Total Amount */}
-        <div className="checkout-card">
+        <div className="glass-panel p-5 rounded-2xl border border-white/10">
           <button className="flex items-center justify-between w-full">
             <div>
-              <p className="text-sm font-bold text-gray-900 tracking-wide">TOTAL AMOUNT</p>
+              <p className="text-[12px] font-bold text-on-surface-variant tracking-widest uppercase">TOTAL AMOUNT</p>
             </div>
-            <div className="flex items-center gap-1.5">
-              <span className="text-lg font-bold text-gray-900">{formatPrice(totalAmount)}</span>
-              <ChevronRight size={16} className="text-gray-400" />
+            <div className="flex items-center gap-2">
+              <span className="text-[20px] font-black text-primary neon-glow-primary">{formatPrice(totalAmount)}</span>
+              <span className="material-symbols-outlined text-[20px] text-on-surface-variant">chevron_right</span>
             </div>
           </button>
         </div>
 
         {/* Reschedule Policy */}
-        <div className="checkout-card">
-          <h3 className="text-sm font-bold text-gray-900 tracking-wide mb-2">
+        <div className="glass-panel p-5 rounded-2xl border border-white/10 bg-white/5">
+          <h3 className="text-[12px] font-bold text-white tracking-widest uppercase mb-2">
             RESCHEDULE POLICIES
           </h3>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-[12px] text-on-surface-variant leading-relaxed">
             Rescheduling is allowed 1.0 Hour prior to slot time. Rescheduling of a booking can be done
             only 3 times.{' '}
             {expandReschedule ? (
               <>
                 Once rescheduled, further modifications may incur additional charges. Subject to availability of the same asset category.
-                <button onClick={() => setExpandReschedule(false)} className="text-gray-900 font-bold ml-1">See Less</button>
+                <button onClick={() => setExpandReschedule(false)} className="text-primary font-bold ml-1">See Less</button>
               </>
             ) : (
               <>
                 Once resch...
-                <button onClick={() => setExpandReschedule(true)} className="text-gray-900 font-bold ml-1">See More</button>
+                <button onClick={() => setExpandReschedule(true)} className="text-primary font-bold ml-1">See More</button>
               </>
             )}
           </p>
         </div>
 
         {/* Cancellation Policy */}
-        <div className="checkout-card">
-          <h3 className="text-sm font-bold text-gray-900 tracking-wide mb-2">
+        <div className="glass-panel p-5 rounded-2xl border border-white/10 bg-white/5">
+          <h3 className="text-[12px] font-bold text-white tracking-widest uppercase mb-2">
             CANCELLATION POLICY
           </h3>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          <p className="text-[12px] text-on-surface-variant leading-relaxed">
             Cancellation is allowed up to 2 hours before the slot. A cancellation fee of 10% will be charged.{' '}
             {expandCancel ? (
               <>
                 Refund will be credited to the original payment method within 5-7 business days. Last-minute cancellations (under 2 hours) are non-refundable.
-                <button onClick={() => setExpandCancel(false)} className="text-gray-900 font-bold ml-1">See Less</button>
+                <button onClick={() => setExpandCancel(false)} className="text-primary font-bold ml-1">See Less</button>
               </>
             ) : (
               <>
                 Refund will be credited...
-                <button onClick={() => setExpandCancel(true)} className="text-gray-900 font-bold ml-1">See More</button>
+                <button onClick={() => setExpandCancel(true)} className="text-primary font-bold ml-1">See More</button>
               </>
             )}
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 text-red-600 text-sm font-medium p-4 rounded-2xl animate-scale-in">
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-[14px] font-bold p-4 rounded-xl animate-scale-in flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">error</span>
             {error}
           </div>
         )}
       </div>
 
       {/* Sticky Pay Button */}
-      <div className="fixed bottom-6 left-0 right-0 px-6 z-10 pointer-events-none">
+      <div className="fixed bottom-[var(--bottom-nav-height)] mb-4 left-0 right-0 px-5 z-40 pointer-events-none">
         <button
           onClick={handlePayment}
           disabled={loading}
-          className="btn-green pointer-events-auto shadow-lg shadow-black/10"
+          className="btn-gradient w-full py-4 rounded-xl font-bold text-[14px] uppercase tracking-wider transition-all active:scale-95 flex items-center justify-center gap-2 neon-glow-primary text-background pointer-events-auto"
         >
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin" />
               Processing...
             </span>
           ) : (
-            `PAY ${formatPrice(totalAmount)}`
+            <>
+              PAY {formatPrice(totalAmount)}
+              <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
+            </>
           )}
         </button>
       </div>
+
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl p-8 w-full max-w-sm flex flex-col items-center text-center shadow-xl animate-scale-in">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
-              <CheckCircle size={40} className="text-green-500" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="glass-card rounded-[2rem] p-8 w-full max-w-sm flex flex-col items-center text-center shadow-2xl animate-scale-in relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
+            
+            <div className="w-20 h-20 bg-secondary/10 border border-secondary/30 rounded-full flex items-center justify-center mb-6 mt-4">
+              <span className="material-symbols-outlined text-[40px] text-secondary">check_circle</span>
             </div>
-            <h2 className="text-2xl font-black text-gray-900 mb-2 tracking-tight">Booking Confirmed!</h2>
-            <p className="text-sm text-gray-500 mb-8 font-medium leading-relaxed">
-              You have successfully booked {store.selectedAssetName} for {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}.
+            
+            <h2 className="text-[24px] font-black text-white mb-2 tracking-tight">Booking Confirmed!</h2>
+            <p className="text-[14px] text-on-surface-variant mb-8 font-medium leading-relaxed">
+              You have successfully booked <span className="text-primary font-bold">{store.selectedAssetName}</span> for {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}.
             </p>
+            
             <button
               onClick={() => {
                 store.reset();
                 router.replace('/bookings?success=true');
               }}
-              className="w-full bg-[#111111] text-white py-4 rounded-full font-bold shadow-md hover:bg-black transition-colors"
+              className="w-full btn-gradient py-4 rounded-full font-bold shadow-md hover:bg-black transition-all active:scale-95 text-background neon-glow-primary"
             >
               View My Bookings
             </button>

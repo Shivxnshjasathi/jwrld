@@ -32,17 +32,15 @@ export default function DateStrip({ selectedDate, onDateSelect, daysToShow = 14 
   }, [selectedDate, dates]);
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <div className="flex items-center justify-between px-1">
-        <h3 className="text-base font-bold text-arcade-text tracking-wide">{currentMonth}</h3>
-        <button className="p-1 text-arcade-text-muted hover:text-arcade-text transition-colors">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
-          </svg>
+        <h3 className="text-[16px] font-bold text-on-surface tracking-wide">{currentMonth}</h3>
+        <button className="p-1 text-on-surface-variant hover:text-primary transition-colors">
+          <span className="material-symbols-outlined text-[20px]">filter_list</span>
         </button>
       </div>
 
-      <div ref={scrollRef} className="date-strip">
+      <div ref={scrollRef} className="flex gap-3 overflow-x-auto no-scrollbar pb-2 snap-x px-1">
         {dates.map((date) => {
           const isSelected = isSameDay(date, selectedDate);
           const isTodayDate = isToday(date);
@@ -51,10 +49,20 @@ export default function DateStrip({ selectedDate, onDateSelect, daysToShow = 14 
             <button
               key={date.toISOString()}
               onClick={() => onDateSelect(date)}
-              className={`date-item ${isSelected ? 'selected' : ''} ${isTodayDate && !isSelected ? 'today' : ''}`}
+              className={`flex flex-col items-center justify-center min-w-[72px] h-[90px] rounded-2xl shrink-0 snap-start transition-all ${
+                isSelected
+                  ? 'glass-card border border-primary/50 shadow-[0_0_15px_rgba(221,183,255,0.2)] text-primary scale-105'
+                  : isTodayDate
+                  ? 'glass-panel border border-secondary/30 text-secondary'
+                  : 'glass-panel border border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'
+              }`}
             >
-              <span className="day-label">{format(date, 'EEE')}</span>
-              <span className="date-number">{format(date, 'd')}</span>
+              <span className={`text-[12px] font-bold tracking-widest uppercase mb-1 ${isSelected ? 'text-primary' : isTodayDate ? 'text-secondary/80' : 'text-on-surface-variant'}`}>
+                {format(date, 'EEE')}
+              </span>
+              <span className={`text-[28px] font-display-md font-bold leading-none ${isSelected ? 'text-white drop-shadow-[0_0_8px_rgba(221,183,255,0.8)]' : isTodayDate ? 'text-secondary' : 'text-on-surface'}`}>
+                {format(date, 'd')}
+              </span>
             </button>
           );
         })}

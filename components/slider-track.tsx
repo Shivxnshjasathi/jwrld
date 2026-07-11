@@ -10,10 +10,11 @@ interface SliderTrackProps {
   startTime: number;
   endTime: number;
   bookedHours: number[];
+  pastHours?: number[];
   onRangeChange: (start: number, end: number) => void;
 }
 
-export default function SliderTrack({ startTime, endTime, bookedHours, onRangeChange }: SliderTrackProps) {
+export default function SliderTrack({ startTime, endTime, bookedHours, pastHours = [], onRangeChange }: SliderTrackProps) {
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<'start' | 'end' | 'range' | null>(null);
   const dragRef = useRef<{ x: number; startTime: number; endTime: number }>({ x: 0, startTime: 10, endTime: 11 });
@@ -65,17 +66,17 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
   const widthPct = ((endTime - startTime) / RANGE) * 100;
 
   return (
-    <div className="relative pt-2 pb-10 px-1 select-none">
+    <div className="relative pt-6 pb-12 px-2 select-none">
       {/* Tick labels */}
-      <div className="absolute top-0 left-[12px] right-[12px] flex justify-between pointer-events-none">
+      <div className="absolute top-0 left-[16px] right-[16px] flex justify-between pointer-events-none">
         {[10, 12, 14, 16, 18, 20].map(h => {
           const percent = ((h - MIN_HOUR) / RANGE) * 100;
           return (
             <div key={h} className="absolute flex flex-col items-center -translate-x-1/2" style={{ left: `${percent}%` }}>
-              <span className="text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap">
+              <span className="text-[10px] font-bold text-on-surface-variant/70 mb-2 whitespace-nowrap tracking-wider">
                 {h > 12 ? h - 12 : h} {h >= 12 ? 'PM' : 'AM'}
               </span>
-              <div className="w-[1.5px] h-1.5 bg-gray-300 rounded-full" />
+              <div className="w-[1.5px] h-1.5 bg-white/10 rounded-full" />
             </div>
           );
         })}
@@ -84,16 +85,16 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
       {/* Track line */}
       <div
         ref={trackRef}
-        className="absolute top-[32px] left-[12px] right-[12px] h-[3px] bg-gray-200 rounded-full"
+        className="absolute top-[48px] left-[16px] right-[16px] h-2 bg-black/40 rounded-full border border-white/5 cursor-pointer"
         onClick={(e) => handleTrackTap(e.clientX)}
       >
-        {/* Booked (red) segments */}
+        {/* Past (grey) segments */}
         {[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(h => {
-          if (bookedHours.includes(h)) {
+          if (pastHours.includes(h) && !bookedHours.includes(h)) {
             return (
               <div
-                key={h}
-                className="absolute top-0 h-full bg-red-500 pointer-events-none"
+                key={`past-${h}`}
+                className="absolute top-0 h-full bg-surface-variant pointer-events-none opacity-60"
                 style={{
                   left: `${((h - MIN_HOUR) / RANGE) * 100}%`,
                   width: `${(1 / RANGE) * 100}%`
@@ -104,35 +105,34 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
           return null;
         })}
 
-        {/* Selected range — thin black bar */}
+        {/* Booked (red) segments */}
+        {[10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20].map(h => {
+          if (bookedHours.includes(h)) {
+            return (
+              <div
+                key={h}
+                className="absolute top-0 h-full bg-error pointer-events-none opacity-50"
+                style={{
+                  left: `${((h - MIN_HOUR) / RANGE) * 100}%`,
+                  width: `${(1 / RANGE) * 100}%`
+                }}
+              />
+            );
+          }
+          return null;
+        })}
+
+        {/* Selected range — neon glow bar */}
         <div
-          className="absolute top-0 h-full bg-[#111111] rounded-full transition-all duration-150"
+          className="absolute top-0 h-full bg-secondary rounded-full transition-all duration-150 shadow-[0_0_15px_rgba(45,212,191,0.8)]"
           style={{ left: `${startPct}%`, width: `${widthPct}%` }}
         />
 
-        {/* Draggable center area (slides the whole range) */}
-        <div
-          className="absolute top-[-20px] h-[40px] z-10 touch-none cursor-grab"
-          style={{ left: `${startPct}%`, width: `${widthPct}%` }}
-          onTouchStart={(e) => {
-            setDragging('range');
-            dragRef.current = { x: e.touches[0].clientX, startTime, endTime };
-          }}
-          onTouchMove={(e) => moveDrag(e.touches[0].clientX)}
-          onTouchEnd={endDrag}
-          onMouseDown={(e) => {
-            setDragging('range');
-            dragRef.current = { x: e.clientX, startTime, endTime };
-            const onMove = (me: MouseEvent) => moveDrag(me.clientX);
-            const onUp = () => { endDrag(); document.removeEventListener('mousemove', onMove); document.removeEventListener('mouseup', onUp); };
-            document.addEventListener('mousemove', onMove);
-            document.addEventListener('mouseup', onUp);
-          }}
-        />
 
-        {/* Start handle (left triangle) */}
+
+        {/* Start handle (neon circle) */}
         <div
-          className="absolute top-[6px] w-[40px] h-[40px] -translate-x-1/2 -translate-y-[15px] flex items-center justify-center z-20 touch-none cursor-grab"
+          className="absolute top-[4px] w-[30px] h-[30px] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20 touch-none cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           style={{ left: `${startPct}%` }}
           onTouchStart={(e) => {
             setDragging('start');
@@ -149,13 +149,13 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
             document.addEventListener('mouseup', onUp);
           }}
         >
-          {/* Visual Triangle */}
-          <div className="absolute top-[15px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111] pointer-events-none" />
+          {/* Visual Circle */}
+          <div className="w-5 h-5 rounded-full bg-black border-[1.5px] border-secondary shadow-[0_0_15px_rgba(45,212,191,0.9)] pointer-events-none" />
         </div>
 
-        {/* End handle (right triangle) */}
+        {/* End handle (neon circle) */}
         <div
-          className="absolute top-[6px] w-[40px] h-[40px] -translate-x-1/2 -translate-y-[15px] flex items-center justify-center z-20 touch-none cursor-grab"
+          className="absolute top-[4px] w-[30px] h-[30px] -translate-x-1/2 -translate-y-1/2 flex items-center justify-center z-20 touch-none cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
           style={{ left: `${startPct + widthPct}%` }}
           onTouchStart={(e) => {
             setDragging('end');
@@ -172,8 +172,8 @@ export default function SliderTrack({ startTime, endTime, bookedHours, onRangeCh
             document.addEventListener('mouseup', onUp);
           }}
         >
-          {/* Visual Triangle */}
-          <div className="absolute top-[15px] w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-b-[8px] border-b-[#111111] pointer-events-none" />
+          {/* Visual Circle */}
+          <div className="w-5 h-5 rounded-full bg-black border-[1.5px] border-secondary shadow-[0_0_15px_rgba(45,212,191,0.9)] pointer-events-none" />
         </div>
       </div>
     </div>

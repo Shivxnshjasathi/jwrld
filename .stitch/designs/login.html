@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Jaaduwrld - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twgl.js/5.5.3/twgl.min.js"></script>
+<script>
+class WebGLShader extends HTMLElement {
+  connectedCallback() {
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    canvas.style.display = 'block';
+    this.appendChild(canvas);
+
+    const gl = canvas.getContext('webgl');
+    if (!gl) return;
+
+    const vs = `
+      attribute vec4 position;
+      varying vec2 v_texCoord;
+      void main() {
+        gl_Position = position;
+        v_texCoord = position.xy * 0.5 + 0.5;
+      }
+    `;
+
+    const fs = this.textContent;
+
+    const programInfo = twgl.createProgramInfo(gl, [vs, fs]);
+    const arrays = {
+      position: [-1, -1, 0, 1, -1, 0, -1, 1, 0, -1, 1, 0, 1, -1, 0, 1, 1, 0],
+    };
+    const bufferInfo = twgl.createBufferInfoFromArrays(gl, arrays);
+
+    const render = (time) => {
+      twgl.resizeCanvasToDisplaySize(gl.canvas);
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+      const uniforms = {
+        u_time: time * 0.001,
+        u_resolution: [gl.canvas.width, gl.canvas.height],
+      };
+
+      gl.useProgram(programInfo.program);
+      twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+      twgl.setUniforms(programInfo, uniforms);
+      twgl.drawBufferInfo(gl, bufferInfo);
+
+      requestAnimationFrame(render);
+    };
+    requestAnimationFrame(render);
+  }
+}
+customElements.define('webgl-shader', WebGLShader);
+</script>
+<script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {"on-secondary-container": "#004d44", background: "#131314", "surface-variant": "#353436", "on-secondary-fixed": "#00201c", "tertiary-container": "#e364a7", "surface-container-high": "#2a2a2b", "surface-container-lowest": "#0e0e0f", primary: "#ddb7ff", "on-tertiary-fixed": "#3d0026", "surface-container-low": "#1c1b1c", "surface-container": "#201f20", "tertiary-fixed-dim": "#ffafd3", "on-surface": "#e5e2e3", secondary: "#44e2cd", outline: "#988d9f", "inverse-primary": "#842bd2", "on-secondary-fixed-variant": "#005047", "on-tertiary": "#620040", "on-tertiary-fixed-variant": "#85145a", "on-error": "#690005", "primary-fixed": "#f0dbff", "on-error-container": "#ffdad6", "error-container": "#93000a", "surface-container-highest": "#353436", tertiary: "#ffafd3", "primary-fixed-dim": "#ddb7ff", "inverse-surface": "#e5e2e3", "surface-dim": "#131314", "surface-bright": "#3a393a", "on-primary": "#490080", "on-secondary": "#003731", "on-primary-container": "#400071", "on-primary-fixed": "#2c0051", "tertiary-fixed": "#ffd8e7", "primary-container": "#b76dff", error: "#ffb4ab", "on-surface-variant": "#cfc2d6", "secondary-container": "#03c6b2", "inverse-on-surface": "#313031", "secondary-fixed-dim": "#3cddc7", "on-tertiary-container": "#560038", "on-primary-fixed-variant": "#6900b3", "surface-tint": "#ddb7ff", "outline-variant": "#4d4354", "secondary-fixed": "#62fae3", surface: "#131314", "on-background": "#e5e2e3"}, borderRadius: {DEFAULT: "0.125rem", lg: "0.25rem", xl: "0.5rem", full: "0.75rem"}, spacing: {md: "16px", xl: "40px", gutter: "24px", lg: "24px", unit: "4px", "container-max": "1440px", xs: "4px", sm: "8px", xxl: "80px"}, fontFamily: {"display-md": ["Outfit"], "body-md": ["Outfit"], "display-lg": ["Outfit"], "headline-lg-mobile": ["Outfit"], "body-lg": ["Outfit"], "headline-lg": ["Outfit"], "label-sm": ["Outfit"], "label-md": ["Outfit"], "headline-md": ["Outfit"], headline: ["Outfit"], display: ["Outfit"], body: ["Outfit"], label: ["Outfit"]}, fontSize: {"display-md": ["48px", {lineHeight: "1.1", letterSpacing: "-0.03em", fontWeight: "700"}], "body-md": ["16px", {lineHeight: "1.6", letterSpacing: "0", fontWeight: "400"}], "display-lg": ["64px", {lineHeight: "1.1", letterSpacing: "-0.04em", fontWeight: "700"}], "headline-lg-mobile": ["28px", {lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "600"}], "body-lg": ["18px", {lineHeight: "1.6", letterSpacing: "0", fontWeight: "400"}], "headline-lg": ["32px", {lineHeight: "1.2", letterSpacing: "-0.02em", fontWeight: "600"}], "label-sm": ["12px", {lineHeight: "1", letterSpacing: "0.02em", fontWeight: "500"}], "label-md": ["14px", {lineHeight: "1", letterSpacing: "0.05em", fontWeight: "600"}], "headline-md": ["24px", {lineHeight: "1.3", letterSpacing: "-0.01em", fontWeight: "600"}]}}}};</script>
+<style>
+        .bg-obsidian { background-color: #0A0A0B; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .ambient-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(132, 43, 210, 0.15) 0%, rgba(10, 10, 11, 0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+        .btn-gradient {
+            background: linear-gradient(135deg, #842bd2 0%, #44e2cd 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-gradient:hover {
+            box-shadow: 0 0 20px rgba(132, 43, 210, 0.4);
+        }
+        .input-dark {
+            background-color: #050505;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: border-color 0.3s ease;
+        }
+        .input-dark:focus {
+            border-color: #44e2cd;
+            outline: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-obsidian text-on-surface min-h-screen flex items-center justify-center relative overflow-hidden font-body-md antialiased">
+<!-- Ambient Glow Background -->
+<div class="ambient-glow"></div>
+<!-- Main Content Container -->
+<main class="relative z-10 w-full max-w-md px-gutter md:px-0">
+<!-- Brand Header -->
+<div class="text-center mb-xl">
+<h1 class="font-display-md text-display-md text-on-surface tracking-tighter mb-sm">Jaaduwrld</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Enter the Art &amp; Arcade</p>
+</div>
+<!-- Login Card (Glassmorphism) -->
+<div class="glass-panel rounded-xl p-lg md:p-xl relative overflow-hidden">
+<!-- Subtle Inner Glow (Top Left) -->
+<div class="absolute top-0 left-0 w-32 h-32 bg-white/5 rounded-full blur-2xl -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
+<form action="#" class="space-y-lg relative z-10" method="POST">
+<!-- Email Field -->
+<div class="space-y-sm">
+<label class="font-label-md text-label-md text-on-surface-variant block" for="email">Email Address</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">mail</span>
+<input class="input-dark w-full rounded-lg py-md pl-12 pr-md text-on-surface font-body-md placeholder-on-surface-variant/50 focus:ring-0" id="email" name="email" placeholder="pilot@jaaduwrld.com" required="" type="email"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="space-y-sm">
+<div class="flex justify-between items-center">
+<label class="font-label-md text-label-md text-on-surface-variant block" for="password">Password</label>
+<a class="font-label-sm text-label-sm text-primary hover:text-primary-fixed transition-colors" href="#">Forgot?</a>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-variation-settings: 'FILL' 0;">lock</span>
+<input class="input-dark w-full rounded-lg py-md pl-12 pr-md text-on-surface font-body-md placeholder-on-surface-variant/50 focus:ring-0" id="password" name="password" placeholder="••••••••" required="" type="password"/>
+</div>
+</div>
+<!-- Primary Action -->
+<button class="btn-gradient w-full rounded-lg py-md px-lg font-label-md text-label-md text-white flex items-center justify-center gap-sm" type="submit">
+<span>Initiate Sequence</span>
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</button>
+<!-- Divider -->
+<div class="flex items-center gap-md py-sm">
+<div class="h-px bg-white/10 flex-1"></div>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">Or</span>
+<div class="h-px bg-white/10 flex-1"></div>
+</div>
+<!-- Google SSO Button (Glass Secondary) -->
+<button class="w-full glass-panel rounded-lg py-md px-lg font-label-md text-label-md text-white flex items-center justify-center gap-sm hover:bg-white/10 transition-colors" type="button">
+<svg class="w-5 h-5" fill="none" viewbox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>
+<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"></path>
+<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"></path>
+<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"></path>
+</svg>
+<span>Sign in with Google</span>
+</button>
+</form>
+<!-- Bottom Links -->
+<div class="mt-lg text-center relative z-10">
+<p class="font-body-md text-body-md text-on-surface-variant">
+                    New to the Arcade? <a class="text-secondary hover:text-secondary-fixed transition-colors font-label-md text-label-md ml-xs" href="#">Request Access</a>
+</p>
+</div>
+</div>
+</main>
+</body></html>

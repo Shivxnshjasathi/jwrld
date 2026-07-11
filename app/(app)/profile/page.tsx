@@ -1,7 +1,6 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, LogOut, User, Phone, Mail, Shield, ChevronRight, Settings, HelpCircle, Star, Sun, Moon } from 'lucide-react';
 import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -9,15 +8,15 @@ import { getFirebaseDb } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
 
 const MENU_ITEMS = [
-  { icon: Star, label: 'My Bookings', href: '/bookings' },
-  { icon: Settings, label: 'Settings', href: '/settings' },
-  { icon: HelpCircle, label: 'Help & Support', href: '/help' },
-  { icon: Shield, label: 'Privacy Policy', href: '/privacy' },
+  { icon: 'calendar_month', label: 'My Bookings', href: '/bookings', color: 'text-secondary' },
+  { icon: 'help', label: 'Help & Support', href: '/help', color: 'text-primary' },
+  { icon: 'shield', label: 'Privacy Policy', href: '/privacy', color: 'text-on-surface-variant' },
 ];
 
 export default function ProfilePage() {
   const { appUser, user, isAdmin } = useAuth();
   const router = useRouter();
+  const isDarkMode = useAppStore((s) => s.darkMode);
 
   const handleSignOut = async () => {
     await signOut();
@@ -38,124 +37,144 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5]">
-      {/* Header */}
-      <div className="px-6 pt-12 pb-8">
-        <h1 className="text-2xl font-black text-gray-900 tracking-tight mb-8">Profile</h1>
-
-        <div className="flex items-center gap-5">
-          <div className="w-16 h-16 rounded-full bg-white shadow-sm flex items-center justify-center shrink-0">
+    <div className="bg-background text-on-surface min-h-dvh pb-[120px] font-body-md selection:bg-primary/30 selection:text-primary">
+      {/* TopAppBar */}
+      <header className="bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm fixed top-0 w-full flex justify-between items-center px-gutter py-md z-40">
+        <div className="flex items-center gap-sm">
+          <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30 relative flex items-center justify-center bg-surface-container">
             {appUser?.photoURL ? (
-              <img src={appUser.photoURL} alt="" className="w-full h-full rounded-full object-cover" />
+              <img src={appUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <User size={24} className="text-gray-900" />
+              <span className="material-symbols-outlined text-on-surface-variant">person</span>
             )}
           </div>
-          <div className="flex-1">
-            <h2 className="text-lg font-black text-gray-900">
-              {appUser?.name || 'Arcade Player'}
-            </h2>
-            <div className="flex flex-col gap-1 mt-1">
-              {appUser?.email && (
-                <span className="flex items-center gap-1.5 text-[13px] font-medium text-gray-500">
-                  <Mail size={14} />
-                  {appUser.email}
-                </span>
-              )}
-              {appUser?.phone && (
-                <span className="flex items-center gap-1.5 text-[13px] font-medium text-gray-500">
-                  <Phone size={14} />
-                  {appUser.phone}
-                </span>
-              )}
-            </div>
-            {isAdmin && (
-              <span className="inline-block mt-3 px-3 py-1 bg-purple-100 text-purple-700 text-[10px] font-extrabold rounded-full uppercase tracking-wider">
-                Admin
-              </span>
-            )}
-          </div>
+          <span className="font-display-md text-[24px] tracking-tighter text-on-surface font-bold header-glow">Jaaduwrld</span>
         </div>
-      </div>
+        <button className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200">
+          <span className="material-symbols-outlined">notifications</span>
+        </button>
+      </header>
 
-      <div className="px-6 space-y-4 pb-32">
-        {/* Admin access */}
-        {isAdmin && (
-          <button
-            onClick={() => router.push('/admin')}
-            className="w-full bg-white rounded-[1.5rem] p-4 flex items-center justify-between shadow-sm transition-transform active:scale-[0.98]"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
-                <Shield size={20} className="text-purple-600" />
-              </div>
-              <div className="text-left">
-                <p className="text-[14px] font-bold text-gray-900">Admin Dashboard</p>
-                <p className="text-[12px] font-medium text-gray-400 mt-0.5">Manage bookings & assets</p>
-              </div>
+      <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto md:grid md:grid-cols-12 md:gap-gutter relative z-10">
+        
+        {/* Left Column: Digital Wallet / ID Card */}
+        <section className="md:col-span-5 lg:col-span-4 mb-xl">
+          <h1 className="font-headline-md text-[28px] md:text-[32px] font-bold mb-lg text-white">Profile</h1>
+          
+          {/* ID Card Component */}
+          <div className="card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between">
+            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none"></div>
+            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none"></div>
+            
+            <div className="flex justify-between items-start z-10 relative">
+              <span className="material-symbols-outlined text-on-surface/80 text-[32px]">contactless</span>
+              <span className="font-label-md text-[14px] text-on-surface/60 uppercase tracking-widest font-bold">Jaadu Pass</span>
             </div>
-            <ChevronRight size={18} className="text-gray-400" />
-          </button>
-        )}
+            
+            <div className="z-10 relative mt-auto">
+              <p className="font-label-sm text-[12px] text-on-surface-variant mb-xs font-bold uppercase tracking-wider">
+                {isAdmin ? 'Admin Access' : 'Player Access'}
+              </p>
+              <p className="font-display-md text-[32px] font-bold text-white tracking-tight leading-tight">
+                {appUser?.name || 'Arcade Player'}
+              </p>
+              <p className="text-on-surface-variant text-[14px] mt-1">{appUser?.email}</p>
+            </div>
+          </div>
 
-        {/* Menu items */}
-        {MENU_ITEMS.map((item) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.label}
-              onClick={() => item.href !== '#' && router.push(item.href)}
-              className="w-full bg-white rounded-[1.5rem] p-4 flex items-center justify-between shadow-sm transition-transform active:scale-[0.98]"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-[#F5F5F5] flex items-center justify-center shrink-0">
-                  <Icon size={20} className="text-gray-900" />
+          <div className="grid grid-cols-2 gap-md mt-md">
+            {isAdmin && (
+              <button 
+                onClick={() => router.push('/admin')}
+                className="col-span-2 glass-panel rounded-lg py-sm px-md flex items-center justify-center gap-sm hover:bg-white/10 transition-colors border-primary/30 text-primary"
+              >
+                <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+                <span className="font-label-md text-[14px] font-bold">Admin Dashboard</span>
+              </button>
+            )}
+            
+            {!isAdmin && appUser?.email === 'shivanshjasathi052004@gmail.com' && (
+              <button 
+                onClick={handleMakeAdmin}
+                className="col-span-2 glass-panel rounded-lg py-sm px-md flex items-center justify-center gap-sm hover:bg-white/10 transition-colors border-dashed border-white/20 text-on-surface-variant"
+              >
+                <span className="material-symbols-outlined text-[20px]">shield</span>
+                <span className="font-label-md text-[14px] font-bold uppercase">Make Me Admin</span>
+              </button>
+            )}
+          </div>
+        </section>
+
+        {/* Right Column: Settings & Actions */}
+        <section className="md:col-span-7 lg:col-span-8">
+          <h2 className="font-headline-md text-[24px] font-bold mb-lg text-white">Account Actions</h2>
+          
+          <div className="space-y-md">
+            {MENU_ITEMS.map((item, idx) => (
+              <div 
+                key={item.label}
+                onClick={() => item.href !== '#' && router.push(item.href)}
+                className="glass-panel rounded-xl p-md flex items-center justify-between group hover:bg-white/[0.08] transition-all cursor-pointer"
+              >
+                <div className="flex items-center gap-md">
+                  <div className={`w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant/30 ${item.color}`}>
+                    <span className="material-symbols-outlined">{item.icon}</span>
+                  </div>
+                  <div>
+                    <h3 className="font-body-lg text-[18px] text-on-surface font-semibold">{item.label}</h3>
+                  </div>
                 </div>
-                <span className="text-[14px] font-bold text-gray-900">{item.label}</span>
+                <div className="flex flex-col items-end">
+                  <span className="material-symbols-outlined text-on-surface-variant group-hover:text-white transition-colors">chevron_right</span>
+                </div>
               </div>
-              <ChevronRight size={18} className="text-gray-400" />
-            </button>
-          );
-        })}
+            ))}
 
-        {/* Theme Toggle */}
-        <button
-          onClick={() => useAppStore.getState().toggleDarkMode()}
-          className="w-full bg-white rounded-[1.5rem] p-4 flex items-center justify-between shadow-sm transition-transform active:scale-[0.98] mt-4"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-              {useAppStore((s) => s.darkMode) ? <Moon size={20} className="text-blue-500" /> : <Sun size={20} className="text-blue-500" />}
+            {/* Theme Toggle */}
+            <div 
+              onClick={() => useAppStore.getState().toggleDarkMode()}
+              className="glass-panel rounded-xl p-md flex items-center justify-between group hover:bg-white/[0.08] transition-all cursor-pointer"
+            >
+              <div className="flex items-center gap-md">
+                <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant/30 text-secondary">
+                  <span className="material-symbols-outlined">{isDarkMode ? 'dark_mode' : 'light_mode'}</span>
+                </div>
+                <div>
+                  <h3 className="font-body-lg text-[18px] text-on-surface font-semibold">Dark Mode</h3>
+                </div>
+              </div>
+              <div className="flex flex-col items-end">
+                <div className={`w-12 h-6 rounded-full p-1 transition-colors ${isDarkMode ? 'bg-secondary/40' : 'bg-surface-variant/50'}`}>
+                  <div className={`w-4 h-4 rounded-full bg-white transition-transform ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}`} />
+                </div>
+              </div>
             </div>
-            <span className="text-[14px] font-bold text-gray-900">Dark Mode</span>
           </div>
-          <div className={`w-12 h-6 rounded-full p-1 transition-colors ${useAppStore((s) => s.darkMode) ? 'bg-blue-500' : 'bg-gray-200'}`}>
-            <div className={`w-4 h-4 rounded-full bg-white transition-transform ${useAppStore((s) => s.darkMode) ? 'translate-x-6' : 'translate-x-0'}`} />
-          </div>
-        </button>
 
-        {/* Sign Out */}
-        <button
-          onClick={handleSignOut}
-          className="w-full bg-white rounded-[1.5rem] p-4 flex items-center gap-4 mt-6 shadow-sm transition-transform active:scale-[0.98]"
-        >
-          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0">
-            <LogOut size={20} className="text-red-500" />
+          {/* Settings & Sign Out */}
+          <div className="mt-xl border-t border-outline-variant/20 pt-lg space-y-sm">
+            <button 
+              onClick={() => router.push('/settings')}
+              className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-center gap-sm">
+                <span className="material-symbols-outlined text-on-surface-variant">settings</span>
+                <span className="font-body-md text-[16px] text-on-surface">Account Settings</span>
+              </div>
+              <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+            </button>
+            <button 
+              onClick={handleSignOut}
+              className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-error/10 transition-colors border-error/20"
+            >
+              <div className="flex items-center gap-sm text-error">
+                <span className="material-symbols-outlined">logout</span>
+                <span className="font-body-md text-[16px] font-bold">Sign Out</span>
+              </div>
+            </button>
           </div>
-          <span className="text-[14px] font-bold text-red-500">Sign Out</span>
-        </button>
-
-        {/* Temporary Make Admin Button for testing */}
-        {!isAdmin && appUser?.email === 'shivanshjasathi052004@gmail.com' && (
-          <button
-            onClick={handleMakeAdmin}
-            className="w-full py-4 mt-8 border-2 border-dashed border-gray-300 rounded-[1.5rem] flex flex-col items-center justify-center bg-transparent hover:bg-gray-50 transition-colors"
-          >
-            <Shield size={20} className="text-gray-400 mb-2" />
-            <span className="text-[12px] font-extrabold text-gray-500 uppercase tracking-wider">Make Me Admin (Test Mode)</span>
-          </button>
-        )}
-      </div>
+        </section>
+      </main>
     </div>
   );
 }

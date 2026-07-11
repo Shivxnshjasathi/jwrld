@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useCallback, useMemo } from 'react';
-import { Minus, Plus } from 'lucide-react';
 import { formatTime, OPERATING_HOURS } from '@/lib/utils';
 
 interface TimeSliderProps {
@@ -102,40 +101,40 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
   );
 
   return (
-    <div className="time-section">
-      <div className="flex items-center justify-between mb-1">
+    <div className="glass-panel p-5 rounded-2xl border border-white/10">
+      <div className="flex items-center justify-between mb-2">
         <div>
-          <p className="text-sm font-bold text-arcade-text tracking-wider">TIME</p>
-          <p className="text-base font-semibold text-arcade-text mt-1">
+          <p className="text-[12px] font-bold text-on-surface-variant tracking-wider">TIME</p>
+          <p className="text-[16px] font-bold text-primary mt-1">
             {formatTime(startTime)} - {formatTime(endTime === 24 ? 0 : endTime)}
           </p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 bg-surface-container-high rounded-full p-1 border border-white/5">
           <button
             onClick={handleDecreaseDuration}
             disabled={duration <= 1}
-            className="w-8 h-8 rounded-full border-2 border-arcade-text-muted flex items-center justify-center disabled:opacity-30 transition-opacity"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-30 transition-all text-on-surface"
           >
-            <Minus size={14} className="text-arcade-text-muted" />
+            <span className="material-symbols-outlined text-[18px]">remove</span>
           </button>
-          <span className="text-sm font-semibold text-arcade-text min-w-[60px] text-center">
-            {duration * 60} Mins
+          <span className="text-[14px] font-bold text-on-surface min-w-[60px] text-center">
+            {duration * 60}m
           </span>
           <button
             onClick={handleIncreaseDuration}
             disabled={endTime >= opEnd}
-            className="w-8 h-8 rounded-full border-2 border-arcade-text-muted flex items-center justify-center disabled:opacity-30 transition-opacity"
+            className="w-8 h-8 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center disabled:opacity-30 transition-all text-on-surface"
           >
-            <Plus size={14} className="text-arcade-text-muted" />
+            <span className="material-symbols-outlined text-[18px]">add</span>
           </button>
         </div>
       </div>
 
       {/* Time labels */}
-      <div className="relative mt-6 mb-2">
+      <div className="relative mt-8 mb-3">
         <div className="flex justify-between px-1">
           {visibleLabels.map((item, i) => (
-            <span key={i} className="text-[11px] font-medium text-arcade-text-muted">
+            <span key={i} className="text-[10px] font-medium text-on-surface-variant">
               {item.label}
             </span>
           ))}
@@ -143,7 +142,10 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
       </div>
 
       {/* Slider track */}
-      <div className="time-slider-track" onClick={handleTrackClick}>
+      <div 
+        className="relative h-2 bg-surface-container-highest rounded-full cursor-pointer overflow-hidden border border-white/5" 
+        onClick={handleTrackClick}
+      >
         {/* Booked Blocks */}
         {bookedHours.map((hour) => {
           if (hour < opStart || hour >= opEnd) return null;
@@ -152,52 +154,32 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
           return (
             <div
               key={hour}
-              className="absolute h-full bg-red-400 opacity-60 pointer-events-none"
+              className="absolute h-full bg-red-500/50 pointer-events-none"
               style={{ left: `${pos}%`, width: `${width}%` }}
             />
           );
         })}
 
+        {/* Selected Range Fill */}
         <div
-          className="time-slider-fill"
+          className="absolute h-full bg-gradient-to-r from-primary to-secondary pointer-events-none neon-glow-primary"
           style={{ left: `${fillLeft}%`, width: `${fillWidth}%` }}
         />
+        
+        {/* Start Thumb */}
         <div
-          className="time-slider-thumb"
+          className="absolute top-1/2 -translate-y-1/2 -ml-3 w-6 h-6 rounded-full bg-background border-2 border-primary shadow-[0_0_10px_rgba(221,183,255,0.8)] cursor-grab active:cursor-grabbing z-10"
           style={{ left: `${fillLeft}%` }}
           onMouseDown={handleThumbDrag('start')}
           onTouchStart={handleThumbDrag('start')}
         />
+        
+        {/* End Thumb */}
         <div
-          className="time-slider-thumb"
+          className="absolute top-1/2 -translate-y-1/2 -ml-3 w-6 h-6 rounded-full bg-background border-2 border-secondary shadow-[0_0_10px_rgba(68,226,205,0.8)] cursor-grab active:cursor-grabbing z-10"
           style={{ left: `${fillLeft + fillWidth}%` }}
           onMouseDown={handleThumbDrag('end')}
           onTouchStart={handleThumbDrag('end')}
-        />
-      </div>
-
-      {/* Triangle indicators */}
-      <div className="relative h-6 mt-1">
-        <div
-          className="absolute transition-all duration-150"
-          style={{ left: `${fillLeft}%`, transform: 'translateX(-50%)' }}
-        >
-          <svg width="12" height="8" viewBox="0 0 12 8" className="text-arcade-text">
-            <polygon points="6,0 0,8 12,8" fill="currentColor" />
-          </svg>
-        </div>
-        <div
-          className="absolute transition-all duration-150"
-          style={{ left: `${fillLeft + fillWidth}%`, transform: 'translateX(-50%)' }}
-        >
-          <svg width="12" height="8" viewBox="0 0 12 8" className="text-arcade-text">
-            <polygon points="6,0 0,8 12,8" fill="currentColor" />
-          </svg>
-        </div>
-        {/* Line between triangles */}
-        <div
-          className="absolute top-[3px] h-[2px] bg-arcade-text transition-all duration-150"
-          style={{ left: `${fillLeft}%`, width: `${fillWidth}%` }}
         />
       </div>
     </div>

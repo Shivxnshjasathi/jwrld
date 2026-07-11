@@ -1,29 +1,29 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import ClientProviders from '@/components/client-providers';
 
-const inter = Inter({
-  variable: "--font-inter",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800", "900"],
 });
 
 export const metadata: Metadata = {
-  title: "ArcadeZone — Book. Play. Win.",
-  description: "Book pool tables, snooker tables, and PS5 gaming stations at ArcadeZone. Premium arcade booking made easy.",
+  title: "Jaaduwrld — Book. Play. Win.",
+  description: "Book pool tables, snooker tables, and PS5 gaming stations at Jaaduwrld. Premium arcade booking made easy.",
   keywords: ["arcade", "pool", "snooker", "PS5", "gaming", "booking"],
-  authors: [{ name: "ArcadeZone" }],
+  authors: [{ name: "Jaaduwrld" }],
   openGraph: {
-    title: "ArcadeZone — Book. Play. Win.",
+    title: "Jaaduwrld — Book. Play. Win.",
     description: "Premium arcade booking. Pool, Snooker & PS5 Gaming.",
     type: "website",
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "ArcadeZone",
+    title: "Jaaduwrld",
   },
 };
 
@@ -32,7 +32,7 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: "#111111",
+  themeColor: "#0A0A0B",
 };
 
 export default function RootLayout({
@@ -41,13 +41,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} h-full`} suppressHydrationWarning>
+    <html lang="en" className={`dark ${outfit.variable} h-full`} suppressHydrationWarning>
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        {/* Material Symbols Outlined */}
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
       </head>
-      <body className="min-h-full flex flex-col antialiased">
+      <body className="bg-obsidian text-on-surface min-h-screen relative overflow-x-hidden font-body-md antialiased flex flex-col">
         <ClientProviders>
           {children}
         </ClientProviders>
@@ -56,11 +58,12 @@ export default function RootLayout({
           toastOptions={{
             duration: 3000,
             style: {
-              background: '#333',
-              color: '#fff',
-              borderRadius: '99px',
+              background: '#353436',
+              color: '#e5e2e3',
+              borderRadius: '8px',
               fontSize: '14px',
               fontWeight: '500',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
             },
           }}
         />

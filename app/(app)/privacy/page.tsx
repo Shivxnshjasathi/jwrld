@@ -1,47 +1,64 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Shield } from 'lucide-react';
 
 export default function PrivacyPage() {
   const router = useRouter();
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5] pb-24">
+    <div className="min-h-dvh bg-[#0A0A0B] text-on-surface selection:bg-primary/30 pb-24 font-body-md relative overflow-hidden">
+      {/* Background Glow */}
+      <div className="ambient-glow"></div>
+
       {/* Header */}
-      <div className="bg-[#F5F5F5] px-4 md:px-6 pt-12 pb-6 sticky top-0 z-10 border-b border-gray-200">
-        <div className="flex items-center gap-3 max-w-7xl mx-auto">
+      <div className="bg-surface/10 px-6 pt-12 pb-6 sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl">
+        <div className="flex items-center gap-4 max-w-7xl mx-auto">
           <button
             onClick={() => router.back()}
-            className="w-10 h-10 shrink-0 bg-white rounded-full flex items-center justify-center shadow-sm border border-gray-100"
+            className="w-10 h-10 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/5 hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
           >
-            <ArrowLeft size={20} className="text-gray-900" />
+            <span className="material-symbols-outlined text-[20px]">arrow_back</span>
           </button>
           <div>
-            <h1 className="text-xl md:text-2xl font-black text-gray-900 tracking-tight">Privacy Policy</h1>
-            <p className="text-[12px] md:text-[13px] text-gray-500 font-medium mt-0.5">
+            <h1 className="text-[20px] font-bold text-white tracking-tight header-glow">Privacy Policy</h1>
+            <p className="text-[11px] text-primary font-bold tracking-widest uppercase mt-1">
               How we handle your data
             </p>
           </div>
         </div>
       </div>
 
-      <div className="p-4 md:p-6 max-w-7xl mx-auto mt-4 space-y-4">
-        <div className="bg-white rounded-[1.5rem] p-6 shadow-sm">
-          <h3 className="text-sm font-bold text-gray-900 mb-2">1. Information We Collect</h3>
-          <p className="text-xs text-gray-500 leading-relaxed mb-4">
+      <div className="p-5 max-w-7xl mx-auto mt-2 space-y-6 relative z-10">
+        <div className="glass-panel rounded-2xl p-6 border border-white/10">
+          <h3 className="text-[14px] font-bold text-white mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-primary">policy</span>
+            1. Information We Collect
+          </h3>
+          <p className="text-[12px] text-on-surface-variant leading-relaxed mb-6">
             We collect information you provide directly to us, such as when you create or modify your account, request services, contact customer support, or otherwise communicate with us. This information may include: name, email, phone number, profile picture, and payment method.
           </p>
-          <h3 className="text-sm font-bold text-gray-900 mb-2">2. How We Use Your Information</h3>
-          <p className="text-xs text-gray-500 leading-relaxed mb-4">
-            We use the information we collect to provide, maintain, and improve our services, including to facilitate bookings for arcade assets like Pool, Snooker, and PS5 stations. We also use it to process transactions and send related information, including confirmations and receipts.
+          
+          <h3 className="text-[14px] font-bold text-white mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-primary">data_usage</span>
+            2. How We Use Your Information
+          </h3>
+          <p className="text-[12px] text-on-surface-variant leading-relaxed mb-6">
+            We use the information we collect to provide, maintain, and improve our services, including to facilitate bookings for arcade assets like 8-Ball Pool, Snooker, and PS5 stations. We also use it to process transactions and send related information, including confirmations and receipts.
           </p>
-          <h3 className="text-sm font-bold text-gray-900 mb-2">3. Data Security</h3>
-          <p className="text-xs text-gray-500 leading-relaxed mb-4">
+          
+          <h3 className="text-[14px] font-bold text-white mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-primary">encrypted</span>
+            3. Data Security
+          </h3>
+          <p className="text-[12px] text-on-surface-variant leading-relaxed mb-6">
             We implement appropriate technical and organizational measures to protect your personal data against unauthorized or unlawful processing, accidental loss, destruction, or damage. Your data is securely encrypted in transit and at rest.
           </p>
-          <h3 className="text-sm font-bold text-gray-900 mb-2">4. Sharing of Information</h3>
-          <p className="text-xs text-gray-500 leading-relaxed">
+          
+          <h3 className="text-[14px] font-bold text-white mb-2 flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px] text-primary">share</span>
+            4. Sharing of Information
+          </h3>
+          <p className="text-[12px] text-on-surface-variant leading-relaxed">
             We do not share your personal information with third parties except as necessary to provide our services (e.g., payment processors), comply with the law, or protect our rights.
           </p>
         </div>

@@ -1,0 +1,16 @@
+{
+  "projectId": "projects/18014578997635590610",
+  "title": "Jaaduwrld Arcade Experience",
+  "deviceType": "MOBILE",
+  "Last Sync Time": "2026-07-11T09:37:00Z",
+  "screens": {
+    "projects/18014578997635590610/screens/c506509dbdb646d1ab4fc26440dfdb91": {
+      "id": "c506509dbdb646d1ab4fc26440dfdb91",
+      "label": "Messages | Jaaduwrld"
+    },
+    "projects/18014578997635590610/screens/626b816f346b40b3b4d93f368877b255": {
+      "id": "626b816f346b40b3b4d93f368877b255",
+      "label": "Admin Dashboard | Jaaduwrld"
+    }
+  }
+}

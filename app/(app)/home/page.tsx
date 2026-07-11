@@ -1,9 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
-import { MessageCircle, CircleDashed, Target, Gamepad2, Utensils, Minus, Plus, X, Megaphone } from 'lucide-react';
 import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { getAssetsByCategory, subscribeToBookings, subscribeToAnnouncement, type Asset, type Booking, type Announcement } from '@/lib/firestore';
@@ -11,13 +10,11 @@ import SliderTrack from '@/components/slider-track';
 import { toast } from 'react-hot-toast';
 
 const TABS = [
-  { id: 'pool', label: 'Pool', icon: CircleDashed },
-  { id: 'snooker', label: 'Snooker', icon: Target },
-  { id: 'ps5', label: 'PS5', icon: Gamepad2 },
-  { id: 'food', label: 'Food', icon: Utensils },
+  { id: 'pool', label: '8-Ball Pool', icon: 'sports_baseball' },
+  { id: 'snooker', label: 'Snooker', icon: 'sports_esports' },
+  { id: 'ps5', label: 'PS5', icon: 'videogame_asset' },
+  { id: 'food', label: 'Food', icon: 'restaurant' },
 ];
-
-const HOURS = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
 export default function HomePage() {
   const { user, appUser } = useAuth();
@@ -128,6 +125,42 @@ export default function HomePage() {
     return false;
   };
 
+  const pastHours = useMemo(() => {
+    const hours: number[] = [];
+    const now = new Date();
+    const [year, month, day] = store.selectedDate.split('-').map(Number);
+    const selectedDateObj = new Date(year, month - 1, day);
+    
+    if (selectedDateObj.setHours(0,0,0,0) < new Date().setHours(0,0,0,0)) {
+      for (let h = 10; h <= 24; h++) hours.push(h);
+    } else if (selectedDateObj.getTime() === new Date().setHours(0,0,0,0)) {
+      for (let h = 10; h <= now.getHours(); h++) hours.push(h);
+    }
+    return hours;
+  }, [store.selectedDate]);
+
+  useEffect(() => {
+    if (activeTab === 'food') return;
+    
+    // Auto-select first available slot if current slot has conflict or is in the past
+    let currentHasConflict = false;
+    for (let h = store.startTime; h < store.endTime; h++) {
+      if (bookedHours.includes(h) || pastHours.includes(h)) {
+        currentHasConflict = true;
+        break;
+      }
+    }
+
+    if (currentHasConflict) {
+      for (let h = 10; h < 21; h++) {
+        if (!bookedHours.includes(h) && !pastHours.includes(h)) {
+          store.setTimeRange(h, h + 1);
+          break;
+        }
+      }
+    }
+  }, [store.selectedDate, activeTab, bookedHours, pastHours, store.startTime, store.endTime]);
+
   const [waitlisting, setWaitlisting] = useState(false);
 
   const handleWaitlist = async () => {
@@ -156,192 +189,235 @@ export default function HomePage() {
     }
   };
 
-  return (
-    <div className="min-h-dvh bg-background pb-32 transition-colors">
-      {/* Announcement Banner */}
-      {announcement?.active && announcement.text && !bannerDismissed && (
-        <div className="mx-4 mt-3 bg-foreground text-background rounded-2xl px-4 py-3 flex items-center gap-3 animate-slide-up shadow-lg">
-          <Megaphone size={18} className="text-amber-400 shrink-0" />
-          <p className="text-xs font-semibold flex-1">{announcement.text}</p>
-          <button onClick={() => setBannerDismissed(true)} className="shrink-0 p-1">
-            <X size={14} className="text-white/60" />
-          </button>
-        </div>
-      )}
+  const displayDate = useMemo(() => {
+    const [year, month, day] = store.selectedDate.split('-').map(Number);
+    return new Date(year, month - 1, day);
+  }, [store.selectedDate]);
 
-      {/* Header */}
-      <div className="pt-12 px-6 flex items-center justify-between mb-8">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden bg-arcade-border border-2 border-arcade-card shadow-sm flex items-center justify-center">
+  return (
+    <div className="min-h-dvh font-body-md text-body-md relative overflow-x-hidden">
+      {/* Shader Background Placeholder (assuming animation exists or just gradient fallback) */}
+      <div className="fixed top-0 left-0 w-full h-full -z-10 bg-[radial-gradient(ellipse_at_center,rgba(168,85,247,0.15)_0%,rgba(5,5,5,1)_70%)] pointer-events-none mix-blend-screen opacity-60"></div>
+      
+      {/* TopAppBar */}
+      <header className="fixed top-0 w-full flex justify-between items-center px-gutter py-md z-40 bg-black/30 backdrop-blur-2xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        <div className="flex items-center gap-sm cursor-pointer hover:opacity-80 transition-opacity active:scale-95 duration-200">
+          <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/40 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
             {appUser?.photoURL ? (
-              <img src={appUser.photoURL} alt="" className="w-full h-full object-cover" />
+              <img src={appUser.photoURL} alt="User Avatar" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-xl">😎</span>
+              <div className="w-full h-full bg-surface-container flex items-center justify-center text-primary font-bold">{userName.charAt(0)}</div>
             )}
           </div>
-          <div>
-            <p className="text-[13px] text-arcade-text-secondary font-medium">Hello 👋</p>
-            <h1 className="text-[17px] font-bold text-foreground leading-tight">{userName}</h1>
-          </div>
         </div>
-        <button
+        <div className="font-display-md text-[24px] tracking-tighter text-on-surface header-glow font-bold">
+          Jaaduwrld
+        </div>
+        <button 
           onClick={() => router.push('/messages')}
-          className="w-10 h-10 bg-arcade-card rounded-full flex items-center justify-center shadow-sm relative text-foreground transition-colors"
+          className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-secondary hover:bg-white/10 transition-colors active:scale-95 duration-200 shadow-[0_0_15px_rgba(45,212,191,0.2)] relative"
         >
-          <MessageCircle size={20} />
-          <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 rounded-full border border-arcade-card"></span>
+          <span className="material-symbols-outlined neon-text-secondary">chat</span>
+          {/* Notification dot */}
+          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_rgba(168,85,247,1)]"></span>
         </button>
-      </div>
+      </header>
 
-      {/* Tabs */}
-      <div className="flex justify-between px-8 mb-8">
-        {TABS.map((tab) => {
-          const isActive = activeTab === tab.id;
-          const Icon = tab.icon;
-          return (
-            <div key={tab.id} className="flex flex-col items-center gap-2">
-              <button
-                onClick={() => setActiveTab(tab.id)}
-                className={`w-16 h-16 rounded-full flex items-center justify-center transition-all duration-300 border ${isActive ? 'bg-foreground text-background border-transparent' : 'bg-arcade-card text-foreground border-arcade-border hover:bg-background'
+      <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto relative z-10 pb-[120px]">
+        {/* Announcement Banner */}
+        {announcement?.active && announcement.text && !bannerDismissed && (
+          <div className="mb-lg bg-surface-variant/40 border border-secondary/30 backdrop-blur-md rounded-xl p-md flex items-center gap-md animate-slide-up-fade shadow-[0_0_15px_rgba(45,212,191,0.1)]">
+            <span className="material-symbols-outlined text-secondary neon-text-secondary text-[24px]">campaign</span>
+            <p className="text-sm font-medium text-white flex-1">{announcement.text}</p>
+            <button onClick={() => setBannerDismissed(true)} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+              <span className="material-symbols-outlined text-white/60 text-[20px]">close</span>
+            </button>
+          </div>
+        )}
+
+        {/* Category Tabs */}
+        <section className="mb-xl animate-slide-up-fade">
+          <h2 className="font-headline-md text-[24px] mb-md text-white font-semibold">Experiences</h2>
+          <div className="flex gap-md overflow-x-auto no-scrollbar pb-sm px-1">
+            {TABS.map((tab, i) => {
+              const isActive = activeTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-sm glass-card p-md rounded-xl w-[100px] transition-all duration-300 ${
+                    isActive 
+                      ? 'border-primary/60 shadow-[0_0_20px_rgba(168,85,247,0.35)]'
+                      : `opacity-60 hover:opacity-100 hover:-translate-y-1`
                   }`}
-              >
-                <Icon size={24} strokeWidth={isActive ? 2 : 1.5} />
-              </button>
-              <span className={`text-[12px] transition-colors ${isActive ? 'font-bold text-foreground' : 'font-medium text-arcade-text-muted'}`}>
-                {tab.label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+                >
+                  <span 
+                    className={`material-symbols-outlined text-[32px] ${isActive ? 'text-primary neon-text-primary' : 'text-on-surface-variant'}`}
+                    style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
+                  >
+                    {tab.icon}
+                  </span>
+                  <span className={`font-label-md text-[14px] font-bold ${isActive ? 'text-primary neon-text-primary' : 'text-on-surface-variant'}`}>
+                    {tab.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </section>
 
-      {/* Content Area */}
-      <div className="px-6">
-        <div className="bg-arcade-card rounded-[2rem] p-5 shadow-sm transition-colors">
-          {activeTab === 'food' ? (
-            <div className="text-center py-10">
-              <Utensils size={40} className="mx-auto mb-4 text-arcade-border" />
-              <h3 className="text-lg font-bold text-foreground mb-2">Feeling Hungry?</h3>
-              <p className="text-sm text-arcade-text-secondary mb-6">Order snacks and drinks straight to your table.</p>
-              <button
-                onClick={() => router.push('/food')}
-                className="bg-foreground text-background rounded-full py-4 px-8 font-bold text-sm w-full shadow-md"
-              >
-                View Menu
-              </button>
-            </div>
-          ) : (
-            <>
-              {/* Where input */}
-              <div className="bg-background rounded-full px-5 py-4 mb-5 flex items-center transition-colors">
-                <span className="text-sm font-medium text-arcade-text-secondary">Jaaduwrld Art &amp; Arcade</span>
+        {activeTab === 'food' ? (
+          <section className="animate-slide-up-fade delay-100 opacity-0 text-center py-xl glass-card rounded-2xl border-white/10">
+            <span className="material-symbols-outlined text-[64px] text-secondary neon-text-secondary mb-md">restaurant</span>
+            <h3 className="text-[24px] font-bold text-white header-glow mb-sm">Feeling Hungry?</h3>
+            <p className="text-on-surface-variant text-[16px] mb-lg px-lg">Order snacks and drinks straight to your table.</p>
+            <button
+              onClick={() => router.push('/food')}
+              className="px-xl py-md rounded-full shimmer-btn animate-shimmer text-black font-bold text-[16px] fab-glow transition-transform hover:scale-105 active:scale-95"
+            >
+              View Menu
+            </button>
+          </section>
+        ) : (
+          <>
+            {/* Date Picker */}
+            <section className="mb-xl">
+              <div className="flex justify-between items-end mb-md animate-slide-up-fade delay-100 opacity-0">
+                <h2 className="font-headline-md text-[24px] text-white font-semibold">Select Date</h2>
+                <span className="font-label-sm text-[12px] font-bold text-secondary uppercase tracking-widest neon-text-secondary">
+                  {format(displayDate, 'MMM yyyy')}
+                </span>
               </div>
-
-              {/* Date Slider */}
-              <div className="mb-5 flex gap-3 overflow-x-auto no-scrollbar snap-x pb-2 pt-1">
+              <div className="flex gap-sm overflow-x-auto no-scrollbar pb-sm px-1">
                 {Array.from({ length: 7 }, (_, i) => {
                   const d = new Date();
                   d.setDate(d.getDate() + i);
                   const dateStr = format(d, 'yyyy-MM-dd');
                   const isSelected = store.selectedDate === dateStr;
+                  const delayClass = `delay-${Math.min((i+2)*100, 400)}`;
+
                   return (
-                    <button
+                    <div
                       key={dateStr}
                       onClick={() => store.setDate(dateStr)}
-                      className={`flex flex-col items-center justify-center min-w-[72px] h-[84px] rounded-[1.25rem] snap-start transition-all ${isSelected
-                          ? 'bg-foreground text-background shadow-md'
-                          : 'bg-background text-arcade-text-secondary hover:brightness-95'
-                        }`}
+                      className={`flex-shrink-0 flex flex-col items-center justify-center w-[72px] h-[90px] rounded-xl cursor-pointer animate-slide-up-fade opacity-0 transition-transform ${delayClass} ${
+                        isSelected 
+                          ? 'gradient-bg-primary text-black shadow-[0_0_20px_rgba(45,212,191,0.5)] transform hover:scale-105'
+                          : 'glass-card text-on-surface-variant hover:border-secondary/40 hover:text-white'
+                      }`}
                     >
-                      <span className={`text-[10px] font-bold uppercase tracking-wider mb-1 ${isSelected ? 'opacity-80' : 'opacity-100'}`}>
-                        {format(d, 'MMM')}
+                      <span className={`font-label-sm text-[12px] mb-xs ${isSelected ? 'opacity-90 font-bold' : ''}`}>
+                        {format(d, 'EEE').toUpperCase()}
                       </span>
-                      <span className={`text-[20px] font-black leading-none mb-1 ${isSelected ? 'text-background' : 'text-foreground'}`}>
+                      <span className={`font-headline-md text-[24px] ${isSelected ? 'font-bold' : ''}`}>
                         {format(d, 'dd')}
                       </span>
-                      <span className={`text-[10px] font-semibold ${isSelected ? 'opacity-80' : 'opacity-100'}`}>
-                        {format(d, 'EEE')}
-                      </span>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
+            </section>
 
-
-
-              {/* Time Range Slider */}
-              <div className="mb-6 mt-2">
-                <div className="flex items-center justify-between mb-8 px-1">
-                  <div>
-                    <h3 className="text-[12px] font-extrabold text-foreground tracking-wider mb-1 uppercase">TIME</h3>
-                    <p className="text-[13px] text-arcade-text-secondary font-medium">
-                      {format(new Date().setHours(store.startTime, 0), 'h:mm a')} - {format(new Date().setHours(store.endTime, 0), 'h:mm a')}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 bg-arcade-card rounded-full px-2 py-1.5 shadow-sm border border-arcade-border">
-                    <button
-                      onClick={() => store.setTimeRange(store.startTime, store.endTime - 1)}
-                      disabled={store.endTime - store.startTime <= 1}
-                      className="w-7 h-7 rounded-full flex items-center justify-center border border-arcade-border text-arcade-text-secondary disabled:opacity-30 disabled:bg-background transition-colors"
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span className="text-[12px] font-bold text-foreground w-12 text-center">
-                      {(store.endTime - store.startTime) * 60} Mins
+            {/* Time Range Slider */}
+            <section className="mb-xxl opacity-0 animate-slide-up-fade delay-400">
+              <h2 className="font-headline-md text-[24px] mb-lg text-white font-semibold">Duration</h2>
+              <div className="glass-card pt-lg pb-md rounded-xl relative border border-white/10">
+                <div className="flex justify-between items-center mb-lg px-md">
+                  <div className="text-center">
+                    <span className="block font-label-sm text-[12px] font-bold text-on-surface-variant mb-xs uppercase tracking-wider">Start</span>
+                    <span className="font-headline-md text-[24px] font-bold text-white header-glow">
+                      {format(new Date().setHours(store.startTime, 0), 'HH:mm')}
                     </span>
-                    <button
-                      onClick={() => {
-                        const maxDuration = 4;
-                        if (store.endTime - store.startTime < maxDuration && store.endTime < 21) {
-                          store.setTimeRange(store.startTime, store.endTime + 1);
-                        }
-                      }}
-                      disabled={store.endTime - store.startTime >= 4 || store.endTime >= 21}
-                      className="w-7 h-7 rounded-full flex items-center justify-center border border-arcade-border text-arcade-text-secondary disabled:opacity-30 disabled:bg-background transition-colors"
-                    >
-                      <Plus size={14} />
-                    </button>
+                  </div>
+                  <div className="flex-1 flex justify-center items-center px-md">
+                    <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-secondary/40 to-transparent"></div>
+                    <div className="flex items-center gap-2 mx-sm">
+                      <button 
+                        onClick={() => store.endTime - store.startTime > 1 && store.setTimeRange(store.startTime, store.endTime - 1)}
+                        disabled={store.endTime - store.startTime <= 1}
+                        className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 active:scale-95 text-secondary border border-white/10 disabled:opacity-30 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">remove</span>
+                      </button>
+                      <span className="font-label-sm text-[12px] font-bold text-secondary px-sm py-xs glass-panel rounded-full neon-text-secondary whitespace-nowrap border-secondary/20 min-w-[70px] text-center">
+                        {store.endTime - store.startTime} {store.endTime - store.startTime === 1 ? 'Hour' : 'Hours'}
+                      </span>
+                      <button 
+                        onClick={() => store.endTime < 21 && store.setTimeRange(store.startTime, store.endTime + 1)}
+                        disabled={store.endTime >= 21}
+                        className="w-6 h-6 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 active:scale-95 text-secondary border border-white/10 disabled:opacity-30 transition-all"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">add</span>
+                      </button>
+                    </div>
+                    <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-secondary/40 to-transparent"></div>
+                  </div>
+                  <div className="text-center">
+                    <span className="block font-label-sm text-[12px] font-bold text-on-surface-variant mb-xs uppercase tracking-wider">End</span>
+                    <span className="font-headline-md text-[24px] font-bold text-white header-glow">
+                      {format(new Date().setHours(store.endTime, 0), 'HH:mm')}
+                    </span>
                   </div>
                 </div>
-
+                
                 <SliderTrack
                   startTime={store.startTime}
                   endTime={store.endTime}
                   bookedHours={bookedHours}
+                  pastHours={pastHours}
                   onRangeChange={(start, end) => store.setTimeRange(start, end)}
                 />
               </div>
+            </section>
+          </>
+        )}
+      </main>
 
-              {/* Search / Proceed Button */}
-              <button
-                onClick={hasUserConflict() ? undefined : hasTimeConflict() && !isPastTime() ? handleWaitlist : handleProceed}
-                disabled={!store.selectedAssetId || waitlisting || isPastTime() || hasUserConflict()}
-                className={`w-full py-4 rounded-full font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2 ${
-                  isPastTime()
-                    ? 'bg-arcade-border text-arcade-text-secondary'
-                    : hasUserConflict()
-                    ? 'bg-red-500 text-white'
-                    : hasTimeConflict()
-                    ? 'bg-amber-500 text-white hover:bg-amber-600'
-                    : 'bg-foreground text-background'
-                  }`}
-              >
-                {isPastTime() ? (
-                  'Time has passed'
-                ) : waitlisting ? (
-                  <><span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> Joining...</>
-                ) : hasUserConflict() ? (
-                  'Already Booked'
-                ) : hasTimeConflict() ? (
-                  'Join Waitlist'
-                ) : (
-                  'Search'
-                )}
-              </button>
-            </>
-          )}
+      {/* Contextual FAB / Main CTA */}
+      {activeTab !== 'food' && (
+        <div className="fixed bottom-[88px] left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-[400px] z-30">
+          <button
+            onClick={hasUserConflict() ? undefined : hasTimeConflict() && !isPastTime() ? handleWaitlist : handleProceed}
+            disabled={!store.selectedAssetId || waitlisting || isPastTime() || hasUserConflict()}
+            className={`w-full py-4 rounded-full font-headline-md text-[18px] transition-all flex items-center justify-center gap-sm font-bold border border-white/20 ${
+              isPastTime()
+                ? 'bg-surface-variant/80 text-white/50 backdrop-blur-md cursor-not-allowed border-white/5'
+                : hasUserConflict()
+                ? 'bg-error/80 text-white backdrop-blur-md shadow-[0_0_20px_rgba(255,180,171,0.5)] cursor-not-allowed'
+                : hasTimeConflict()
+                ? 'bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(183,109,255,0.5)] hover:scale-[1.02] active:scale-95'
+                : 'shimmer-btn animate-shimmer text-black fab-glow hover:scale-[1.02] active:scale-95'
+            }`}
+          >
+            {isPastTime() ? (
+              <>
+                <span className="material-symbols-outlined text-[24px]">history</span>
+                Time has passed
+              </>
+            ) : waitlisting ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin" />
+                Joining Waitlist...
+              </>
+            ) : hasUserConflict() ? (
+              <>
+                <span className="material-symbols-outlined text-[24px]">block</span>
+                Already Booked
+              </>
+            ) : hasTimeConflict() ? (
+              <>
+                <span className="material-symbols-outlined text-[24px]">notifications_active</span>
+                Join Waitlist
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[24px]">calendar_month</span>
+                Book Experience
+              </>
+            )}
+          </button>
         </div>
-      </div>
+      )}
     </div>
   );
 }

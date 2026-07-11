@@ -49,7 +49,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
         </div>
       </div>
       {/* Render children immediately behind splash for instant load */}
-      <div className={fadeOut ? '' : 'invisible'}>{children}</div>
+      <div className={`w-full flex-1 flex flex-col ${fadeOut ? '' : 'invisible'}`}>{children}</div>
     </>
   );
 }

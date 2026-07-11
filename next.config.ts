@@ -1,3 +1,4 @@
+// Force dev server restart to clear Turbopack cache
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
