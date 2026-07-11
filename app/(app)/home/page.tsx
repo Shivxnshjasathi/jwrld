@@ -275,10 +275,10 @@ export default function HomePage() {
             <h3 className="text-[24px] font-bold text-white header-glow mb-sm">Feeling Hungry?</h3>
             <p className="text-on-surface-variant text-[16px] mb-lg px-lg">Order snacks and drinks straight to your table.</p>
             <button
-              onClick={() => router.push('/food')}
-              className="px-xl py-md rounded-full shimmer-btn animate-shimmer text-black font-bold text-[16px] fab-glow transition-transform hover:scale-105 active:scale-95"
+              disabled
+              className="px-xl py-md rounded-full bg-surface-variant text-white/50 font-bold text-[16px] cursor-not-allowed border border-white/5"
             >
-              View Menu
+              Coming Soon
             </button>
           </section>
         ) : (

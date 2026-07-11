@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { format, isToday, isTomorrow } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { useAuth } from '@/lib/auth';
-import { createBooking } from '@/lib/firestore';
+import { createBooking, validateCoupon, incrementCouponUsage, getGlobalSettings } from '@/lib/firestore';
 import { formatTime, formatPrice } from '@/lib/utils';
 import { doc, updateDoc } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
@@ -27,10 +27,28 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [guestName, setGuestName] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   
+  // Global settings
+  const [allowGuest, setAllowGuest] = useState(false);
+  const [globalSettingsLoading, setGlobalSettingsLoading] = useState(true);
+
   // Expandable policies state
   const [expandReschedule, setExpandReschedule] = useState(false);
   const [expandCancel, setExpandCancel] = useState(false);
   const [showTotalBreakdown, setShowTotalBreakdown] = useState(false);
+
+  // Load global settings
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const settings = await getGlobalSettings();
+        setAllowGuest(settings.allowGuestBooking);
+      } catch (e) {
+        console.error('Failed to load global settings', e);
+      }
+      setGlobalSettingsLoading(false);
+    };
+    fetchSettings();
+  }, []);
 
   const totalAmount = store.getTotalAmount();
   const selectedDate = new Date(store.selectedDate + 'T00:00:00');
@@ -46,30 +64,47 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     router.back();
   };
 
-  const handleApplyCoupon = () => {
-    const code = couponCode.toLowerCase();
-    const duration = store.endTime - store.startTime;
-    const basePrice = (store.selectedAssetPrice || 0) * duration;
-    
-    // Calculate discounts based on basePrice before tax
-    if (code === 'jaadu10') {
-      store.applyCoupon(basePrice * 0.10);
-      setShowCouponInput(false);
-    } else if (code === 'jaadu20') {
-      store.applyCoupon(basePrice * 0.20);
-      setShowCouponInput(false);
-    } else if (code === 'jaadu30') {
-      store.applyCoupon(basePrice * 0.30);
-      setShowCouponInput(false);
-    } else {
-      setError('Invalid coupon code');
+  const [appliedCouponId, setAppliedCouponId] = useState<string | null>(null);
+
+  const handleApplyCoupon = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const coupon = await validateCoupon(couponCode);
+      if (coupon) {
+        const duration = store.endTime - store.startTime;
+        const basePrice = (store.selectedAssetPrice || 0) * duration;
+        
+        let discount = 0;
+        if (coupon.discountType === 'percentage') {
+          discount = basePrice * (coupon.discountValue / 100);
+        } else {
+          discount = coupon.discountValue;
+        }
+        
+        // Don't discount more than base price
+        discount = Math.min(discount, basePrice);
+        
+        store.applyCoupon(discount);
+        setAppliedCouponId(coupon.id);
+        setShowCouponInput(false);
+      } else {
+        setError('Invalid or expired coupon code');
+      }
+    } catch (err) {
+      setError('Failed to validate coupon');
     }
+    setLoading(false);
   };
 
   const handlePayment = async () => {
     if (!user || !store.selectedAssetId || !appUser) return;
 
     if (appUser.role === 'guest') {
+      if (!allowGuest) {
+        setError('Guest bookings are currently disabled. Please log in.');
+        return;
+      }
       setShowGuestModal(true);
       return;
     }
@@ -91,6 +126,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       if (useWallet) {
         const { deductWalletBalance } = await import('@/lib/wallet');
         await deductWalletBalance(user.uid, totalAmount);
+      }
+
+      if (appliedCouponId) {
+        // Need current used count to increment
+        const cpn = await validateCoupon(couponCode);
+        if (cpn) {
+          await incrementCouponUsage(cpn.id, cpn.usedCount);
+        }
       }
 
       await createBooking({
@@ -386,7 +429,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-sm flex flex-col items-center text-center shadow-2xl animate-scale-in relative overflow-hidden">
+          <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-[384px] flex flex-col items-center text-center shadow-2xl animate-scale-in relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
             
             <div className="w-20 h-20 bg-secondary/10 border border-secondary/30 rounded-full flex items-center justify-center mb-6 mt-4">
@@ -414,7 +457,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       {/* Guest Details Modal */}
       {showGuestModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-sm flex flex-col shadow-2xl animate-scale-in relative overflow-hidden">
+          <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-[384px] flex flex-col shadow-2xl animate-scale-in relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
             
             <div className="flex justify-between items-center mb-6">

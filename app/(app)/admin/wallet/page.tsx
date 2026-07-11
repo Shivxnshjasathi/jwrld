@@ -3,29 +3,37 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, type AppUser } from '@/lib/auth';
-import { searchUserByPhone, addWalletBalance } from '@/lib/wallet';
-import { ArrowLeft, Search, Plus, Loader2, Wallet, User as UserIcon } from 'lucide-react';
+import { getAllUsers, searchUserByPhone, addWalletBalance } from '@/lib/wallet';
+import { toast } from 'react-hot-toast';
 
 export default function AdminWalletPage() {
   const router = useRouter();
-  const { isAdmin, loading } = useAuth();
+  const { appUser } = useAuth();
+  
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   const [phoneQuery, setPhoneQuery] = useState('');
-  const [searching, setSearching] = useState(false);
-  const [foundUser, setFoundUser] = useState<AppUser | null>(null);
-  const [error, setError] = useState('');
-  const [amountToAdd, setAmountToAdd] = useState('');
-  const [adding, setAdding] = useState(false);
-  const [successMsg, setSuccessMsg] = useState('');
-
   const [allUsers, setAllUsers] = useState<AppUser[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(true);
 
+  const [foundUser, setFoundUser] = useState<AppUser | null>(null);
+  const [amountToAdd, setAmountToAdd] = useState('');
+  const [adding, setAdding] = useState(false);
+
   useEffect(() => {
-    import('@/lib/wallet').then(m => {
-      m.getAllUsers().then(users => {
-        setAllUsers(users);
-        setLoadingUsers(false);
-      });
+    if (appUser?.role === 'admin') {
+      setIsAdmin(true);
+      setLoading(false);
+    } else if (appUser) {
+      router.replace('/home');
+    }
+  }, [appUser, router]);
+
+  useEffect(() => {
+    getAllUsers().then(users => {
+      setAllUsers(users);
+      setLoadingUsers(false);
     });
   }, []);
 
@@ -37,40 +45,32 @@ export default function AdminWalletPage() {
 
   const filteredUsers = allUsers.filter(u => 
     u.phone?.toLowerCase().includes(phoneQuery.toLowerCase()) || 
-    u.name.toLowerCase().includes(phoneQuery.toLowerCase()) || 
+    u.name?.toLowerCase().includes(phoneQuery.toLowerCase()) || 
     u.email?.toLowerCase().includes(phoneQuery.toLowerCase())
   );
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!phoneQuery.trim()) return;
-    setSearching(true);
-    setError('');
-    setSuccessMsg('');
-
     try {
       const user = await searchUserByPhone(phoneQuery);
       if (user) {
         setFoundUser(user);
       } else {
-        setError('No user found with this phone number.');
+        toast.error('No user found with this phone number.');
       }
     } catch (err) {
-      setError('An error occurred while searching.');
-    } finally {
-      setSearching(false);
+      toast.error('An error occurred while searching.');
     }
   };
 
   const handleAddFunds = async () => {
-    if (!foundUser || !amountToAdd || isNaN(Number(amountToAdd)) || Number(amountToAdd) <= 0) return;
+    if (!foundUser || !amountToAdd || isNaN(Number(amountToAdd))) return;
     setAdding(true);
-    setError('');
-    setSuccessMsg('');
 
     try {
       await addWalletBalance(foundUser.uid, Number(amountToAdd));
-      setSuccessMsg(`Successfully added ₹${amountToAdd} to ${foundUser.name}'s wallet.`);
+      toast.success(`Successfully added ₹${amountToAdd} to ${foundUser.name}'s wallet.`);
       setFoundUser({
         ...foundUser,
         walletBalance: (foundUser.walletBalance || 0) + Number(amountToAdd)
@@ -78,149 +78,146 @@ export default function AdminWalletPage() {
       setAllUsers(allUsers.map(u => u.uid === foundUser.uid ? { ...u, walletBalance: (u.walletBalance || 0) + Number(amountToAdd) } : u));
       setAmountToAdd('');
     } catch (err) {
-      setError('Failed to add funds.');
+      toast.error('Failed to add funds.');
     } finally {
       setAdding(false);
     }
   };
 
   return (
-    <div className="min-h-dvh bg-[#F5F5F5] pb-24">
+    <div className="bg-[#0A0A0B] text-on-surface min-h-screen font-body-md selection:bg-primary/30 pb-24">
       {/* Header */}
-      <div className="bg-white px-4 py-4 sticky top-0 z-40 border-b border-gray-100 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <button onClick={() => {
-            if (foundUser) setFoundUser(null);
-            else router.back();
-          }} className="w-10 h-10 flex items-center justify-center rounded-full bg-gray-50 text-gray-900 active:bg-gray-100 transition-colors">
-            <ArrowLeft size={20} />
-          </button>
+      <div className="w-full py-xl px-gutter md:px-xl">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-lg">
           <div>
-            <h1 className="text-[20px] font-black text-gray-900 tracking-tight">Manage Wallets</h1>
-            <p className="text-[13px] font-medium text-gray-500">Add funds to user accounts</p>
+            <button onClick={() => {
+                if (foundUser) setFoundUser(null);
+                else router.push('/admin');
+              }} 
+              className="text-primary hover:opacity-80 transition-opacity mb-2 flex items-center gap-1 font-label-md text-[14px]">
+              <span className="material-symbols-outlined text-[16px]">arrow_back</span> {foundUser ? 'Back to search' : 'Back to Dashboard'}
+            </button>
+            <h1 className="font-headline-lg-mobile md:text-[32px] font-bold text-primary-fixed-dim leading-tight">Manage Wallets</h1>
+            <p className="text-on-surface-variant text-sm font-medium">Add funds to user accounts</p>
           </div>
         </div>
-      </div>
 
-      <div className="px-4 py-6">
-        {/* Search Form */}
-        {!foundUser && (
-          <div className="mb-6">
-            <div className="relative flex items-center">
-              <div className="absolute left-4 text-gray-400">
-                <Search size={20} />
-              </div>
+        <div className="space-y-6">
+          {/* Search Form */}
+          {!foundUser && (
+            <div className="mb-6 relative">
+              <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
               <input
                 type="text"
                 value={phoneQuery}
                 onChange={(e) => setPhoneQuery(e.target.value)}
                 placeholder="Search by name, phone, or email"
-                className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl text-[15px] font-medium text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 transition-all shadow-sm"
+                className="w-full pl-12 pr-4 py-4 bg-surface-container border border-outline-variant/30 rounded-2xl text-[15px] font-medium text-white placeholder:text-on-surface-variant focus:outline-none focus:border-primary transition-all"
               />
             </div>
-          </div>
-        )}
+          )}
 
-        {/* User List */}
-        {!foundUser && (
-          <div className="space-y-3">
-            {loadingUsers ? (
-              <div className="flex justify-center py-8 text-gray-400">
-                <Loader2 size={24} className="animate-spin" />
-              </div>
-            ) : filteredUsers.length === 0 ? (
-              <div className="text-center py-8 text-gray-500 font-medium">
-                No users found.
-              </div>
-            ) : (
-              filteredUsers.map(user => (
-                <button
-                  key={user.uid}
-                  onClick={() => { setFoundUser(user); setSuccessMsg(''); setError(''); setAmountToAdd(''); }}
-                  className="w-full bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex items-center justify-between active:scale-[0.98] transition-transform text-left"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center text-gray-500 shrink-0">
-                      <UserIcon size={18} />
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900 text-[15px] leading-tight">{user.name}</h3>
-                      <p className="text-xs text-gray-500 mt-0.5">{user.phone || user.email}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">Balance</p>
-                    <p className="font-black text-gray-900">₹{user.walletBalance || 0}</p>
-                  </div>
-                </button>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* Search Results / Action Area */}
-        {foundUser && (
-          <div className="bg-white rounded-3xl p-5 shadow-sm border border-gray-100 animate-in fade-in slide-in-from-bottom-4 duration-300">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-                <UserIcon size={24} />
-              </div>
-              <div>
-                <h3 className="font-bold text-gray-900 text-lg">{foundUser.name}</h3>
-                <p className="text-gray-500 text-sm font-medium">{foundUser.phone}</p>
-              </div>
-            </div>
-
-            <div className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100 flex items-center justify-between">
-              <div className="flex items-center gap-2 text-gray-500">
-                <Wallet size={18} />
-                <span className="font-medium text-sm">Current Balance</span>
-              </div>
-              <span className="font-black text-xl text-gray-900">
-                ₹{foundUser.walletBalance || 0}
-              </span>
-            </div>
-
-            <div className="space-y-4">
-              <label className="block text-sm font-bold text-gray-900">Amount to Add (₹)</label>
-              <div className="flex gap-2">
-                {[500, 1000, 2000].map(amt => (
-                  <button
-                    key={amt}
-                    onClick={() => setAmountToAdd(amt.toString())}
-                    className={`flex-1 py-3 rounded-xl font-bold text-sm transition-colors ${
-                      amountToAdd === amt.toString() ? 'bg-[#111111] text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    +₹{amt}
-                  </button>
-                ))}
-              </div>
-              
-              <input
-                type="number"
-                value={amountToAdd}
-                onChange={(e) => setAmountToAdd(e.target.value)}
-                placeholder="Or enter custom amount"
-                className="w-full px-4 py-4 bg-gray-50 border border-gray-200 rounded-xl text-[15px] font-bold text-gray-900 placeholder:font-medium placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-black/5 focus:border-gray-300 transition-all text-center"
-              />
-
-              <button
-                onClick={handleAddFunds}
-                disabled={adding || !amountToAdd || isNaN(Number(amountToAdd)) || Number(amountToAdd) <= 0}
-                className="w-full py-4 bg-green-500 hover:bg-green-600 text-white rounded-full font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                {adding ? <Loader2 size={18} className="animate-spin" /> : <><Plus size={18} /> Add Funds to Wallet</>}
-              </button>
-              
-              {successMsg && (
-                <div className="bg-green-50 text-green-700 px-4 py-3 rounded-xl text-sm font-bold text-center border border-green-100 mt-4 animate-in fade-in duration-300">
-                  {successMsg}
+          {/* User List */}
+          {!foundUser && (
+            <div className="space-y-3">
+              {loadingUsers ? (
+                <div className="text-center py-8 text-on-surface-variant">
+                  Loading users...
                 </div>
+              ) : filteredUsers.length === 0 ? (
+                <div className="text-center py-8 text-on-surface-variant font-medium">
+                  No users found.
+                </div>
+              ) : (
+                filteredUsers.map(user => (
+                  <button
+                    key={user.uid}
+                    onClick={() => { setFoundUser(user); setAmountToAdd(''); }}
+                    className="w-full glass-panel p-4 rounded-2xl border border-outline-variant/30 flex items-center justify-between hover:bg-white/5 transition-all text-left"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-surface-variant rounded-full flex items-center justify-center text-primary shrink-0">
+                        <span className="material-symbols-outlined text-[20px]">person</span>
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white text-[16px] leading-tight mb-1">{user.name || 'Unknown'}</h3>
+                        <p className="text-xs text-on-surface-variant">{user.phone || user.email}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider mb-1">Balance</p>
+                      <p className="font-black text-secondary text-lg">₹{user.walletBalance || 0}</p>
+                    </div>
+                  </button>
+                ))
               )}
             </div>
-          </div>
-        )}
+          )}
+
+          {/* Action Area */}
+          {foundUser && (
+            <div className="glass-panel rounded-3xl p-6 border border-outline-variant/30 animate-fade-in">
+              <div className="flex items-center gap-4 mb-6 pb-6 border-b border-white/10">
+                <div className="w-16 h-16 bg-surface-variant rounded-full flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined text-[32px]">person</span>
+                </div>
+                <div>
+                  <h3 className="font-bold text-white text-xl">{foundUser.name || 'Unknown'}</h3>
+                  <p className="text-on-surface-variant text-sm mt-1">{foundUser.phone || foundUser.email}</p>
+                </div>
+              </div>
+
+              <div className="bg-surface/30 rounded-2xl p-6 mb-8 border border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-3 text-on-surface-variant">
+                  <span className="material-symbols-outlined">account_balance_wallet</span>
+                  <span className="font-bold text-sm uppercase tracking-wider">Current Balance</span>
+                </div>
+                <span className="font-black text-2xl text-secondary">
+                  ₹{foundUser.walletBalance || 0}
+                </span>
+              </div>
+
+              <div className="space-y-6">
+                <label className="block text-sm font-bold text-white uppercase tracking-wider">Amount to Add (₹)</label>
+                <div className="flex gap-3">
+                  {[500, 1000, 2000].map(amt => (
+                    <button
+                      key={amt}
+                      onClick={() => setAmountToAdd(amt.toString())}
+                      className={`flex-1 py-4 rounded-xl font-bold transition-all ${
+                        amountToAdd === amt.toString() ? 'bg-primary text-black' : 'bg-surface-variant text-white hover:bg-white/10'
+                      }`}
+                    >
+                      +₹{amt}
+                    </button>
+                  ))}
+                </div>
+                
+                <input
+                  type="number"
+                  value={amountToAdd}
+                  onChange={(e) => setAmountToAdd(e.target.value)}
+                  placeholder="Enter custom amount"
+                  className="w-full px-6 py-4 bg-surface-container border border-outline-variant/30 rounded-xl text-lg font-bold text-white placeholder:font-medium placeholder:text-on-surface-variant focus:outline-none focus:border-secondary transition-all text-center"
+                />
+
+                <button
+                  onClick={handleAddFunds}
+                  disabled={adding || !amountToAdd || isNaN(Number(amountToAdd)) || Number(amountToAdd) <= 0}
+                  className="w-full py-4 mt-4 bg-gradient-to-r from-secondary to-primary text-black rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50 hover:scale-[1.02] active:scale-95"
+                >
+                  {adding ? (
+                    <span className="w-6 h-6 border-2 border-black/50 border-t-black rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined">add_circle</span> Add Funds
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

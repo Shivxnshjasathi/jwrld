@@ -23,7 +23,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="p-5 max-w-7xl mx-auto mt-2 space-y-6 relative z-10">
+      <div className="p-5 max-w-[1280px] mx-auto mt-2 space-y-6 relative z-10">
         <div className="glass-panel rounded-2xl p-6 border border-white/10">
           <h3 className="text-[12px] font-bold text-primary tracking-widest uppercase mb-6">Account Preferences</h3>
           

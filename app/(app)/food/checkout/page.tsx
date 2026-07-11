@@ -53,7 +53,7 @@ export default function FoodCheckoutPage() {
     return (
       <main className="min-h-dvh flex flex-col items-center justify-center p-6 text-center animate-fade-in relative overflow-hidden bg-[#0A0A0B] text-on-surface selection:bg-primary/30">
         <div className="ambient-glow"></div>
-        <div className="relative z-10 glass-card rounded-[2rem] p-8 max-w-md w-full shadow-2xl border border-white/10">
+        <div className="relative z-10 glass-card rounded-[2rem] p-8 max-w-[448px] w-full shadow-2xl border border-white/10">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
           <div className="w-24 h-24 bg-secondary/10 border border-secondary/30 rounded-full flex items-center justify-center mx-auto mb-6">
             <span 
@@ -83,7 +83,7 @@ export default function FoodCheckoutPage() {
       {/* Background Glow */}
       <div className="ambient-glow"></div>
 
-      <div className="relative z-10 w-full max-w-md min-w-[360px] px-5 mx-auto pt-24">
+      <div className="relative z-10 w-full max-w-[448px] min-w-[360px] px-5 mx-auto pt-24">
         {/* Header */}
         <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-4 border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
           <button
@@ -148,7 +148,7 @@ export default function FoodCheckoutPage() {
       </div>
 
       {/* Place Order Button */}
-      <div className="fixed bottom-0 pb-8 left-0 right-0 px-5 z-40 max-w-md min-w-[360px] mx-auto w-full">
+      <div className="fixed bottom-0 pb-8 left-0 right-0 px-5 z-40 max-w-[448px] min-w-[360px] mx-auto w-full">
         <button 
           onClick={handlePlaceOrder} 
           disabled={!tableNumber.trim() || isSubmitting}

@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   // Modals state
   const [showWalkInForm, setShowWalkInForm] = useState(false);
   const [showAnnouncementModal, setShowAnnouncementModal] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
   
   const [walkInName, setWalkInName] = useState('');
   const [walkInAsset, setWalkInAsset] = useState('');
@@ -156,7 +157,7 @@ export default function AdminDashboard() {
       
       {/* Top Navigation */}
       <header className="bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm fixed top-0 w-full z-40">
-        <div className="flex justify-between items-center px-gutter py-md w-full max-w-[1440px] mx-auto">
+        <div className="flex justify-between items-center px-gutter py-md w-full">
           {/* Brand */}
           <div className="flex flex-col items-center cursor-pointer" onClick={() => router.push('/home')}>
             <div className="font-display-md text-[24px] tracking-tighter text-on-surface font-bold header-glow leading-none">
@@ -166,12 +167,17 @@ export default function AdminDashboard() {
           </div>
           
           {/* Desktop Nav Links */}
-          <nav className="hidden md:flex gap-lg">
-            <a onClick={() => router.push('/admin')} className="cursor-pointer text-primary hover:opacity-80 transition-opacity font-label-md text-[14px]">Dashboard</a>
-            <a onClick={() => router.push('/admin/wallet')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Wallet</a>
-            <a onClick={() => router.push('/admin/messages')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Messages</a>
-            <a onClick={() => router.push('/admin/revenue')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Revenue</a>
-          </nav>
+            <nav className="hidden md:flex gap-lg">
+              <a onClick={() => router.push('/admin')} className="cursor-pointer text-primary hover:opacity-80 transition-opacity font-label-md text-[14px]">Dashboard</a>
+              <a onClick={() => router.push('/admin/assets')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Assets</a>
+              <a onClick={() => router.push('/admin/coupons')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Coupons</a>
+              <a onClick={() => router.push('/admin/users')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Users</a>
+              <a onClick={() => router.push('/admin/settings')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Settings</a>
+              <a onClick={() => router.push('/admin/history')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">History</a>
+              <a onClick={() => router.push('/admin/wallet')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Wallet</a>
+              <a onClick={() => router.push('/admin/messages')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Messages</a>
+              <a onClick={() => router.push('/admin/revenue')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Revenue</a>
+            </nav>
 
           {/* Trailing */}
           <div className="flex items-center gap-md">
@@ -191,12 +197,15 @@ export default function AdminDashboard() {
                 <span className="material-symbols-outlined text-on-surface-variant">shield_person</span>
               )}
             </div>
+            <button onClick={() => setShowMobileMenu(true)} className="md:hidden text-on-surface-variant hover:text-white ml-2 transition-colors">
+              <span className="material-symbols-outlined text-[28px]">menu</span>
+            </button>
           </div>
         </div>
       </header>
 
       {/* Main Content */}
-      <main className="pt-[100px] px-gutter md:px-xl max-w-[1440px] mx-auto min-h-screen">
+      <main className="pt-[100px] w-full px-gutter md:px-xl min-h-screen">
         <div className="mb-lg">
           <h1 className="font-headline-lg-mobile md:text-[32px] font-bold text-primary-fixed-dim">Command Center</h1>
           <p className="text-on-surface-variant font-body-md text-[16px]">Real-time venue analytics and control.</p>
@@ -538,6 +547,29 @@ export default function AdminDashboard() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Mobile Navigation Menu */}
+      {showMobileMenu && (
+        <div className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex flex-col p-6 animate-fade-in md:hidden">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold text-white">Admin Menu</h2>
+            <button onClick={() => setShowMobileMenu(false)} className="text-on-surface-variant hover:text-white">
+              <span className="material-symbols-outlined text-[32px]">close</span>
+            </button>
+          </div>
+          <nav className="flex flex-col gap-6 mt-4">
+            <a onClick={() => router.push('/admin')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-primary">dashboard</span> Dashboard</a>
+            <a onClick={() => router.push('/admin/assets')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-secondary">sports_esports</span> Assets</a>
+            <a onClick={() => router.push('/admin/coupons')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-tertiary">local_offer</span> Coupons</a>
+            <a onClick={() => router.push('/admin/users')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-primary">group</span> Users</a>
+            <a onClick={() => router.push('/admin/settings')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-secondary">settings</span> Settings</a>
+            <a onClick={() => router.push('/admin/history')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-tertiary">history</span> History</a>
+            <a onClick={() => router.push('/admin/wallet')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-primary">account_balance_wallet</span> Wallet</a>
+            <a onClick={() => router.push('/admin/messages')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-secondary">forum</span> Messages</a>
+            <a onClick={() => router.push('/admin/revenue')} className="text-white text-xl font-bold flex items-center gap-4"><span className="material-symbols-outlined text-tertiary">payments</span> Revenue</a>
+          </nav>
         </div>
       )}
     </div>

@@ -89,6 +89,21 @@ export interface Message {
   createdAt: number;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  active: boolean;
+  maxUses: number;
+  usedCount: number;
+  createdAt: string;
+}
+
+export interface GlobalSettings {
+  allowGuestBooking: boolean;
+}
+
 // ─── Helper ──────────────────────────────────────────────────────────────────
 
 function getDb() {
@@ -107,17 +122,42 @@ export async function getAssets(): Promise<Asset[]> {
 }
 
 export async function getAssetsByCategory(category: string): Promise<Asset[]> {
-  const assets: Asset[] = [
-    { id: 'pool-table-1', name: 'Pool Table 1', category: 'pool', status: 'active', price: 100 },
-    { id: 'snooker-table-1', name: 'Snooker Table 1', category: 'snooker', status: 'active', price: 250 },
-    { id: 'ps5-station-1', name: 'PS5 Station 1', category: 'ps5', status: 'active', price: 100 },
-  ];
-  return assets.filter(a => a.category === category && a.status === 'active');
+  const db = getDb();
+  const snapshot = await getDocs(query(collection(db, 'assets'), where('category', '==', category), where('status', '==', 'active')));
+  const dbAssets = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Asset));
+  
+  if (dbAssets.length === 0) {
+    // Return default assets for first time launch if none exist in DB
+    const defaultAssets: Asset[] = [
+      { id: 'pool-table-1', name: 'Pool Table 1', category: 'pool', status: 'active', price: 100 },
+      { id: 'snooker-table-1', name: 'Snooker Table 1', category: 'snooker', status: 'active', price: 250 },
+      { id: 'ps5-station-1', name: 'PS5 Station 1', category: 'ps5', status: 'active', price: 100 },
+    ];
+    return defaultAssets.filter(a => a.category === category);
+  }
+  
+  return dbAssets;
 }
 
 export async function updateAssetStatus(assetId: string, status: 'active' | 'maintenance') {
   const db = getDb();
   await updateDoc(doc(db, 'assets', assetId), { status });
+}
+
+export async function addAsset(asset: Omit<Asset, 'id'>) {
+  const db = getDb();
+  await addDoc(collection(db, 'assets'), asset);
+}
+
+export async function updateAssetAdmin(assetId: string, data: Partial<Omit<Asset, 'id'>>) {
+  const db = getDb();
+  await updateDoc(doc(db, 'assets', assetId), data);
+}
+
+export async function deleteAsset(assetId: string) {
+  const db = getDb();
+  const { deleteDoc } = await import('firebase/firestore');
+  await deleteDoc(doc(db, 'assets', assetId));
 }
 
 // ─── Bookings ────────────────────────────────────────────────────────────────
@@ -592,3 +632,80 @@ export function subscribeToTodayBookings(callback: (bookings: Booking[]) => void
   });
 }
 
+// ─── Coupons ─────────────────────────────────────────────────────────────────
+
+export async function createCoupon(coupon: Omit<Coupon, 'id' | 'createdAt'>): Promise<string> {
+  const db = getDb();
+  const docRef = await addDoc(collection(db, 'coupons'), {
+    ...coupon,
+    createdAt: new Date().toISOString(),
+  });
+  return docRef.id;
+}
+
+export async function getCoupons(): Promise<Coupon[]> {
+  const db = getDb();
+  const snapshot = await getDocs(collection(db, 'coupons'));
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Coupon));
+}
+
+export async function updateCoupon(couponId: string, data: Partial<Omit<Coupon, 'id'>>) {
+  const db = getDb();
+  await updateDoc(doc(db, 'coupons', couponId), data);
+}
+
+export async function deleteCoupon(couponId: string) {
+  const db = getDb();
+  const { deleteDoc } = await import('firebase/firestore');
+  await deleteDoc(doc(db, 'coupons', couponId));
+}
+
+export async function validateCoupon(code: string): Promise<Coupon | null> {
+  const db = getDb();
+  const q = query(collection(db, 'coupons'), where('code', '==', code.trim().toUpperCase()), where('active', '==', true));
+  const snapshot = await getDocs(q);
+  if (snapshot.empty) return null;
+  const coupon = { id: snapshot.docs[0].id, ...snapshot.docs[0].data() } as Coupon;
+  if (coupon.maxUses > 0 && coupon.usedCount >= coupon.maxUses) return null;
+  return coupon;
+}
+
+export async function incrementCouponUsage(couponId: string, currentUsedCount: number) {
+  const db = getDb();
+  await updateDoc(doc(db, 'coupons', couponId), { usedCount: currentUsedCount + 1 });
+}
+
+// ─── Global Settings ─────────────────────────────────────────────────────────
+
+export async function getGlobalSettings(): Promise<GlobalSettings> {
+  const db = getDb();
+  const snap = await getDoc(doc(db, 'settings', 'global'));
+  if (snap.exists()) {
+    return snap.data() as GlobalSettings;
+  }
+  // Default values
+  return { allowGuestBooking: false };
+}
+
+export async function updateGlobalSettings(settings: Partial<GlobalSettings>) {
+  const db = getDb();
+  await setDoc(doc(db, 'settings', 'global'), settings, { merge: true });
+}
+
+export function subscribeToGlobalSettings(callback: (settings: GlobalSettings) => void): Unsubscribe {
+  if (!isFirebaseConfigured) {
+    callback({ allowGuestBooking: false });
+    return () => {};
+  }
+  const db = getFirebaseDb();
+  return onSnapshot(doc(db, 'settings', 'global'), (snap) => {
+    if (snap.exists()) {
+      callback(snap.data() as GlobalSettings);
+    } else {
+      callback({ allowGuestBooking: false });
+    }
+  }, (error) => {
+    console.error('[ArcadeZone] Global settings listener error:', error.message);
+    callback({ allowGuestBooking: false });
+  });
+}

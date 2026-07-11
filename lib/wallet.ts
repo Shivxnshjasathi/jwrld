@@ -66,3 +66,10 @@ export async function getAllUsers(): Promise<AppUser[]> {
   const snap = await getDocs(collection(db, 'users'));
   return snap.docs.map(doc => doc.data() as AppUser);
 }
+
+export async function updateUserRole(userId: string, role: 'admin' | 'customer' | 'guest'): Promise<void> {
+  if (!isFirebaseConfigured) return;
+  const db = getFirebaseDb();
+  const userRef = doc(db, 'users', userId);
+  await updateDoc(userRef, { role });
+}

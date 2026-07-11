@@ -45,7 +45,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Background Ambient Glow */}
         <div className="ambient-glow"></div>
         
-        <div className="w-full min-w-[320px] max-w-sm mx-auto glass-panel rounded-[1.5rem] p-8 relative z-10 border border-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)]">
+        <div className="w-full min-w-[320px] max-w-[384px] mx-auto glass-panel rounded-[1.5rem] p-8 relative z-10 border border-white/10 shadow-[0_0_40px_rgba(168,85,247,0.15)]">
           <button
             onClick={() => router.replace('/home')}
             className="absolute top-4 left-4 w-8 h-8 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors text-on-surface-variant hover:text-primary active:scale-95"
