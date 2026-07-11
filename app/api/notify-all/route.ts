@@ -11,7 +11,7 @@ export async function POST(req: Request) {
 
     const app = getFirebaseAdminApp();
     
-    if (!app.options.projectId) {
+    if (!process.env.FIREBASE_PRIVATE_KEY) {
        return NextResponse.json({ error: 'Firebase Admin not configured on server' }, { status: 500 });
     }
 

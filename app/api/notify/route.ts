@@ -11,8 +11,8 @@ export async function POST(req: Request) {
 
     const app = getFirebaseAdminApp();
     
-    // Check if we actually have credentials loaded (projectId is an easy check)
-    if (!app.options.projectId) {
+    // Check if we actually have credentials loaded
+    if (!process.env.FIREBASE_PRIVATE_KEY) {
        return NextResponse.json({ error: 'Firebase Admin not configured on server' }, { status: 500 });
     }
 
