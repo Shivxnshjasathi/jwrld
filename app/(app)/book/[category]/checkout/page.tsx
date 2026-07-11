@@ -450,7 +450,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
             </span>
           ) : (
             <>
-              PAY {formatPrice(totalAmount)}
+              {paymentMethod === 'counter' ? 'BOOK' : 'PAY'} {formatPrice(totalAmount)}
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </>
           )}
