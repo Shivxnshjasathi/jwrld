@@ -216,24 +216,14 @@ export default function HomePage() {
           </div>
           <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
         </div>
-        <div className="flex items-center gap-2">
-          <a 
-            href="https://maps.google.com/?q=325+Jai+Nagar+Rd+near+Indore+Sweet+Labour+Chowk+Yadav+Colony+Jabalpur+New+Adaresh+Colony+Madhya+Pradesh+482002"
-            target="_blank"
-            rel="noreferrer"
-            className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-primary hover:bg-white/10 transition-colors active:scale-95 duration-200 shadow-[0_0_15px_rgba(221,183,255,0.2)]"
-          >
-            <span className="material-symbols-outlined neon-text-primary text-[20px]">location_on</span>
-          </a>
-          <button 
-            onClick={() => router.push('/messages')}
-            className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-secondary hover:bg-white/10 transition-colors active:scale-95 duration-200 shadow-[0_0_15px_rgba(45,212,191,0.2)] relative"
-          >
-            <span className="material-symbols-outlined neon-text-secondary text-[20px]">chat</span>
-            {/* Notification dot */}
-            <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_rgba(168,85,247,1)]"></span>
-          </button>
-        </div>
+        <button 
+          onClick={() => router.push('/messages')}
+          className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-secondary hover:bg-white/10 transition-colors active:scale-95 duration-200 shadow-[0_0_15px_rgba(45,212,191,0.2)] relative"
+        >
+          <span className="material-symbols-outlined neon-text-secondary">chat</span>
+          {/* Notification dot */}
+          <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_rgba(168,85,247,1)]"></span>
+        </button>
       </header>
 
       <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto relative z-10 pb-[120px]">

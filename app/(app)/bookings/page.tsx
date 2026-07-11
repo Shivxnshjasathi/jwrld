@@ -144,9 +144,14 @@ function BookingsContent() {
           </div>
           <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
         </div>
-        <button className="text-on-surface-variant hover:text-primary transition-colors">
-          <span className="material-symbols-outlined">notifications</span>
-        </button>
+        <a 
+          href="https://maps.google.com/?q=325+Jai+Nagar+Rd+near+Indore+Sweet+Labour+Chowk+Yadav+Colony+Jabalpur+New+Adaresh+Colony+Madhya+Pradesh+482002"
+          target="_blank"
+          rel="noreferrer"
+          className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-primary hover:bg-white/10 transition-colors active:scale-95 duration-200 shadow-[0_0_15px_rgba(221,183,255,0.2)]"
+        >
+          <span className="material-symbols-outlined neon-text-primary text-[20px]">location_on</span>
+        </a>
       </header>
 
       {/* Success Toast */}
