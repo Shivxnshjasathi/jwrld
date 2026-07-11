@@ -162,6 +162,7 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
@@ -169,7 +170,9 @@ body {
 
 /* ─── Cyber-Luxe Specific Classes ────────────────────────────────────────── */
 
-.bg-obsidian { background-color: #0A0A0B; }
+.bg-obsidian {
+  background-color: #0A0A0B;
+}
 
 .glass-panel {
   background: rgba(255, 255, 255, 0.05);
@@ -191,7 +194,7 @@ body {
 
 .card-texture {
   background: linear-gradient(135deg, rgba(35, 30, 45, 0.95) 0%, rgba(20, 30, 35, 0.98) 100%),
-              url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.15"/></svg>');
+    url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="noiseFilter"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23noiseFilter)" opacity="0.15"/></svg>');
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
   border: 1px solid rgba(255, 255, 255, 0.15);
@@ -245,7 +248,7 @@ body {
 }
 
 .fab-glow {
-  box-shadow: 0 0 25px rgba(221, 183, 255, 0.6), inset 0 0 10px rgba(255,255,255,0.4);
+  box-shadow: 0 0 25px rgba(221, 183, 255, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.4);
 }
 
 .gradient-bg-primary {
@@ -268,56 +271,78 @@ input[type=range]::-webkit-slider-runnable-track {
   width: 100%;
   height: 4px;
   cursor: pointer;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 2px;
 }
 
 /* Custom Scrollbar for Chat Area */
 .chat-scroll::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
+
 .chat-scroll::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
+
 .chat-scroll::-webkit-scrollbar-thumb {
-    background: rgba(221, 183, 255, 0.2);
-    border-radius: 9999px;
+  background: rgba(221, 183, 255, 0.2);
+  border-radius: 9999px;
 }
+
 .chat-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(221, 183, 255, 0.4);
+  background: rgba(221, 183, 255, 0.4);
 }
 
 .glass-bubble-user {
-    background: linear-gradient(135deg, rgba(221,183,255,0.15) 0%, rgba(132,43,210,0.15) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(221,183,255,0.2);
-    box-shadow: 0 4px 24px -1px rgba(132,43,210,0.1);
+  background: linear-gradient(135deg, rgba(221, 183, 255, 0.15) 0%, rgba(132, 43, 210, 0.15) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(221, 183, 255, 0.2);
+  box-shadow: 0 4px 24px -1px rgba(132, 43, 210, 0.1);
 }
 
 .glass-bubble-agent {
-    background: linear-gradient(135deg, rgba(68,226,205,0.15) 0%, rgba(3,198,178,0.15) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(68,226,205,0.2);
-    box-shadow: 0 4px 24px -1px rgba(3,198,178,0.1);
+  background: linear-gradient(135deg, rgba(68, 226, 205, 0.15) 0%, rgba(3, 198, 178, 0.15) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(68, 226, 205, 0.2);
+  box-shadow: 0 4px 24px -1px rgba(3, 198, 178, 0.1);
 }
 
 /* ─── Animations ──────────────────────────────────────────────────────────── */
 
 @keyframes slideUp {
-  from { transform: translateY(100%); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 
 .animate-slide-up {
@@ -333,128 +358,165 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 @keyframes slideUpFade {
-    0% { opacity: 0; transform: translateY(20px); }
-    100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .animate-slide-up-fade {
-    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .animate-shimmer {
-    animation: shimmer 2.5s linear infinite;
+  animation: shimmer 2.5s linear infinite;
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
 }
 
 .animate-float {
-    animation: float 4s ease-in-out infinite;
+  animation: float 4s ease-in-out infinite;
 }
 
 /* Cyber-Luxe Headers & Glows */
-h2, .header-glow {
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.2), 0 0 30px rgba(168, 85, 247, 0.15);
+h2,
+.header-glow {
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.2), 0 0 30px rgba(168, 85, 247, 0.15);
 }
 
 .shimmer-btn {
-    background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-primary) 100%);
-    background-size: 200% 100%;
+  background: linear-gradient(90deg, var(--color-primary) 0%, var(--color-secondary) 50%, var(--color-primary) 100%);
+  background-size: 200% 100%;
 }
 
-.delay-100 { animation-delay: 100ms; }
-.delay-200 { animation-delay: 200ms; }
-.delay-300 { animation-delay: 300ms; }
-.delay-400 { animation-delay: 400ms; }
+.delay-100 {
+  animation-delay: 100ms;
+}
+
+.delay-200 {
+  animation-delay: 200ms;
+}
+
+.delay-300 {
+  animation-delay: 300ms;
+}
+
+.delay-400 {
+  animation-delay: 400ms;
+}
 
 .card-texture {
-    background: linear-gradient(135deg, rgba(221, 183, 255, 0.2) 0%, rgba(68, 226, 205, 0.1) 100%);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-top: 1px solid rgba(255, 255, 255, 0.3);
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(221, 183, 255, 0.2) 0%, rgba(68, 226, 205, 0.1) 100%);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
 }
+
 .neon-glow {
-    text-shadow: 0 0 10px rgba(68, 226, 205, 0.6);
+  text-shadow: 0 0 10px rgba(68, 226, 205, 0.6);
 }
 
 .status-occupied {
-    box-shadow: 0 0 15px rgba(255, 180, 171, 0.4);
-    border-color: rgba(255, 180, 171, 0.4);
+  box-shadow: 0 0 15px rgba(255, 180, 171, 0.4);
+  border-color: rgba(255, 180, 171, 0.4);
 }
+
 .status-available {
-    box-shadow: 0 0 15px rgba(68, 226, 205, 0.4);
-    border-color: rgba(68, 226, 205, 0.4);
+  box-shadow: 0 0 15px rgba(68, 226, 205, 0.4);
+  border-color: rgba(68, 226, 205, 0.4);
 }
+
 .neon-glow-primary {
-    box-shadow: 0 0 15px rgba(221, 183, 255, 0.4);
+  box-shadow: 0 0 15px rgba(221, 183, 255, 0.4);
 }
 
 .glass-card {
-    background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-left: 1px solid rgba(255, 255, 255, 0.05);
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: inset 1px 1px 20px rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 1px solid rgba(255, 255, 255, 0.05);
+  border-right: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: inset 1px 1px 20px rgba(255, 255, 255, 0.02);
 }
 
 .btn-gradient {
-    background: linear-gradient(135deg, #ddb7ff, #44e2cd);
+  background: linear-gradient(135deg, #ddb7ff, #44e2cd);
 }
+
 .btn-gradient:hover {
-    box-shadow: 0 0 20px rgba(221, 183, 255, 0.6);
+  box-shadow: 0 0 20px rgba(221, 183, 255, 0.6);
 }
 
 .no-scrollbar::-webkit-scrollbar {
-    display: none;
+  display: none;
 }
+
 .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .chat-scroll::-webkit-scrollbar {
-    width: 6px;
+  width: 6px;
 }
+
 .chat-scroll::-webkit-scrollbar-track {
-    background: transparent;
+  background: transparent;
 }
+
 .chat-scroll::-webkit-scrollbar-thumb {
-    background: rgba(221, 183, 255, 0.2);
-    border-radius: 9999px;
+  background: rgba(221, 183, 255, 0.2);
+  border-radius: 9999px;
 }
+
 .chat-scroll::-webkit-scrollbar-thumb:hover {
-    background: rgba(221, 183, 255, 0.4);
+  background: rgba(221, 183, 255, 0.4);
 }
 
 .glass-bubble-user {
-    background: linear-gradient(135deg, rgba(221,183,255,0.15) 0%, rgba(132,43,210,0.15) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(221,183,255,0.2);
-    box-shadow: 0 4px 24px -1px rgba(132,43,210,0.1);
+  background: linear-gradient(135deg, rgba(221, 183, 255, 0.15) 0%, rgba(132, 43, 210, 0.15) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(221, 183, 255, 0.2);
+  box-shadow: 0 4px 24px -1px rgba(132, 43, 210, 0.1);
 }
 
 .glass-bubble-agent {
-    background: linear-gradient(135deg, rgba(68,226,205,0.15) 0%, rgba(3,198,178,0.15) 100%);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(68,226,205,0.2);
-    box-shadow: 0 4px 24px -1px rgba(3,198,178,0.1);
+  background: linear-gradient(135deg, rgba(68, 226, 205, 0.15) 0%, rgba(3, 198, 178, 0.15) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(68, 226, 205, 0.2);
+  box-shadow: 0 4px 24px -1px rgba(3, 198, 178, 0.1);
 }
 
 .neon-glow-secondary {
-    box-shadow: 0 0 15px 0 rgba(68,226,205,0.4);
+  box-shadow: 0 0 15px 0 rgba(68, 226, 205, 0.4);
 }
-
-

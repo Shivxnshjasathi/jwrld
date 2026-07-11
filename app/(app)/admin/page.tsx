@@ -190,13 +190,6 @@ export default function AdminDashboard() {
             <button onClick={() => setShowWalkInForm(true)} className="hover:opacity-80 transition-opacity text-primary">
               <span className="material-symbols-outlined text-[24px]">add_circle</span>
             </button>
-            <div className="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline-variant/30 flex items-center justify-center">
-              {appUser?.photoURL ? (
-                <img src={appUser.photoURL} alt="Admin" className="w-full h-full object-cover" />
-              ) : (
-                <span className="material-symbols-outlined text-on-surface-variant">shield_person</span>
-              )}
-            </div>
             <button onClick={() => setShowMobileMenu(true)} className="md:hidden text-on-surface-variant hover:text-white ml-2 transition-colors">
               <span className="material-symbols-outlined text-[28px]">menu</span>
             </button>

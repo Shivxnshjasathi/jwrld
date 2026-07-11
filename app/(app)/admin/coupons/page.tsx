@@ -17,9 +17,9 @@ export default function AdminCouponsPage() {
   const [formData, setFormData] = useState({
     code: '',
     discountType: 'percentage' as 'percentage' | 'fixed',
-    discountValue: 0,
+    discountValue: '' as number | '',
     active: true,
-    maxUses: 0,
+    maxUses: '' as number | '',
     usedCount: 0
   });
 
@@ -42,9 +42,9 @@ export default function AdminCouponsPage() {
     setFormData({ 
       code: '', 
       discountType: 'percentage', 
-      discountValue: 0, 
+      discountValue: '', 
       active: true,
-      maxUses: 0,
+      maxUses: '',
       usedCount: 0
     });
     setIsEditing(false);
@@ -88,13 +88,15 @@ export default function AdminCouponsPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.code || formData.discountValue <= 0) {
+    if (!formData.code || formData.discountValue === '' || Number(formData.discountValue) <= 0) {
       toast.error('Please fill all required fields correctly');
       return;
     }
 
     const payload = {
       ...formData,
+      discountValue: Number(formData.discountValue),
+      maxUses: Number(formData.maxUses) || 0,
       code: formData.code.trim().toUpperCase()
     };
 
@@ -110,7 +112,7 @@ export default function AdminCouponsPage() {
       resetForm();
       loadCoupons();
     } catch (e: any) {
-      toast.error(isEditing ? 'Failed to update' : 'Failed to create');
+      toast.error(e.message || (isEditing ? 'Failed to update' : 'Failed to create'));
     }
   };
 
@@ -220,7 +222,7 @@ export default function AdminCouponsPage() {
                   <input 
                     type="number" 
                     value={formData.discountValue}
-                    onChange={(e) => setFormData({...formData, discountValue: Number(e.target.value)})}
+                    onChange={(e) => setFormData({...formData, discountValue: e.target.value === '' ? '' : Number(e.target.value)})}
                     className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-secondary"
                     min="0"
                     required
@@ -233,7 +235,7 @@ export default function AdminCouponsPage() {
                 <input 
                   type="number" 
                   value={formData.maxUses}
-                  onChange={(e) => setFormData({...formData, maxUses: Number(e.target.value)})}
+                  onChange={(e) => setFormData({...formData, maxUses: e.target.value === '' ? '' : Number(e.target.value)})}
                   className="w-full bg-surface-container border border-outline-variant/30 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-secondary"
                   min="0"
                 />

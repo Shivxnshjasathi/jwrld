@@ -3,6 +3,8 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { Toaster } from 'react-hot-toast';
 import ClientProviders from '@/components/client-providers';
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -51,6 +53,8 @@ export default function RootLayout({
       <body className="bg-obsidian text-on-surface min-h-screen relative overflow-x-hidden font-body-md antialiased flex flex-col">
         <ClientProviders>
           {children}
+          <Analytics />
+          <SpeedInsights />
         </ClientProviders>
         <Toaster 
           position="top-center"
