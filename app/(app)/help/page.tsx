@@ -1,9 +1,9 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 
 export default function HelpPage() {
-  const router = useRouter();
+  const { goBack } = useAppNavigation();
 
   return (
     <div className="min-h-dvh bg-[#0A0A0B] text-on-surface selection:bg-primary/30 pb-24 font-body-md relative overflow-hidden">
@@ -14,7 +14,7 @@ export default function HelpPage() {
       <div className="bg-surface/10 px-6 pt-12 pb-6 sticky top-0 z-50 border-b border-white/5 backdrop-blur-xl">
         <div className="flex items-center gap-4 max-w-[1280px] mx-auto">
           <button
-            onClick={() => router.back()}
+            onClick={() => goBack('/profile')}
             className="w-10 h-10 shrink-0 bg-white/5 rounded-full flex items-center justify-center border border-white/5 hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>

@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect, Suspense } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { ArrowLeft } from 'lucide-react';
 import { verifyOTP } from '@/lib/auth';
 
@@ -11,7 +12,7 @@ function VerifyContent() {
   const [error, setError] = useState('');
   const [countdown, setCountdown] = useState(30);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const router = useRouter();
+  const { goBack, push } = useAppNavigation();
   const searchParams = useSearchParams();
   const phone = searchParams.get('phone') || '';
 
@@ -70,7 +71,7 @@ function VerifyContent() {
 
     const user = await verifyOTP(code);
     if (user) {
-      router.replace('/home');
+      push('/home');
     } else {
       setError('Invalid OTP. Please try again.');
       setOtp(['', '', '', '', '', '']);
@@ -83,7 +84,7 @@ function VerifyContent() {
     <div className="min-h-dvh bg-white flex flex-col">
       {/* Header */}
       <div className="flex items-center px-4 pt-4 pb-2">
-        <button onClick={() => router.back()} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
+        <button onClick={() => goBack('/login')} className="p-2 -ml-2 rounded-full hover:bg-gray-100 transition-colors">
           <ArrowLeft size={22} className="text-arcade-text" />
         </button>
       </div>

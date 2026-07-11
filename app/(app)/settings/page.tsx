@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { useAppStore } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/lib/auth';
@@ -8,7 +8,7 @@ import { requestNotificationPermission } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
 
 export default function SettingsPage() {
-  const router = useRouter();
+  const { goBack } = useAppNavigation();
   const { appUser } = useAuth();
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -60,7 +60,7 @@ export default function SettingsPage() {
       <div className="bg-surface/10 px-6 pt-12 pb-4 sticky top-0 z-50 backdrop-blur-xl border-b border-white/5">
         <div className="flex items-center gap-4">
           <button
-            onClick={() => router.back()}
+            onClick={() => goBack()}
             className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>

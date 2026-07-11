@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { subscribeToChats, subscribeToMessages, sendMessage, markChatRead, type Chat, type Message } from '@/lib/firestore';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
 
 export default function AdminMessagesPage() {
-  const router = useRouter();
+  const { goBack } = useAppNavigation();
   const [chats, setChats] = useState<Chat[]>([]);
   const [selectedChat, setSelectedChat] = useState<Chat | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -72,7 +72,7 @@ export default function AdminMessagesPage() {
       <div className={`md:w-1/3 md:border-r border-white/10 glass-panel flex flex-col h-dvh ${selectedChat ? 'hidden md:flex' : 'flex'} relative z-10`}>
         <div className="p-4 border-b border-white/10 flex items-center gap-3 bg-surface/20">
           <button
-            onClick={() => router.back()}
+            onClick={() => goBack('/admin')}
             className="w-10 h-10 shrink-0 bg-white/5 rounded-full flex items-center justify-center transition-colors hover:text-primary hover:bg-white/10 active:scale-95"
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { useAuth } from '@/lib/auth';
 import { collection, query, orderBy, onSnapshot, doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
@@ -13,7 +13,7 @@ export default function EventsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState<string | null>(null);
-  const router = useRouter();
+  const { goBack, push } = useAppNavigation();
   const { appUser } = useAuth();
 
   useEffect(() => {
@@ -29,13 +29,13 @@ export default function EventsPage() {
   const handleJoin = async (event: Event) => {
     if (!appUser) {
       toast.error('Please log in to join events');
-      router.push('/login');
+      push('/login');
       return;
     }
     
     if (appUser.walletBalance < event.entryFee) {
       toast.error('Insufficient wallet balance. Please top up.');
-      router.push('/wallet');
+      push('/wallet');
       return;
     }
 
@@ -91,7 +91,7 @@ export default function EventsPage() {
   return (
     <div className="bg-background text-on-surface min-h-dvh pb-[120px] font-body-md selection:bg-primary/30 selection:text-primary">
       <header className="bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm fixed top-0 w-full flex items-center px-gutter py-md z-40">
-        <button onClick={() => router.back()} className="text-on-surface hover:text-primary transition-colors active:scale-95 duration-200">
+        <button onClick={() => goBack('/home')} className="text-on-surface hover:text-primary transition-colors active:scale-95 duration-200">
           <span className="material-symbols-outlined">arrow_back</span>
         </button>
         <div className="flex-1 text-center font-headline-sm font-bold text-white header-glow">

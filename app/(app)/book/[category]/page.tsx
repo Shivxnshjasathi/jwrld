@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { format } from 'date-fns';
 import DateStrip from '@/components/date-strip';
 import TimeSlider from '@/components/time-slider';
@@ -11,7 +11,7 @@ import { getAssetsByCategory, subscribeToBookings, type Asset, type Booking } fr
 
 export default function BookingPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = use(params);
-  const router = useRouter();
+  const { goBack, push } = useAppNavigation();
   const store = useBookingStore();
 
   const [assets, setAssets] = useState<Asset[]>([]);
@@ -88,7 +88,7 @@ export default function BookingPage({ params }: { params: Promise<{ category: st
 
   const handleProceed = () => {
     if (store.selectedAssetId) {
-      router.push(`/book/${category}/checkout`);
+      push(`/book/${category}/checkout`);
     }
   };
 
@@ -100,7 +100,7 @@ export default function BookingPage({ params }: { params: Promise<{ category: st
       {/* Header */}
       <header className="glass-panel sticky top-0 w-full z-50 flex items-center justify-between px-gutter py-md border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
         <button
-          onClick={() => router.back()}
+          onClick={() => goBack('/home')}
           className="text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200"
         >
           <span className="material-symbols-outlined text-[24px]">arrow_back</span>

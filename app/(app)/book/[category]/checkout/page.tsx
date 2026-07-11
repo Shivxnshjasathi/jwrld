@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, use, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { format, isToday, isTomorrow } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { useAuth } from '@/lib/auth';
@@ -12,7 +12,7 @@ import { getFirebaseDb } from '@/lib/firebase';
 
 export default function CheckoutPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = use(params);
-  const router = useRouter();
+  const { goBack, push, replace } = useAppNavigation();
   const store = useBookingStore();
   const { user, appUser } = useAuth();
   const [loading, setLoading] = useState(false);
@@ -61,7 +61,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
   const handleRemoveBooking = () => {
     store.clearAsset();
-    router.back();
+    goBack(`/book/${category}`);
   };
 
   const [appliedCouponId, setAppliedCouponId] = useState<string | null>(null);
@@ -182,7 +182,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   };
 
   if (!store.selectedAssetId) {
-    router.back();
+    goBack(`/book/${category}`);
     return null;
   }
 
@@ -192,7 +192,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       {/* Header */}
       <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-4 border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
         <button
-          onClick={() => router.back()}
+          onClick={() => goBack(`/book/${category}`)}
           className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
         >
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
@@ -444,7 +444,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
             <button
               onClick={() => {
                 store.reset();
-                router.replace('/bookings?success=true');
+                replace('/bookings?success=true');
               }}
               className="w-full btn-gradient py-4 rounded-full font-bold shadow-md hover:bg-black transition-all active:scale-95 text-background neon-text-primary"
             >

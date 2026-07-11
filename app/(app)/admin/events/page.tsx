@@ -101,25 +101,25 @@ export default function AdminEventsPage() {
                 <textarea required value={description} onChange={e => setDescription(e.target.value)} className="w-full bg-surface-container rounded-xl px-4 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all placeholder:text-on-surface-variant/50" rows={3} placeholder="Event details..."></textarea>
               </div>
 
-              <div className="grid grid-cols-2 gap-sm">
-                <div>
+              <div className="flex flex-col sm:flex-row gap-sm">
+                <div className="flex-1">
                   <label className="block text-[12px] text-on-surface-variant mb-1 ml-1">Date</label>
-                  <input required type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full bg-surface-container rounded-xl px-4 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
+                  <input required type="date" value={date} onChange={e => setDate(e.target.value)} className="w-full min-w-0 bg-surface-container rounded-xl px-3 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <label className="block text-[12px] text-on-surface-variant mb-1 ml-1">Time</label>
-                  <input required type="time" value={time} onChange={e => setTime(e.target.value)} className="w-full bg-surface-container rounded-xl px-4 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
+                  <input required type="time" value={time} onChange={e => setTime(e.target.value)} className="w-full min-w-0 bg-surface-container rounded-xl px-3 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-sm">
-                <div>
+              <div className="flex flex-col sm:flex-row gap-sm">
+                <div className="flex-1">
                   <label className="block text-[12px] text-on-surface-variant mb-1 ml-1">Entry Fee (₹)</label>
-                  <input required type="number" min="0" value={entryFee} onChange={e => setEntryFee(Number(e.target.value))} className="w-full bg-surface-container rounded-xl px-4 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
+                  <input required type="number" min="0" value={entryFee} onChange={e => setEntryFee(Number(e.target.value))} className="w-full min-w-0 bg-surface-container rounded-xl px-3 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <label className="block text-[12px] text-on-surface-variant mb-1 ml-1">Max Players</label>
-                  <input required type="number" min="2" value={maxParticipants} onChange={e => setMaxParticipants(Number(e.target.value))} className="w-full bg-surface-container rounded-xl px-4 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
+                  <input required type="number" min="2" value={maxParticipants} onChange={e => setMaxParticipants(Number(e.target.value))} className="w-full min-w-0 bg-surface-container rounded-xl px-3 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
                 </div>
               </div>
 

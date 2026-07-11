@@ -1,12 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { useAuth } from '@/lib/auth';
 import { createFoodOrder, type FoodItem } from '@/lib/firestore';
 
 export default function FoodCheckoutPage() {
-  const router = useRouter();
+  const { goBack, push, replace } = useAppNavigation();
   const { appUser } = useAuth();
   
   const [cartItems, setCartItems] = useState<FoodItem[]>([]);
@@ -22,9 +22,9 @@ export default function FoodCheckoutPage() {
       setCartItems(JSON.parse(savedCart));
       setTotalAmount(parseInt(savedTotal, 10));
     } else {
-      router.replace('/food');
+      replace('/food');
     }
-  }, [router]);
+  }, [replace]);
 
   const handlePlaceOrder = async () => {
     if (!appUser || !tableNumber.trim() || cartItems.length === 0) return;
@@ -68,7 +68,7 @@ export default function FoodCheckoutPage() {
             Your food is being prepared and will be brought to <strong className="text-primary">{tableNumber}</strong> shortly.
           </p>
           <button
-            onClick={() => router.replace('/home')}
+            onClick={() => replace('/home')}
             className="btn-gradient w-full rounded-full py-4 font-bold text-[14px] text-background uppercase tracking-widest shadow-[0_0_20px_rgba(132,43,210,0.4)] active:scale-95 transition-all neon-glow-primary"
           >
             BACK TO HOME
@@ -87,7 +87,7 @@ export default function FoodCheckoutPage() {
         {/* Header */}
         <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-4 border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
           <button
-            onClick={() => router.back()}
+            onClick={() => goBack('/food')}
             className="w-10 h-10 flex items-center justify-center rounded-full bg-white/5 text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200 mr-sm hover:bg-white/10"
           >
             <span className="material-symbols-outlined text-[20px]">arrow_back</span>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { useRouter } from 'next/navigation';
+import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { useAuth } from '@/lib/auth';
 import { subscribeToMessages, sendMessage, markChatRead, type Message } from '@/lib/firestore';
 import { format } from 'date-fns';
@@ -9,7 +9,7 @@ import { toast } from 'react-hot-toast';
 
 export default function UserMessagesPage() {
   const { user, appUser } = useAuth();
-  const router = useRouter();
+  const { goBack } = useAppNavigation();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -58,7 +58,7 @@ export default function UserMessagesPage() {
       <header className="glass-panel fixed top-0 w-full z-50 flex justify-between items-center px-gutter py-md border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
         <div className="flex items-center gap-md">
           <button 
-            onClick={() => router.back()} 
+            onClick={() => goBack('/profile')}
             aria-label="Back" 
             className="text-on-surface-variant hover:text-primary transition-colors active:scale-95 duration-200"
           >

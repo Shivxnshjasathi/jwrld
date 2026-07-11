@@ -15,6 +15,7 @@ export function getFirebaseAdminApp() {
 
     if (projectId && clientEmail && privateKey) {
       initializeApp({
+        projectId,
         credential: cert({
           projectId,
           clientEmail,
