@@ -158,8 +158,11 @@ export default function AdminDashboard() {
       <header className="bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm fixed top-0 w-full z-40">
         <div className="flex justify-between items-center px-gutter py-md w-full max-w-[1440px] mx-auto">
           {/* Brand */}
-          <div className="font-display-md text-[24px] tracking-tighter text-on-surface font-bold header-glow cursor-pointer" onClick={() => router.push('/home')}>
-            Jaaduwrld
+          <div className="flex flex-col items-center cursor-pointer" onClick={() => router.push('/home')}>
+            <div className="font-display-md text-[24px] tracking-tighter text-on-surface font-bold header-glow leading-none">
+              Jaaduwrld
+            </div>
+            <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
           </div>
           
           {/* Desktop Nav Links */}

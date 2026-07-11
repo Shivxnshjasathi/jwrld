@@ -40,7 +40,7 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between py-4 border-b border-white/10">
             <div>
               <p className="text-[14px] font-bold text-white">Email Updates</p>
-              <p className="text-[12px] text-on-surface-variant mt-1">Promotions and news from ArcadeZone</p>
+              <p className="text-[12px] text-on-surface-variant mt-1">Promotions and news from Jaaduwrld</p>
             </div>
             <div className="w-12 h-6 bg-white/5 rounded-full relative cursor-not-allowed border border-white/10">
               <div className="w-4 h-4 bg-on-surface-variant/50 rounded-full absolute left-1 top-1 shadow-sm"></div>

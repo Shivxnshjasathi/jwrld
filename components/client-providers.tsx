@@ -15,5 +15,5 @@ export default function ClientProviders({ children }: { children: React.ReactNod
     }
   }, [darkMode]);
 
-  return <SplashScreen>{children}</SplashScreen>;
+  return <SplashScreen><div className="w-screen flex-1 flex flex-col">{children}</div></SplashScreen>;
 }

@@ -56,7 +56,7 @@ export default function InstallPrompt() {
           <Download size={20} className="text-white" />
         </div>
         <div className="flex-1">
-          <h4 className="text-sm font-bold text-arcade-text">Add ArcadeZone to Home Screen</h4>
+          <h4 className="text-sm font-bold text-arcade-text">Add Jaaduwrld to Home Screen</h4>
           <p className="text-xs text-arcade-text-muted mt-0.5">
             {isIOS
               ? 'Tap the share button then "Add to Home Screen"'

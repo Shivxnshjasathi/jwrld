@@ -159,7 +159,7 @@ export default function BookingPage({ params }: { params: Promise<{ category: st
 
       {/* Proceed Button */}
       {store.selectedAssetId && (
-        <div className="fixed bottom-[var(--bottom-nav-height)] left-0 right-0 p-4 glass-panel border-t border-white/10 animate-slide-up z-40 bg-[#0A0A0B]/80 backdrop-blur-2xl">
+        <div className="fixed bottom-0 pb-8 left-0 right-0 p-4 glass-panel border-t border-white/10 animate-slide-up z-40 bg-[#0A0A0B]/80 backdrop-blur-2xl">
           <button 
             onClick={handleProceed} 
             disabled={hasTimeConflict()}

@@ -210,8 +210,11 @@ export default function HomePage() {
             )}
           </div>
         </div>
-        <div className="font-display-md text-[24px] tracking-tighter text-on-surface header-glow font-bold">
-          Jaaduwrld
+        <div className="flex flex-col items-center">
+          <div className="font-display-md text-[24px] tracking-tighter text-on-surface header-glow font-bold leading-none">
+            Jaaduwrld
+          </div>
+          <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
         </div>
         <button 
           onClick={() => router.push('/messages')}

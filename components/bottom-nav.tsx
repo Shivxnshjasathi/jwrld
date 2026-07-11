@@ -23,7 +23,7 @@ export default function BottomNav() {
             <button
               key={item.href}
               onClick={() => router.replace(item.href)}
-              className="flex flex-col items-center justify-center text-primary drop-shadow-[0_0_12px_rgba(168,85,247,0.9)] after:content-[''] after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full after:mt-1.5 hover:text-primary/80 transition-all active:scale-90 duration-300"
+              className="flex flex-col items-center justify-center text-primary after:content-[''] after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full after:mt-1.5 hover:text-primary/80 transition-all active:scale-90 duration-300"
             >
               <span className="material-symbols-outlined font-label-md text-label-md text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>
                 {item.icon}
@@ -36,7 +36,7 @@ export default function BottomNav() {
           <button
             key={item.href}
             onClick={() => router.replace(item.href)}
-            className="flex flex-col items-center justify-center text-white/40 hover:text-secondary hover:drop-shadow-[0_0_10px_rgba(45,212,191,0.6)] transition-all active:scale-90 duration-300"
+            className="flex flex-col items-center justify-center text-white/40 hover:text-secondary transition-all active:scale-90 duration-300"
           >
             <span className="material-symbols-outlined font-label-md text-label-md text-[28px]">
               {item.icon}

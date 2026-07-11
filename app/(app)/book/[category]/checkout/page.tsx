@@ -7,6 +7,8 @@ import { useBookingStore } from '@/lib/store';
 import { useAuth } from '@/lib/auth';
 import { createBooking } from '@/lib/firestore';
 import { formatTime, formatPrice } from '@/lib/utils';
+import { doc, updateDoc } from 'firebase/firestore';
+import { getFirebaseDb } from '@/lib/firebase';
 
 export default function CheckoutPage({ params }: { params: Promise<{ category: string }> }) {
   const { category } = use(params);
@@ -19,6 +21,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [showCouponInput, setShowCouponInput] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [useWallet, setUseWallet] = useState(false);
+  
+  // Guest details state
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestPhone, setGuestPhone] = useState('');
   
   // Expandable policies state
   const [expandReschedule, setExpandReschedule] = useState(false);
@@ -48,7 +55,17 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const handlePayment = async () => {
     if (!user || !store.selectedAssetId || !appUser) return;
 
-    if (useWallet && (appUser.walletBalance || 0) < totalAmount) {
+    if (appUser.role === 'guest') {
+      setShowGuestModal(true);
+      return;
+    }
+
+    await executeBooking(appUser.name);
+  };
+
+  const executeBooking = async (userName: string) => {
+    if (!user || !store.selectedAssetId) return;
+    if (useWallet && (appUser?.walletBalance || 0) < totalAmount) {
       setError('Insufficient wallet balance.');
       return;
     }
@@ -64,7 +81,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
       await createBooking({
         userId: user.uid,
-        userName: appUser?.name || 'Player',
+        userName,
         assetId: store.selectedAssetId,
         assetName: store.selectedAssetName || '',
         category,
@@ -72,7 +89,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         startTime: store.startTime,
         endTime: store.endTime,
         totalAmount,
-        status: useWallet ? 'confirmed' : 'pending', // Auto-confirm if paid via wallet
+        status: useWallet ? 'confirmed' : 'pending',
         createdAt: new Date().toISOString(),
         protection: store.protection,
       });
@@ -82,6 +99,29 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       setError(err instanceof Error ? err.message : 'Failed to create booking');
     }
     setLoading(false);
+  };
+
+  const handleGuestSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!guestName || !guestPhone) {
+      setError('Name and phone number are required.');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const db = getFirebaseDb();
+      await updateDoc(doc(db, 'users', user!.uid), {
+        name: guestName,
+        phone: guestPhone,
+        role: 'customer'
+      });
+      setShowGuestModal(false);
+      await executeBooking(guestName);
+    } catch (err) {
+      setError('Failed to update details. Try again.');
+      setLoading(false);
+    }
   };
 
   if (!store.selectedAssetId) {
@@ -102,7 +142,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         </button>
         <div>
           <h1 className="text-[20px] font-bold text-on-surface leading-tight header-glow">Checkout</h1>
-          <p className="text-[11px] text-primary font-bold tracking-widest uppercase">ArcadeZone</p>
+          <p className="text-[11px] text-primary font-bold tracking-widest uppercase">Jaaduwrld</p>
         </div>
       </header>
 
@@ -221,7 +261,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
               <p className="text-[12px] font-bold text-on-surface-variant tracking-widest uppercase">TOTAL AMOUNT</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-[20px] font-black text-primary neon-glow-primary">{formatPrice(totalAmount)}</span>
+              <span className="text-[20px] font-black text-primary neon-text-primary">{formatPrice(totalAmount)}</span>
               <span className="material-symbols-outlined text-[20px] text-on-surface-variant">chevron_right</span>
             </div>
           </button>
@@ -279,7 +319,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       </div>
 
       {/* Sticky Pay Button */}
-      <div className="fixed bottom-[var(--bottom-nav-height)] mb-4 left-0 right-0 px-5 z-40 pointer-events-none">
+      <div className="fixed bottom-0 pb-8 left-0 right-0 px-5 z-40 pointer-events-none">
         <button
           onClick={handlePayment}
           disabled={loading}
@@ -302,7 +342,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       {/* Success Modal */}
       {showSuccessModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="glass-card rounded-[2rem] p-8 w-full max-w-sm flex flex-col items-center text-center shadow-2xl animate-scale-in relative overflow-hidden">
+          <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-sm flex flex-col items-center text-center shadow-2xl animate-scale-in relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
             
             <div className="w-20 h-20 bg-secondary/10 border border-secondary/30 rounded-full flex items-center justify-center mb-6 mt-4">
@@ -319,10 +359,78 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                 store.reset();
                 router.replace('/bookings?success=true');
               }}
-              className="w-full btn-gradient py-4 rounded-full font-bold shadow-md hover:bg-black transition-all active:scale-95 text-background neon-glow-primary"
+              className="w-full btn-gradient py-4 rounded-full font-bold shadow-md hover:bg-black transition-all active:scale-95 text-background neon-text-primary"
             >
               View My Bookings
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Guest Details Modal */}
+      {showGuestModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-sm flex flex-col shadow-2xl animate-scale-in relative overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary to-secondary"></div>
+            
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-[20px] font-black text-white tracking-tight">Final Details</h2>
+              <button onClick={() => setShowGuestModal(false)} className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center text-on-surface-variant hover:text-white">
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+            
+            <p className="text-[14px] text-on-surface-variant mb-6 leading-relaxed">
+              Before we confirm your booking, we just need a name and number for the reservation.
+            </p>
+            
+            <form onSubmit={handleGuestSubmit} className="space-y-4">
+              <div className="space-y-1">
+                <label className="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">Full Name</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px]">person</span>
+                  <input 
+                    type="text"
+                    required
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    placeholder="Neon Rider"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white text-[14px] focus:border-primary/50 focus:ring-0 outline-none"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">Phone Number</label>
+                <div className="relative">
+                  <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[18px]">call</span>
+                  <input 
+                    type="tel"
+                    required
+                    value={guestPhone}
+                    onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    placeholder="9876543210"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white text-[14px] focus:border-primary/50 focus:ring-0 outline-none"
+                  />
+                </div>
+              </div>
+              
+              {error && <p className="text-red-400 text-xs font-medium">{error}</p>}
+              
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn-gradient py-4 rounded-full font-bold shadow-md hover:bg-black transition-all active:scale-95 text-background mt-4 flex justify-center items-center gap-2"
+              >
+                {loading ? (
+                  <span className="w-5 h-5 border-2 border-background border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <>
+                    <span>Confirm Booking</span>
+                    <span className="material-symbols-outlined text-[18px]">check</span>
+                  </>
+                )}
+              </button>
+            </form>
           </div>
         </div>
       )}

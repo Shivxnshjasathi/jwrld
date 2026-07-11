@@ -44,21 +44,16 @@ export async function sendPushToUser(userId: string, title: string, body: string
 export async function sendPushToAdmins(title: string, body: string, data?: any) {
   if (!isFirebaseConfigured) return;
   try {
-    const db = getFirebaseDb();
-    const q = query(collection(db, 'users'), where('role', '==', 'admin'));
-    const snapshot = await getDocs(q);
-    
-    // We shouldn't block on all fetches sequentially, so we fire them off concurrently
-    const pushPromises = snapshot.docs.map(adminDoc => {
-      const adminData = adminDoc.data();
-      if (adminData.fcmToken) {
-        return triggerPushAPI(adminData.fcmToken, title, body, data);
-      }
-      return Promise.resolve();
+    const res = await fetch('/api/notify-admins', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, body, data }),
     });
-    
-    await Promise.allSettled(pushPromises);
+    if (!res.ok) {
+      console.warn('Failed to send push to admins via API', await res.text());
+    }
   } catch (err) {
     console.error('Failed to send push to admins:', err);
   }
 }
+

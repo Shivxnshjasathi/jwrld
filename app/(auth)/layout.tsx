@@ -1,6 +1,6 @@
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-dvh flex flex-col bg-white">
+    <div className="w-full flex-1 flex flex-col min-h-dvh w-screen bg-obsidian text-on-surface">
       {children}
     </div>
   );

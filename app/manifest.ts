@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'ArcadeZone — Book. Play. Win.',
-    short_name: 'ArcadeZone',
-    description: 'Book pool tables, snooker, and PS5 gaming stations at ArcadeZone. Premium arcade booking made easy.',
+    name: 'Jaaduwrld — Book. Play. Win.',
+    short_name: 'Jaaduwrld',
+    description: 'Book pool tables, snooker, and PS5 gaming stations at Jaaduwrld. Premium arcade booking made easy.',
     start_url: '/',
     display: 'standalone',
     background_color: '#111111',

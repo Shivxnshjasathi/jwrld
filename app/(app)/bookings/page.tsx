@@ -138,9 +138,12 @@ function BookingsContent() {
             )}
           </div>
         </div>
-        <h1 className="font-display-md text-[24px] font-bold tracking-tighter text-on-surface cursor-pointer header-glow" onClick={() => router.push('/home')}>
-          Jaaduwrld
-        </h1>
+        <div className="flex flex-col items-center pt-1">
+          <div className="font-display-md text-[24px] tracking-tighter text-on-surface font-bold header-glow leading-none">
+            Jaaduwrld
+          </div>
+          <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
+        </div>
         <button className="text-on-surface-variant hover:text-primary transition-colors">
           <span className="material-symbols-outlined">notifications</span>
         </button>

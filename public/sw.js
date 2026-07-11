@@ -1,4 +1,4 @@
-const CACHE_NAME = 'arcadezone-v3';
+const CACHE_NAME = 'jaaduwrld-v3';
 const STATIC_ASSETS = [
   '/',
   '/home',
@@ -129,7 +129,7 @@ self.addEventListener('push', (event) => {
       },
     };
     event.waitUntil(
-      self.registration.showNotification(data.title || 'ArcadeZone', options)
+      self.registration.showNotification(data.title || 'Jaaduwrld', options)
     );
   }
 });

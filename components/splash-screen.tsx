@@ -37,10 +37,10 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
 
         {/* Brand */}
         <h1 className="text-xl font-black text-white tracking-tight mb-1">
-          ArcadeZone
+          Jaaduwrld
         </h1>
         <p className="text-[10px] font-medium text-white/30 tracking-[0.25em] uppercase">
-          Book · Play · Win
+          Art and Arcade
         </p>
 
         {/* Simple spinner */}

@@ -51,7 +51,7 @@ export default function DateStrip({ selectedDate, onDateSelect, daysToShow = 14 
               onClick={() => onDateSelect(date)}
               className={`flex flex-col items-center justify-center min-w-[72px] h-[90px] rounded-2xl shrink-0 snap-start transition-all ${
                 isSelected
-                  ? 'glass-card border border-primary/50 shadow-[0_0_15px_rgba(221,183,255,0.2)] text-primary scale-105'
+                  ? 'glass-card border border-primary/50 text-primary scale-105'
                   : isTodayDate
                   ? 'glass-panel border border-secondary/30 text-secondary'
                   : 'glass-panel border border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'

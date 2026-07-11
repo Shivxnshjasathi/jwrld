@@ -11,6 +11,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   sendPasswordResetEmail,
+  signInAnonymously,
   type User,
   type ConfirmationResult,
 } from 'firebase/auth';
@@ -28,7 +29,7 @@ export interface AppUser {
   phone: string | null;
   name: string;
   email: string | null;
-  role: 'customer' | 'admin';
+  role: 'customer' | 'admin' | 'guest';
   photoURL: string | null;
   walletBalance: number;
   fcmToken?: string | null;
@@ -166,6 +167,46 @@ export async function signInWithGoogle(): Promise<User | null> {
   } catch (error) {
     console.error('Error signing in with Google:', error);
     return null;
+  }
+}
+
+export async function signInAsGuest(): Promise<User | null> {
+  if (!isFirebaseConfigured) {
+    console.warn('[ArcadeZone] Firebase not configured — cannot sign in as guest');
+    return null;
+  }
+  try {
+    const auth = getFirebaseAuth();
+    const result = await signInAnonymously(auth);
+    
+    // Create guest user doc
+    const db = getFirebaseDb();
+    const userRef = doc(db, 'users', result.user.uid);
+    let fcmToken: string | null = null;
+    try {
+      const { requestNotificationPermission } = await import('./firebase');
+      fcmToken = await requestNotificationPermission();
+    } catch (e) {
+      console.error('Failed to get FCM token:', e);
+    }
+
+    const userData = {
+      uid: result.user.uid,
+      name: 'Guest Player',
+      phone: null,
+      email: null,
+      role: 'guest',
+      photoURL: null,
+      walletBalance: 0,
+      fcmToken,
+      createdAt: new Date().toISOString(),
+    };
+    await setDoc(userRef, userData);
+    
+    return result.user;
+  } catch (error) {
+    console.error('Error signing in as guest:', error);
+    throw error;
   }
 }
 

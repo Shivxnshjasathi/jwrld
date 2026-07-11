@@ -48,7 +48,12 @@ export default function ProfilePage() {
               <span className="material-symbols-outlined text-on-surface-variant">person</span>
             )}
           </div>
-          <span className="font-display-md text-[24px] tracking-tighter text-on-surface font-bold header-glow">Jaaduwrld</span>
+          <div className="flex-1 flex flex-col items-center">
+            <div className="font-display-md text-[24px] tracking-tighter text-on-surface header-glow font-bold leading-none">
+              Jaaduwrld
+            </div>
+            <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
+          </div>
         </div>
         <button className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200">
           <span className="material-symbols-outlined">notifications</span>
@@ -130,27 +135,7 @@ export default function ProfilePage() {
               </div>
             ))}
 
-            {/* Theme Toggle */}
-            <div 
-              onClick={() => useAppStore.getState().toggleDarkMode()}
-              className="glass-panel rounded-xl p-md flex items-center justify-between group hover:bg-white/[0.08] transition-all cursor-pointer"
-            >
-              <div className="flex items-center gap-md">
-                <div className="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center border border-outline-variant/30 text-secondary">
-                  <span className="material-symbols-outlined">{isDarkMode ? 'dark_mode' : 'light_mode'}</span>
-                </div>
-                <div>
-                  <h3 className="font-body-lg text-[18px] text-on-surface font-semibold">Dark Mode</h3>
-                </div>
-              </div>
-              <div className="flex flex-col items-end">
-                <div className={`w-12 h-6 rounded-full p-1 transition-colors ${isDarkMode ? 'bg-secondary/40' : 'bg-surface-variant/50'}`}>
-                  <div className={`w-4 h-4 rounded-full bg-white transition-transform ${isDarkMode ? 'translate-x-6' : 'translate-x-0'}`} />
-                </div>
-              </div>
             </div>
-          </div>
-
           {/* Settings & Sign Out */}
           <div className="mt-xl border-t border-outline-variant/20 pt-lg space-y-sm">
             <button 

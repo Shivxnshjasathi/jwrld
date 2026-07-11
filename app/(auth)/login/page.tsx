@@ -3,11 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
-import { signInWithEmail, signUpWithEmail, resetPassword, useAuth } from '@/lib/auth';
+import { signInWithEmail, signUpWithEmail, signInAsGuest, resetPassword, useAuth } from '@/lib/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 
 export default function LoginPage() {
-  const [isLogin, setIsLogin] = useState(true);
+  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'guest'>('login');
   const [showPassword, setShowPassword] = useState(false);
 
   // Form State
@@ -37,13 +37,15 @@ export default function LoginPage() {
       setError('Firebase is not configured. Add your credentials to .env.local and restart.');
       return;
     }
-    if (!email || !password) {
-      setError('Email and password are required');
-      return;
-    }
-    if (!isLogin && (!firstName || !lastName)) {
-      setError('First and last name are required for sign up');
-      return;
+    if (authMode !== 'guest') {
+      if (!email || !password) {
+        setError('Email and password are required');
+        return;
+      }
+      if (authMode === 'signup' && (!firstName || !lastName)) {
+        setError('First and last name are required for sign up');
+        return;
+      }
     }
 
     setLoading(true);
@@ -51,7 +53,10 @@ export default function LoginPage() {
     setResetMessage('');
 
     try {
-      if (!isLogin) {
+      if (authMode === 'guest') {
+        const user = await signInAsGuest();
+        if (user) router.replace('/home');
+      } else if (authMode === 'signup') {
         if (!phone) {
           setError('Phone number is required for sign up');
           setLoading(false);
@@ -63,8 +68,25 @@ export default function LoginPage() {
         const user = await signInWithEmail(email, password);
         if (user) router.replace('/home');
       }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Authentication failed');
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('auth/invalid-credential') || msg.includes('auth/user-not-found') || msg.includes('auth/wrong-password')) {
+        setError('Invalid email or password. Please try again.');
+      } else if (msg.includes('auth/email-already-in-use')) {
+        setError('An account with this email already exists.');
+      } else if (msg.includes('auth/weak-password')) {
+        setError('Password is too weak (minimum 6 characters).');
+      } else if (msg.includes('auth/invalid-email')) {
+        setError('Please enter a valid email address.');
+      } else if (msg.includes('auth/too-many-requests')) {
+        setError('Too many failed attempts. Please try again later.');
+      } else if (msg.includes('auth/network-request-failed')) {
+        setError('Network error. Please check your connection.');
+      } else if (msg.includes('auth/admin-restricted-operation') || msg.includes('auth/operation-not-allowed')) {
+        setError('Anonymous sign-in is disabled. Please enable it in Firebase Console > Authentication > Sign-in method.');
+      } else {
+        setError('Authentication failed. Please try again.');
+      }
     }
     setLoading(false);
   };
@@ -79,8 +101,15 @@ export default function LoginPage() {
     try {
       await resetPassword(email);
       setResetMessage('Password reset email sent! Check your inbox.');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to send reset email.');
+    } catch (err: any) {
+      const msg = err.message || '';
+      if (msg.includes('auth/user-not-found')) {
+        setError('No account found with this email.');
+      } else if (msg.includes('auth/invalid-email')) {
+        setError('Please enter a valid email address.');
+      } else {
+        setError('Failed to send reset email. Please try again.');
+      }
     }
   };
 
@@ -93,12 +122,12 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-dvh bg-obsidian text-on-surface flex flex-col items-center justify-center relative overflow-hidden font-body-md antialiased p-6">
+    <div className="w-[100vw] min-h-dvh bg-obsidian text-on-surface relative overflow-x-hidden font-body-md antialiased px-6 py-8">
       {/* Ambient Glow Background */}
       <div className="ambient-glow"></div>
 
       {/* Main Content Container */}
-      <main className="relative z-10 w-full max-w-md pt-8 pb-12">
+      <main className="relative z-10 w-full min-w-[320px] max-w-[400px] mx-auto pb-12">
         
         {/* Firebase not configured warning */}
         {!isFirebaseConfigured && (
@@ -121,17 +150,18 @@ export default function LoginPage() {
 
         {/* Brand Header */}
         <div className="text-center mb-xl">
-          <h1 className="font-display-md text-display-md text-on-surface tracking-tighter mb-sm">Jaaduwrld</h1>
+          <h1 className="font-display-md text-display-md text-on-surface tracking-tighter leading-none mb-2">Jaaduwrld</h1>
+          <p className="text-[11px] font-bold tracking-[0.2em] text-primary uppercase mb-4">Art and Arcade</p>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            {isLogin ? 'Enter the Arcade' : 'Create your access pass'}
+            {authMode === 'login' ? 'Enter the Arcade' : authMode === 'signup' ? 'Create your access pass' : 'Browse as a guest'}
           </p>
         </div>
 
         {/* Toggle Pill */}
-        <div className="glass-panel p-1 rounded-full flex items-center mb-lg relative z-10 max-w-[240px] mx-auto border-white/10 bg-white/5">
+        <div className="glass-panel p-1 rounded-full flex items-center mb-lg relative z-10 max-w-[300px] mx-auto border-white/10 bg-white/5">
           <button
-            onClick={() => { setIsLogin(true); setError(''); }}
-            className={`flex-1 py-2 px-4 rounded-full font-label-md text-label-md transition-all duration-300 ${isLogin
+            onClick={() => { setAuthMode('login'); setError(''); }}
+            className={`flex-1 py-2 px-3 rounded-full font-label-md text-[12px] transition-all duration-300 ${authMode === 'login'
               ? 'bg-white/15 text-white shadow-sm'
               : 'text-on-surface-variant hover:text-white'
               }`}
@@ -139,13 +169,22 @@ export default function LoginPage() {
             Log In
           </button>
           <button
-            onClick={() => { setIsLogin(false); setError(''); }}
-            className={`flex-1 py-2 px-4 rounded-full font-label-md text-label-md transition-all duration-300 ${!isLogin
+            onClick={() => { setAuthMode('signup'); setError(''); }}
+            className={`flex-1 py-2 px-3 rounded-full font-label-md text-[12px] transition-all duration-300 ${authMode === 'signup'
               ? 'bg-white/15 text-white shadow-sm'
               : 'text-on-surface-variant hover:text-white'
               }`}
           >
             Sign Up
+          </button>
+          <button
+            onClick={() => { setAuthMode('guest'); setError(''); }}
+            className={`flex-1 py-2 px-3 rounded-full font-label-md text-[12px] transition-all duration-300 ${authMode === 'guest'
+              ? 'bg-white/15 text-white shadow-sm'
+              : 'text-on-surface-variant hover:text-white'
+              }`}
+          >
+            Guest
           </button>
         </div>
 
@@ -157,7 +196,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-lg relative z-10">
             
             {/* Sign Up Fields */}
-            {!isLogin && (
+            {authMode === 'signup' && (
               <div className="space-y-sm animate-fade-in">
                 <div className="flex gap-4">
                   <div className="flex-1 space-y-sm">
@@ -201,57 +240,62 @@ export default function LoginPage() {
               </div>
             )}
 
-            {/* Email Field */}
-            <div className="space-y-sm">
-              <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="email">Email Address</label>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>mail</span>
-                <input 
-                  className="input-dark w-full rounded-lg py-md pl-11 pr-md text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0" 
-                  id="email" 
-                  name="email" 
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="pilot@jaaduwrld.com" 
-                />
-              </div>
-            </div>
-            
-            {/* Password Field */}
-            <div className="space-y-sm">
-              <div className="flex justify-between items-center">
-                <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="password">Password</label>
-                {isLogin && (
-                  <button 
-                    type="button"
-                    onClick={handleForgetPassword}
-                    className="font-label-sm text-label-sm text-primary hover:text-primary-fixed transition-colors"
-                  >
-                    Forgot?
-                  </button>
-                )}
-              </div>
-              <div className="relative">
-                <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>lock</span>
-                <input 
-                  className="input-dark w-full rounded-lg py-md pl-11 pr-11 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0 tracking-widest" 
-                  id="password" 
-                  name="password" 
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••" 
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-white transition-colors"
-                >
-                  <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility' : 'visibility_off'}</span>
-                </button>
-              </div>
-            </div>
+            {/* Form Fields - Hidden if Guest */}
+            {authMode !== 'guest' && (
+              <>
+                {/* Email Field */}
+                <div className="space-y-sm">
+                  <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="email">Email Address</label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>mail</span>
+                    <input 
+                      className="input-dark w-full rounded-lg py-md pl-11 pr-md text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0" 
+                      id="email" 
+                      name="email" 
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="pilot@jaaduwrld.com" 
+                    />
+                  </div>
+                </div>
+                
+                {/* Password Field */}
+                <div className="space-y-sm">
+                  <div className="flex justify-between items-center">
+                    <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="password">Password</label>
+                    {authMode === 'login' && (
+                      <button 
+                        type="button"
+                        onClick={handleForgetPassword}
+                        className="font-label-sm text-label-sm text-primary hover:text-primary-fixed transition-colors"
+                      >
+                        Forgot?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]" style={{ fontVariationSettings: "'FILL' 0" }}>lock</span>
+                    <input 
+                      className="input-dark w-full rounded-lg py-md pl-11 pr-11 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0 tracking-widest" 
+                      id="password" 
+                      name="password" 
+                      type={showPassword ? 'text' : 'password'}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••" 
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-md top-1/2 -translate-y-1/2 text-on-surface-variant/50 hover:text-white transition-colors"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">{showPassword ? 'visibility' : 'visibility_off'}</span>
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
 
             {/* Error and Success Messages */}
             {error && <p className="text-error text-xs font-medium mt-3 px-1 animate-fade-in">{error}</p>}
@@ -262,7 +306,7 @@ export default function LoginPage() {
               </p>
             )}
 
-            {isLogin && (
+            {authMode === 'login' && (
               <div className="flex items-center justify-between pt-2 px-1">
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <div className="relative flex items-center justify-center">
@@ -288,18 +332,18 @@ export default function LoginPage() {
               {loading ? (
                 <>
                   <span className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
-                  <span>{isLogin ? 'Authenticating...' : 'Initializing...'}</span>
+                  <span>{authMode === 'login' ? 'Authenticating...' : authMode === 'signup' ? 'Initializing...' : 'Entering...'}</span>
                 </>
               ) : (
                 <>
-                  <span>{isLogin ? 'Initiate Sequence' : 'Create Access Pass'}</span>
+                  <span>{authMode === 'login' ? 'Initiate Sequence' : authMode === 'signup' ? 'Create Access Pass' : 'Continue as Guest'}</span>
                   <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_forward</span>
                 </>
               )}
             </button>
             
             {/* Divider */}
-            {isLogin && (
+            {authMode === 'login' && (
               <>
                 <div className="flex items-center gap-md py-sm opacity-60">
                   <div className="h-px bg-white/10 flex-1"></div>
