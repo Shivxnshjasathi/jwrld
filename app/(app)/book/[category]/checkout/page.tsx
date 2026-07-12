@@ -66,7 +66,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
   const handleRemoveBooking = () => {
     store.clearAsset();
-    goBack(`/book/${category}`);
+    goBack('/home');
   };
 
   const [appliedCouponId, setAppliedCouponId] = useState<string | null>(null);
@@ -189,9 +189,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
   useEffect(() => {
     if (!store.selectedAssetId) {
-      goBack(`/book/${category}`);
+      goBack('/home');
     }
-  }, [store.selectedAssetId, category]);
+  }, [store.selectedAssetId]);
 
   if (!store.selectedAssetId) {
     return null;
@@ -203,7 +203,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       {/* Header */}
       <header className="glass-panel sticky top-0 w-full z-50 flex items-center gap-4 px-gutter py-4 border-b border-outline-variant/20 shadow-sm bg-surface/10 backdrop-blur-xl">
         <button
-          onClick={() => goBack(`/book/${category}`)}
+          onClick={() => goBack('/home')}
           className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors active:scale-95 text-on-surface-variant hover:text-primary"
         >
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
