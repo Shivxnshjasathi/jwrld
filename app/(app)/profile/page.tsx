@@ -115,21 +115,25 @@ export default function ProfilePage() {
           <h1 className="font-headline-md text-[28px] md:text-[32px] font-bold mb-lg text-white">Profile</h1>
 
           {/* ID Card Component */}
-          <div className="card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between">
+          <div 
+            onClick={() => router.push('/vip')}
+            className={`cursor-pointer card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between transition-transform active:scale-95 ${isVIP ? 'border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(250,204,21,0.2)]' : ''}`}
+          >
             <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none"></div>
             <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none"></div>
 
             <div className="flex justify-between items-start z-10 relative">
-              <span className="material-symbols-outlined text-on-surface/80 text-[32px]">contactless</span>
-              <span className="font-label-md text-[14px] text-on-surface/60 uppercase tracking-widest font-bold">Jaadu Pass</span>
+              <span className={`material-symbols-outlined text-[32px] ${isVIP ? 'text-yellow-400' : 'text-on-surface/80'}`}>contactless</span>
+              <span className={`font-label-md text-[14px] uppercase tracking-widest font-bold ${isVIP ? 'text-yellow-400' : 'text-on-surface/60'}`}>Jaadu Pass</span>
             </div>
 
             <div className="z-10 relative mt-auto">
               <p className="font-label-sm text-[12px] text-on-surface-variant mb-xs font-bold uppercase tracking-wider">
                 {isAdmin ? 'Admin Access' : 'Player Access'}
               </p>
-              <p className="font-display-md text-[32px] font-bold text-white tracking-tight leading-tight">
+              <p className={`font-display-md text-[32px] font-bold tracking-tight leading-tight flex items-center gap-2 ${isVIP ? 'text-yellow-400' : 'text-white'}`}>
                 {appUser?.name || 'Arcade Player'}
+                {isVIP && <span className="material-symbols-outlined text-[24px]">workspace_premium</span>}
               </p>
               <p className="text-on-surface-variant text-[14px] mt-1">{appUser?.email}</p>
             </div>
@@ -194,30 +198,7 @@ export default function ProfilePage() {
             </div>
           )}
 
-          {/* VIP Pass Banner */}
-          <div 
-            onClick={() => router.push('/vip')}
-            className={`cursor-pointer rounded-xl p-md mt-md relative overflow-hidden flex items-center justify-between transition-transform active:scale-95 shadow-lg ${isVIP ? 'border border-yellow-400/50' : 'border border-white/10 glass-panel'}`}
-          >
-            {isVIP ? (
-               <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/20 to-yellow-400/10 pointer-events-none"></div>
-            ) : (
-               <div className="absolute -top-10 -right-10 w-24 h-24 bg-yellow-500/20 rounded-full blur-[30px] pointer-events-none"></div>
-            )}
-            
-            <div className="relative z-10 flex items-center gap-sm">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isVIP ? 'bg-yellow-400/20 text-yellow-400' : 'bg-white/5 text-yellow-500'}`}>
-                <span className="material-symbols-outlined text-[24px]">workspace_premium</span>
-              </div>
-              <div>
-                <h3 className={`font-body-lg text-[16px] font-bold ${isVIP ? 'text-yellow-400' : 'text-white'}`}>Jaaduwrld VIP</h3>
-                <p className="text-[12px] text-on-surface-variant leading-tight mt-1">
-                  {isVIP ? 'Active • 15% Off Bookings' : 'Get 15% off, double spins & more!'}
-                </p>
-              </div>
-            </div>
-            <span className="material-symbols-outlined text-on-surface-variant relative z-10">chevron_right</span>
-          </div>
+
 
           <div className="grid grid-cols-2 gap-md mt-md">
             {isAdmin && (
