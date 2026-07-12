@@ -267,10 +267,24 @@ export default function AdminDashboard() {
                   return (
                     <div 
                       key={asset.id} 
+                      onClick={() => {
+                        if (isOccupied && booking) {
+                          if (confirm(`Cancel active booking for ${booking.userName || 'this user'}?`)) {
+                             updateBookingStatus(booking.id, 'cancelled').then(() => {
+                               toast.success('Booking cancelled');
+                             }).catch(() => toast.error('Failed to cancel booking'));
+                          }
+                        }
+                      }}
                       className={`glass-panel rounded-lg p-md flex flex-col items-center justify-center gap-sm relative overflow-hidden transition-all hover:scale-[1.02] cursor-pointer ${
-                        isOccupied ? 'status-occupied' : isAvailable ? 'status-available' : 'border-outline-variant/30 opacity-70'
+                        isOccupied ? 'status-occupied hover:border-error/50 group' : isAvailable ? 'status-available' : 'border-outline-variant/30 opacity-70'
                       }`}
                     >
+                      {isOccupied && (
+                         <div className="absolute inset-0 bg-error/0 group-hover:bg-error/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100 z-20 backdrop-blur-[2px]">
+                           <span className="font-bold text-error text-[12px] bg-black/50 px-2 py-1 rounded">Click to Cancel</span>
+                         </div>
+                      )}
                       {isAvailable && (
                         <div className="absolute inset-0 bg-gradient-to-t from-secondary/5 to-transparent"></div>
                       )}

@@ -23,6 +23,7 @@ import {
   type DocumentSnapshot,
 } from 'firebase/firestore';
 import { isFirebaseConfigured, getFirebaseAuth, getFirebaseDb } from './firebase';
+import { generateReferralCode, processReferral } from './referral';
 
 export interface AppUser {
   uid: string;
@@ -35,6 +36,9 @@ export interface AppUser {
   fcmToken?: string | null;
   xp: number;
   tier: 'Bronze' | 'Silver' | 'Gold' | 'Diamond';
+  referralCode?: string;
+  referredBy?: string | null;
+  hasRedeemedReferral?: boolean;
 }
 
 let confirmationResult: ConfirmationResult | null = null;
@@ -93,7 +97,7 @@ export async function verifyOTP(code: string): Promise<User | null> {
   }
 }
 
-export async function signUpWithEmail(email: string, password: string, name: string, phone: string = ''): Promise<User | null> {
+export async function signUpWithEmail(email: string, password: string, name: string, phone: string = '', referralCode: string = ''): Promise<User | null> {
   if (!isFirebaseConfigured) return null;
   try {
     const auth = getFirebaseAuth();
@@ -122,8 +126,15 @@ export async function signUpWithEmail(email: string, password: string, name: str
       xp: 0,
       tier: 'Bronze',
       createdAt: new Date().toISOString(),
+      referralCode: generateReferralCode(),
+      hasRedeemedReferral: false,
     };
     await setDoc(userRef, userData);
+    
+    // Process referral if provided
+    if (referralCode) {
+      await processReferral(result.user.uid, referralCode);
+    }
     
     return result.user;
   } catch (error) {
@@ -206,6 +217,8 @@ export async function signInAsGuest(): Promise<User | null> {
       xp: 0,
       tier: 'Bronze',
       createdAt: new Date().toISOString(),
+      referralCode: generateReferralCode(),
+      hasRedeemedReferral: false,
     };
     await setDoc(userRef, userData);
     
@@ -254,6 +267,8 @@ async function createOrUpdateUser(user: User) {
         xp: 0,
         tier: 'Bronze',
         createdAt: new Date().toISOString(),
+        referralCode: generateReferralCode(),
+        hasRedeemedReferral: false,
       });
     } else {
       // User exists, just update their FCM token and latest sign-in

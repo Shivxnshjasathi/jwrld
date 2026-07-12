@@ -270,11 +270,21 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           )}
 
           {store.couponDiscount > 0 && (
-            <div className="mt-3 bg-secondary/10 border border-secondary/30 rounded-lg px-3 py-2 animate-scale-in">
+            <div className="mt-3 bg-secondary/10 border border-secondary/30 rounded-lg px-3 py-2 flex items-center justify-between animate-scale-in">
               <p className="text-[11px] font-bold text-secondary flex items-center gap-2">
                 <span className="material-symbols-outlined text-[14px]">celebration</span>
                 Wohoo! you can avail {store.couponDiscount} off
               </p>
+              <button
+                onClick={() => {
+                  store.applyCoupon(0);
+                  setAppliedCouponId(null);
+                  setCouponCode('');
+                }}
+                className="text-[11px] text-error font-bold bg-error/10 px-2 py-1 rounded hover:bg-error/20 transition-colors"
+              >
+                Remove
+              </button>
             </div>
           )}
         </div>

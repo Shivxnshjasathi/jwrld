@@ -16,6 +16,7 @@ export default function LoginPage() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
 
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,7 @@ export default function LoginPage() {
           setLoading(false);
           return;
         }
-        const user = await signUpWithEmail(email, password, `${firstName} ${lastName}`, phone);
+        const user = await signUpWithEmail(email, password, `${firstName} ${lastName}`, phone, referralCode);
         if (user) router.replace('/home');
       } else {
         const user = await signInWithEmail(email, password);
@@ -234,6 +235,24 @@ export default function LoginPage() {
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
                       placeholder="9876543210"
                       className="input-dark w-full rounded-lg py-3 pl-10 pr-3 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-sm pt-2">
+                  <label className="font-label-md text-label-md text-on-surface-variant block flex items-center justify-between">
+                    <span>Referral Code</span>
+                    <span className="text-xs text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">Optional</span>
+                  </label>
+                  <div className="relative">
+                    <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant/50 text-[20px]">redeem</span>
+                    <input
+                      type="text"
+                      value={referralCode}
+                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                      placeholder="e.g. A9B2C4"
+                      maxLength={6}
+                      className="input-dark w-full rounded-lg py-3 pl-10 pr-3 text-on-surface font-body-md placeholder-on-surface-variant/30 focus:ring-0 uppercase"
                     />
                   </div>
                 </div>

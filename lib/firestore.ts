@@ -152,7 +152,27 @@ export async function awardXP(userId: string, amount: number) {
     else if (newXp >= 5000) newTier = 'Gold';
     else if (newXp >= 1000) newTier = 'Silver';
     
+    let moneyReward = 0;
+    const oldTier = data.tier || 'Bronze';
+    if (oldTier !== newTier) {
+      if (newTier === 'Silver') moneyReward = 100;
+      else if (newTier === 'Gold') moneyReward = 200;
+      else if (newTier === 'Diamond') moneyReward = 500;
+    }
+    
     await updateDoc(userRef, { xp: newXp, tier: newTier });
+
+    if (moneyReward > 0) {
+      const { addWalletBalance } = await import('./wallet');
+      await addWalletBalance(userId, moneyReward);
+      
+      // Notify the user about the level up and reward
+      sendPushToUser(
+        userId,
+        'Level Up! 🏆',
+        `You reached ${newTier} tier and got ₹${moneyReward} in your wallet!`
+      ).catch(console.error);
+    }
   }
 }
 

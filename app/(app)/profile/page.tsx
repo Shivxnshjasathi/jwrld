@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
@@ -18,6 +19,7 @@ export default function ProfilePage() {
   const { appUser, user, isAdmin } = useAuth();
   const router = useRouter();
   const isDarkMode = useAppStore((s) => s.darkMode);
+  const [showContactInfo, setShowContactInfo] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -56,8 +58,11 @@ export default function ProfilePage() {
             <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
           </div>
         </div>
-        <button className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200">
-          <span className="material-symbols-outlined">notifications</span>
+        <button 
+          onClick={() => setShowContactInfo(true)}
+          className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200"
+        >
+          <span className="material-symbols-outlined">info</span>
         </button>
       </header>
 
@@ -116,6 +121,36 @@ export default function ProfilePage() {
               ></div>
             </div>
           </div>
+
+          {/* Refer & Earn Section */}
+          {appUser?.referralCode && (
+            <div className="glass-panel rounded-xl p-md mt-md relative overflow-hidden border-primary/20">
+              <div className="absolute -top-10 -right-10 w-24 h-24 bg-primary/20 rounded-full blur-[30px] pointer-events-none"></div>
+              <div className="flex items-start gap-sm mb-sm relative z-10">
+                <span className="material-symbols-outlined text-primary text-[24px]">redeem</span>
+                <div>
+                  <h3 className="font-body-lg text-[16px] text-white font-bold">Refer & Earn ₹50</h3>
+                  <p className="text-[12px] text-on-surface-variant leading-tight mt-1">
+                    Share your code with friends. When they sign up, you both get ₹50 in your Arcade Wallet!
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 relative z-10">
+                <div className="flex-1 bg-surface-container-high/50 border border-outline-variant/30 rounded-lg px-3 py-2 text-center font-display-md tracking-widest text-[18px] text-white font-bold select-all">
+                  {appUser.referralCode}
+                </div>
+                <button 
+                  onClick={() => {
+                    navigator.clipboard.writeText(appUser.referralCode!);
+                    toast.success('Code copied!');
+                  }}
+                  className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg h-[44px] px-4 flex items-center justify-center transition-colors active:scale-95"
+                >
+                  <span className="material-symbols-outlined text-[20px]">content_copy</span>
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-md mt-md">
             {isAdmin && (
@@ -190,6 +225,50 @@ export default function ProfilePage() {
           </div>
         </section>
       </main>
+
+      {/* Contact Info Bottom Sheet */}
+      {showContactInfo && (
+        <>
+          <div 
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm animate-fade-in"
+            onClick={() => setShowContactInfo(false)}
+          ></div>
+          <div className="fixed bottom-0 left-0 w-full z-[70] bg-surface-container-high rounded-t-3xl border-t border-outline-variant/20 p-xl shadow-[0_-20px_40px_rgba(0,0,0,0.5)] animate-slide-up-fade">
+            <div className="w-12 h-1 bg-outline-variant/30 rounded-full mx-auto mb-lg"></div>
+            <h2 className="font-headline-sm text-[24px] font-bold text-white mb-md">Contact Us</h2>
+            <div className="space-y-sm">
+              <div className="flex items-center gap-md glass-panel p-md rounded-xl">
+                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                  <span className="material-symbols-outlined">mail</span>
+                </div>
+                <div>
+                  <div className="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">Email</div>
+                  <a href="mailto:jaaduwrldartandarcade@gmail.com" className="text-[14px] font-bold text-white">jaaduwrldartandarcade@gmail.com</a>
+                </div>
+              </div>
+              <div className="flex items-center gap-md glass-panel p-md rounded-xl">
+                <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+                  <span className="material-symbols-outlined">call</span>
+                </div>
+                <div>
+                  <div className="text-[12px] font-bold text-on-surface-variant uppercase tracking-wider">Phone</div>
+                  <div className="text-[14px] font-bold text-white mt-0.5">
+                    <a href="tel:+919238005628">+91 92380 05628</a>
+                    <span className="text-on-surface-variant mx-2">|</span>
+                    <a href="tel:8815867503">8815867503</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <button 
+              onClick={() => setShowContactInfo(false)}
+              className="w-full mt-lg py-4 rounded-xl font-bold bg-white/10 hover:bg-white/20 text-white transition-all active:scale-95"
+            >
+              Close
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 }
