@@ -20,7 +20,7 @@ export default function AdminEventsPage() {
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
   const [time, setTime] = useState('');
-  const [entryFee, setEntryFee] = useState(0);
+  const [entryFee, setEntryFee] = useState<number | string>('');
   const [prizePool, setPrizePool] = useState('');
   const [maxParticipants, setMaxParticipants] = useState(16);
 
@@ -61,13 +61,25 @@ export default function AdminEventsPage() {
       setDescription('');
       setDate('');
       setTime('');
-      setEntryFee(0);
+      setEntryFee('');
       setPrizePool('');
       setMaxParticipants(16);
     } catch (error: any) {
       toast.error(error.message || 'Failed to create event');
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  const handleDelete = async (eventId: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    try {
+      const db = getFirebaseDb();
+      const { deleteDoc } = await import('firebase/firestore');
+      await deleteDoc(doc(db, 'events', eventId));
+      toast.success('Event deleted');
+    } catch (err: any) {
+      toast.error('Failed to delete: ' + err.message);
     }
   };
 
@@ -115,7 +127,7 @@ export default function AdminEventsPage() {
               <div className="flex flex-col sm:flex-row gap-sm">
                 <div className="flex-1">
                   <label className="block text-[12px] text-on-surface-variant mb-1 ml-1">Entry Fee (₹)</label>
-                  <input required type="number" min="0" value={entryFee} onChange={e => setEntryFee(Number(e.target.value))} className="w-full min-w-0 bg-surface-container rounded-xl px-3 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" />
+                  <input required type="number" min="0" value={entryFee} onChange={e => setEntryFee(e.target.value)} className="w-full min-w-0 bg-surface-container rounded-xl px-3 py-3 text-[14px] text-white border border-outline-variant/30 focus:border-primary outline-none" placeholder="e.g., 300" />
                 </div>
                 <div className="flex-1">
                   <label className="block text-[12px] text-on-surface-variant mb-1 ml-1">Max Players</label>
@@ -156,11 +168,14 @@ export default function AdminEventsPage() {
                         <p className="text-[12px] text-on-surface-variant mt-1">Prize: <span className="text-secondary font-bold">{event.prizePool}</span> • Entry: ₹{event.entryFee}</p>
                       </div>
                       
-                      <div className="text-right">
+                      <div className="text-right flex flex-col items-end justify-between">
                         <div className="bg-surface-container px-4 py-2 rounded-lg">
                           <p className="text-[10px] text-on-surface-variant uppercase tracking-wider mb-1">Registrations</p>
                           <p className="font-display-md text-white font-bold leading-none">{event.currentParticipants} <span className="text-[14px] text-on-surface-variant">/ {event.maxParticipants}</span></p>
                         </div>
+                        <button onClick={() => handleDelete(event.id!)} className="text-[12px] text-error hover:opacity-80 transition-opacity mt-3 flex items-center gap-1 font-bold bg-error/10 px-3 py-1.5 rounded-md">
+                          <span className="material-symbols-outlined text-[14px]">delete</span> Delete
+                        </button>
                       </div>
                     </div>
                   ))
