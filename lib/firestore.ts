@@ -599,6 +599,48 @@ export function subscribeToMessages(userId: string, callback: (messages: Message
   });
 }
 
+// Direct Messaging
+export const getDirectChatId = (uid1: string, uid2: string) => {
+  return [uid1, uid2].sort().join('_');
+};
+
+export async function sendDirectMessage(senderId: string, receiverId: string, text: string) {
+  if (!isFirebaseConfigured) return;
+  const db = getFirebaseDb();
+  const chatId = getDirectChatId(senderId, receiverId);
+  
+  await addDoc(collection(db, `direct_chats/${chatId}/messages`), {
+    text,
+    senderId,
+    createdAt: serverTimestamp(),
+  });
+}
+
+export function subscribeToDirectMessages(uid1: string, uid2: string, callback: (messages: any[]) => void): Unsubscribe {
+  if (!isFirebaseConfigured) {
+    callback([]);
+    return () => {};
+  }
+  const db = getFirebaseDb();
+  const chatId = getDirectChatId(uid1, uid2);
+  const q = query(collection(db, `direct_chats/${chatId}/messages`), orderBy('createdAt', 'asc'));
+  
+  return onSnapshot(q, (snapshot) => {
+    const messages = snapshot.docs.map((d) => {
+      const data = d.data();
+      const createdAt = data.createdAt?.toMillis 
+        ? data.createdAt.toMillis() 
+        : (new Date(data.createdAt || Date.now()).getTime());
+      return { id: d.id, ...data, createdAt };
+    });
+    messages.sort((a, b) => a.createdAt - b.createdAt);
+    callback(messages);
+  }, (error) => {
+    console.error('[ArcadeZone] Direct messages listener error:', error.message);
+    callback([]);
+  });
+}
+
 export function subscribeToChats(callback: (chats: Chat[]) => void): Unsubscribe {
   if (!isFirebaseConfigured) {
     callback([]);

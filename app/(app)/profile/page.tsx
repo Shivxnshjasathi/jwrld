@@ -11,7 +11,7 @@ import { toast } from 'react-hot-toast';
 const MENU_ITEMS = [
   { icon: 'event_available', label: 'Tournaments & Events', href: '/events', color: 'text-primary' },
   { icon: 'calendar_month', label: 'My Bookings', href: '/bookings', color: 'text-secondary' },
-  { icon: 'help', label: 'Help & Support', href: '/help', color: 'text-primary' },
+  { icon: 'help', label: 'Help & Support', href: '/messages', color: 'text-primary' },
   { icon: 'shield', label: 'Privacy Policy', href: '/privacy', color: 'text-on-surface-variant' },
 ];
 

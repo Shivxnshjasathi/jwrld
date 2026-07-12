@@ -152,6 +152,12 @@ export default function SocialPage() {
                     <div className="font-bold text-white text-[16px]">{f.name}</div>
                     <div className="text-[12px] text-primary font-bold uppercase tracking-wider">{f.tier} Tier • {f.xp} XP</div>
                   </div>
+                  <button 
+                    onClick={() => router.push(`/chat/${f.uid}`)}
+                    className="w-10 h-10 flex items-center justify-center bg-surface-variant rounded-full text-secondary hover:bg-secondary/20 transition-colors shadow-[0_0_10px_rgba(45,212,191,0.1)] active:scale-95"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">chat</span>
+                  </button>
                 </div>
               ))
             )}
