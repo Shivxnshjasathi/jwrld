@@ -143,23 +143,29 @@ export default function SocialPage() {
                 <p>No friends yet.</p>
               </div>
             ) : (
-              friendsList.map(f => (
-                <div key={f.uid} className="glass-panel p-md rounded-xl flex items-center gap-md">
-                  <div className="w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 bg-surface-container flex items-center justify-center">
-                    {f.photoURL ? <img src={f.photoURL} alt={f.name} /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
+              friendsList.map(f => {
+                const isVIP = f.isVIP && f.vipUntil && new Date(f.vipUntil) > new Date();
+                return (
+                  <div key={f.uid} className="glass-panel p-md rounded-xl flex items-center gap-md">
+                    <div className={`w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center bg-surface-container flex-shrink-0 ${isVIP ? 'border-2 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border border-outline-variant/30'}`}>
+                      {f.photoURL ? <img src={f.photoURL} alt={f.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
+                    </div>
+                    <div className="flex-1">
+                      <div className="font-bold text-white text-[16px] flex items-center gap-2">
+                         {f.name}
+                         {isVIP && <span className="material-symbols-outlined text-yellow-400 text-[16px]">workspace_premium</span>}
+                      </div>
+                      <div className="text-[12px] text-primary font-bold uppercase tracking-wider">{f.tier} Tier • {f.xp} XP</div>
+                    </div>
+                    <button 
+                      onClick={() => router.push(`/chat/${f.uid}`)}
+                      className="w-10 h-10 flex items-center justify-center bg-surface-variant rounded-full text-secondary hover:bg-secondary/20 transition-colors shadow-[0_0_10px_rgba(45,212,191,0.1)] active:scale-95"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">chat</span>
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <div className="font-bold text-white text-[16px]">{f.name}</div>
-                    <div className="text-[12px] text-primary font-bold uppercase tracking-wider">{f.tier} Tier • {f.xp} XP</div>
-                  </div>
-                  <button 
-                    onClick={() => router.push(`/chat/${f.uid}`)}
-                    className="w-10 h-10 flex items-center justify-center bg-surface-variant rounded-full text-secondary hover:bg-secondary/20 transition-colors shadow-[0_0_10px_rgba(45,212,191,0.1)] active:scale-95"
-                  >
-                    <span className="material-symbols-outlined text-[20px]">chat</span>
-                  </button>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         )}

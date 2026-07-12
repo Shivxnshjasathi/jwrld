@@ -43,6 +43,8 @@ export interface AppUser {
   currentStreak?: number;
   spinsAvailable?: number;
   friends?: string[];
+  isVIP?: boolean;
+  vipUntil?: string;
 }
 
 let confirmationResult: ConfirmationResult | null = null;

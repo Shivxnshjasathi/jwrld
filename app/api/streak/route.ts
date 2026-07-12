@@ -48,8 +48,10 @@ export async function POST(req: Request) {
       currentStreak = 1;
     }
 
-    // Give a free spin every day for logging in
-    spinsAvailable += 1;
+    // Give free spin(s) every day for logging in
+    const isVIP = userData?.isVIP && userData?.vipUntil && new Date(userData.vipUntil) > new Date();
+    const spinsToGrant = isVIP ? 2 : 1;
+    spinsAvailable += spinsToGrant;
 
     await userRef.update({
       lastLoginDate: today,

@@ -62,12 +62,14 @@ export default function ProfilePage() {
     }
   };
 
+  const isVIP = appUser?.isVIP && appUser?.vipUntil && new Date(appUser.vipUntil) > new Date();
+
   return (
     <div className="bg-background text-on-surface min-h-dvh pb-[120px] font-body-md selection:bg-primary/30 selection:text-primary">
       {/* TopAppBar */}
       <header className="bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm fixed top-0 w-full flex justify-between items-center px-gutter py-md z-40">
         <div className="flex items-center gap-sm">
-          <div className="w-10 h-10 rounded-full overflow-hidden border border-outline-variant/30 relative flex items-center justify-center bg-surface-container">
+          <div className={`w-10 h-10 rounded-full overflow-hidden relative flex items-center justify-center bg-surface-container ${isVIP ? 'border-2 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border border-outline-variant/30'}`}>
             {appUser?.photoURL ? (
               <img src={appUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
             ) : (
@@ -191,6 +193,31 @@ export default function ProfilePage() {
               </div>
             </div>
           )}
+
+          {/* VIP Pass Banner */}
+          <div 
+            onClick={() => router.push('/vip')}
+            className={`cursor-pointer rounded-xl p-md mt-md relative overflow-hidden flex items-center justify-between transition-transform active:scale-95 shadow-lg ${isVIP ? 'border border-yellow-400/50' : 'border border-white/10 glass-panel'}`}
+          >
+            {isVIP ? (
+               <div className="absolute inset-0 bg-gradient-to-r from-yellow-600/20 to-yellow-400/10 pointer-events-none"></div>
+            ) : (
+               <div className="absolute -top-10 -right-10 w-24 h-24 bg-yellow-500/20 rounded-full blur-[30px] pointer-events-none"></div>
+            )}
+            
+            <div className="relative z-10 flex items-center gap-sm">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${isVIP ? 'bg-yellow-400/20 text-yellow-400' : 'bg-white/5 text-yellow-500'}`}>
+                <span className="material-symbols-outlined text-[24px]">workspace_premium</span>
+              </div>
+              <div>
+                <h3 className={`font-body-lg text-[16px] font-bold ${isVIP ? 'text-yellow-400' : 'text-white'}`}>Jaaduwrld VIP</h3>
+                <p className="text-[12px] text-on-surface-variant leading-tight mt-1">
+                  {isVIP ? 'Active • 15% Off Bookings' : 'Get 15% off, double spins & more!'}
+                </p>
+              </div>
+            </div>
+            <span className="material-symbols-outlined text-on-surface-variant relative z-10">chevron_right</span>
+          </div>
 
           <div className="grid grid-cols-2 gap-md mt-md">
             {isAdmin && (

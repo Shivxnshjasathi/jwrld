@@ -79,13 +79,12 @@ export default function SpinPage() {
         <button
           onClick={handleSpin}
           disabled={spinning || spinsAvailable <= 0}
-          className="mt-8 px-8 py-3 rounded-full font-bold text-white relative overflow-hidden transition-all active:scale-95 disabled:opacity-50 shadow-[0_10px_20px_rgba(0,0,0,0.3)]"
+          className="mt-8 relative group active:scale-95 transition-transform disabled:opacity-50 disabled:pointer-events-none"
         >
-          {/* Button Gradient Border & Background */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] opacity-80 blur-[2px]"></div>
-          <div className="absolute inset-[1px] rounded-full bg-[#1A1A24]"></div>
-          <div className="absolute inset-0 bg-gradient-to-r from-[#FF6B6B]/80 to-[#4ECDC4]/80 opacity-50 mix-blend-screen"></div>
-          <span className="relative z-10 text-[16px]">{spinning ? 'Spinning...' : 'Spin Again'}</span>
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] rounded-full blur opacity-75 group-hover:opacity-100 transition duration-200"></div>
+          <div className="relative px-10 py-3.5 bg-[#1A1A24] rounded-full leading-none flex items-center justify-center">
+            <span className="text-white font-bold text-[16px]">{spinning ? 'Spinning...' : 'Spin Again'}</span>
+          </div>
         </button>
       </div>
 
@@ -93,10 +92,10 @@ export default function SpinPage() {
       <div className="relative flex-1 flex flex-col justify-end items-center w-full mt-10">
         
         {/* Glow behind wheel */}
-        <div className="absolute bottom-[-100px] w-[350px] h-[350px] bg-gradient-to-t from-[#FF6B6B]/20 to-[#4ECDC4]/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
+        <div className="absolute bottom-[-100px] w-[400px] h-[400px] bg-gradient-to-t from-[#FF6B6B]/20 to-[#4ECDC4]/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
 
         {/* The Wheel Container */}
-        <div className="relative w-[400px] h-[400px] translate-y-[45%] flex items-center justify-center z-10">
+        <div className="relative w-[500px] h-[500px] translate-y-[35%] flex items-center justify-center z-10">
           
           {/* Outer Ring with Glow */}
           <div className="absolute inset-[-4px] rounded-full bg-gradient-to-br from-[#FF6B6B] via-[#9D4EDD] to-[#4ECDC4] opacity-80 blur-[2px]"></div>
@@ -118,14 +117,14 @@ export default function SpinPage() {
             >
               {/* Text Labels on Wheel Slices */}
               <div className="absolute inset-0 flex items-center justify-center">
-                 {['jackpot', '2x', '10x', 'miss', '2x', 'miss', '10x', '2x'].map((label, i) => (
+                 {['jackpot', '₹50 OFF', 'miss', '15% OFF', '₹20 OFF', 'miss', '10% OFF', '5% OFF'].map((label, i) => (
                    <div 
                      key={i} 
-                     className="absolute w-[30px] h-[50%] origin-bottom top-0 flex flex-col items-center justify-start pt-6"
+                     className="absolute w-[30px] h-[50%] origin-bottom top-0 flex flex-col items-center justify-start pt-8"
                      style={{ transform: `rotate(${i * 45}deg)` }}
                    >
                      <span 
-                       className="text-white font-black text-[22px] uppercase tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" 
+                       className="text-white font-black text-[24px] uppercase tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" 
                        style={{ transform: 'rotate(-90deg) translateY(10px)', writingMode: 'vertical-rl' }}
                      >
                        {label}
@@ -139,12 +138,12 @@ export default function SpinPage() {
           {/* Center Pointer & Hub */}
           <div className="absolute z-20 flex flex-col items-center justify-center translate-y-[-20%]">
             {/* The Black Pointer pointing UP */}
-            <div className="w-0 h-0 border-l-[12px] border-l-transparent border-r-[12px] border-r-transparent border-b-[50px] border-b-black translate-y-[20px] drop-shadow-[0_-5px_10px_rgba(0,0,0,0.5)] z-20 relative"></div>
+            <div className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-b-[60px] border-b-black translate-y-[20px] drop-shadow-[0_-5px_10px_rgba(0,0,0,0.5)] z-20 relative"></div>
             
             {/* Center Black Circle with Gradient Border */}
-            <div className="w-[60px] h-[60px] rounded-full bg-black relative z-30 shadow-[0_0_20px_rgba(0,0,0,0.8)] flex items-center justify-center">
+            <div className="w-[70px] h-[70px] rounded-full bg-black relative z-30 shadow-[0_0_20px_rgba(0,0,0,0.8)] flex items-center justify-center">
                <div className="absolute inset-[-3px] rounded-full bg-gradient-to-br from-[#4ECDC4] via-[#9D4EDD] to-[#FF6B6B] z-[-1]"></div>
-               <div className="w-[48px] h-[48px] bg-gradient-to-b from-[#333] to-[#111] rounded-full shadow-inner"></div>
+               <div className="w-[56px] h-[56px] bg-gradient-to-b from-[#333] to-[#111] rounded-full shadow-inner"></div>
             </div>
           </div>
 

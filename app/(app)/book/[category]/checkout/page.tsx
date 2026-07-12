@@ -80,7 +80,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     fetchSettings();
   }, []);
 
-  const totalAmount = store.getTotalAmount();
+  const isVIP = appUser?.isVIP && appUser?.vipUntil && new Date(appUser.vipUntil) > new Date();
+  const duration = store.endTime - store.startTime;
+  const basePrice = (store.selectedAssetPrice || 0) * duration;
+  const vipDiscount = isVIP ? Math.round(basePrice * 0.15) : 0;
+
+  const totalAmount = Math.max(0, store.getTotalAmount() - vipDiscount);
   const selectedDate = new Date(store.selectedDate + 'T00:00:00');
 
   const getDateLabel = () => {
@@ -426,6 +431,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
                 <div className="flex justify-between text-[13px] text-secondary font-bold">
                   <span>Coupon Discount</span>
                   <span>-{formatPrice(store.couponDiscount)}</span>
+                </div>
+              )}
+              {vipDiscount > 0 && (
+                <div className="flex justify-between text-[13px] text-yellow-400 font-bold">
+                  <span>👑 VIP Pass Discount (15%)</span>
+                  <span>-{formatPrice(vipDiscount)}</span>
                 </div>
               )}
             </div>
