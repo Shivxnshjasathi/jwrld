@@ -150,12 +150,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const executeBooking = async (userName: string) => {
     if (!user || !store.selectedAssetId) return;
 
-    const finalSplitWith = splitWith;
-    const isSplitting = finalSplitWith.length > 0;
-    const shareToPay = isSplitting ? Math.round(totalAmount / (1 + finalSplitWith.length)) : totalAmount;
+    const finalInvitedFriends = splitWith;
+    const isInviting = finalInvitedFriends.length > 0;
+    const shareToPay = totalAmount; // Booker pays full amount
 
     if (paymentMethod === 'wallet' && (appUser?.walletBalance || 0) < shareToPay) {
-      setError(`Insufficient wallet balance for your share (₹${shareToPay}).`);
+      setError(`Insufficient wallet balance (₹${shareToPay}).`);
       return;
     }
 
@@ -186,12 +186,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         startTime: store.startTime,
         endTime: store.endTime,
         totalAmount,
-        status: isSplitting ? 'pending' : (paymentMethod === 'wallet' ? 'confirmed' : 'pending'),
+        status: paymentMethod === 'wallet' ? 'confirmed' : 'pending',
         paymentMethod,
         createdAt: new Date().toISOString(),
         protection: store.protection,
-        splitWith: isSplitting ? finalSplitWith : undefined,
-        splitStatus: isSplitting ? finalSplitWith.reduce((acc, fId) => ({ ...acc, [fId]: 'pending' }), { [user!.uid]: 'paid' } as Record<string, 'pending' | 'paid' | 'declined'>) : undefined,
+        invitedFriends: isInviting ? finalInvitedFriends : undefined,
       });
 
       setShowSuccessModal(true);
@@ -494,7 +493,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         )}
       </div>
 
-      {/* Split with Friends Button */}
+      {/* Invite Friends Button */}
       {appUser?.friends && appUser.friends.length > 0 && (
         <div className="fixed bottom-[80px] pb-2 left-0 right-0 px-5 z-40 pointer-events-none flex justify-end">
            <button 
@@ -502,16 +501,16 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
              className="bg-surface-variant text-white px-4 py-2 rounded-full shadow-[0_0_15px_rgba(45,212,191,0.2)] border border-white/10 font-bold text-[12px] flex items-center gap-2 pointer-events-auto hover:bg-white/10 transition-colors"
            >
              <span className="material-symbols-outlined text-[16px] text-secondary">group_add</span>
-             {splitWith.length > 0 ? `Splitting with ${splitWith.length}` : 'Split with Friends'}
+             {splitWith.length > 0 ? `Inviting ${splitWith.length} Friend${splitWith.length > 1 ? 's' : ''}` : 'Invite Friends'}
            </button>
         </div>
       )}
 
-      {/* Split Modal */}
+      {/* Invite Modal */}
       {showSplitModal && (
         <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
-          <div className="bg-surface-container rounded-t-[2rem] sm:rounded-[2rem] p-6 w-full sm:w-[90vw] sm:max-w-[400px] shadow-2xl relative overflow-hidden animate-slide-up-fade pointer-events-auto">
-            <h2 className="text-xl font-bold text-white mb-4">Split with Friends</h2>
+           <div className="bg-surface-container rounded-t-[2rem] sm:rounded-[2rem] p-6 w-full sm:w-[90vw] sm:max-w-[400px] shadow-2xl relative overflow-hidden animate-slide-up-fade pointer-events-auto">
+            <h2 className="text-xl font-bold text-white mb-4">Invite Friends</h2>
             <div className="space-y-2 mb-6 max-h-[50vh] overflow-y-auto">
               {friendsList.map(f => {
                 const isSelected = splitWith.includes(f.uid);

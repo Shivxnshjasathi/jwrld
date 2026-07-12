@@ -44,6 +44,7 @@ export interface Booking {
   paymentMethod?: string;
   splitWith?: string[];
   splitStatus?: Record<string, 'pending' | 'paid' | 'declined'>;
+  invitedFriends?: string[];
 }
 
 export interface WaitlistItem {
@@ -120,6 +121,7 @@ export interface Event {
   currentParticipants: number;
   status: 'upcoming' | 'ongoing' | 'completed' | 'cancelled';
   createdAt: string;
+  winnerId?: string;
 }
 
 export interface EventRegistration {

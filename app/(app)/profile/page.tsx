@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
-import { doc, updateDoc } from 'firebase/firestore';
+import { doc, updateDoc, collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
 
@@ -23,6 +23,24 @@ export default function ProfilePage() {
 
   const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
   const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
+  const [friendsData, setFriendsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!appUser?.friends || appUser.friends.length === 0) return;
+    const fetchFriends = async () => {
+      try {
+        const db = getFirebaseDb();
+        const uids = appUser.friends!.slice(0, 10);
+        const q = query(collection(db, 'users'), where(documentId(), 'in', uids));
+        const snap = await getDocs(q);
+        const data = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
+        setFriendsData(data);
+      } catch (err) {
+        console.error('Failed to fetch friends', err);
+      }
+    };
+    fetchFriends();
+  }, [appUser?.friends]);
 
   useEffect(() => {
     if (!user) return;
@@ -278,6 +296,54 @@ export default function ProfilePage() {
 
         {/* Right Column: Settings & Actions */}
         <section className="md:col-span-7 lg:col-span-8">
+
+          {/* My Friends Section */}
+          <div className="mb-xl">
+            <h2 className="font-headline-md text-[24px] font-bold mb-sm text-white">My Friends</h2>
+            {friendsData.length > 0 ? (
+              <div className="flex gap-md overflow-x-auto pb-sm scrollbar-hide snap-x">
+                {friendsData.map(friend => (
+                  <div key={friend.uid} className="glass-panel p-md rounded-xl min-w-[240px] flex-shrink-0 snap-center border-outline-variant/20">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
+                        {friend.photoURL ? (
+                          <img src={friend.photoURL} alt={friend.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary font-bold">
+                            {friend.name?.[0]?.toUpperCase() || 'U'}
+                          </div>
+                        )}
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="font-bold text-white text-[16px] truncate">{friend.name}</p>
+                        <p className="text-[12px] text-on-surface-variant truncate">XP: {friend.xp || 0}</p>
+                      </div>
+                    </div>
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => router.push('/messages')}
+                        className="flex-1 bg-surface-container hover:bg-white/10 text-white font-bold py-2 rounded-lg text-[12px] transition-colors"
+                      >
+                        Chat
+                      </button>
+                      <button 
+                        onClick={() => toast.success(`Invited ${friend.name} to play!`)}
+                        className="flex-1 bg-primary text-black font-bold py-2 rounded-lg text-[12px] hover:bg-primary/90 transition-colors"
+                      >
+                        Invite
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="glass-panel p-md rounded-xl border-dashed border-outline-variant/30 text-center">
+                <p className="text-on-surface-variant text-[14px]">No friends yet.</p>
+                <button onClick={() => router.push('/social')} className="text-primary text-[14px] font-bold mt-2 hover:underline">Find Friends</button>
+              </div>
+            )}
+          </div>
+
           <h2 className="font-headline-md text-[24px] font-bold mb-lg text-white">Account Actions</h2>
 
           <div className="space-y-md">
