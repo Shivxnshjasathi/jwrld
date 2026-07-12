@@ -43,14 +43,13 @@ export async function POST(req: Request) {
 
     if (lastLoginDate === yesterdayStr) {
       currentStreak += 1;
-      // Grant a spin every 7 days
-      if (currentStreak % 7 === 0) {
-        spinsAvailable += 1;
-      }
     } else {
       // Streak broken or first login
       currentStreak = 1;
     }
+
+    // Give a free spin every day for logging in
+    spinsAvailable += 1;
 
     await userRef.update({
       lastLoginDate: today,
@@ -62,7 +61,7 @@ export async function POST(req: Request) {
       success: true, 
       currentStreak, 
       spinsAvailable,
-      spinGranted: (lastLoginDate === yesterdayStr && currentStreak % 7 === 0)
+      spinGranted: true
     });
 
   } catch (error) {
