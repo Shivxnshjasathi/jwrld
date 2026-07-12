@@ -39,6 +39,10 @@ export interface AppUser {
   referralCode?: string;
   referredBy?: string | null;
   hasRedeemedReferral?: boolean;
+  lastLoginDate?: string;
+  currentStreak?: number;
+  spinsAvailable?: number;
+  friends?: string[];
 }
 
 let confirmationResult: ConfirmationResult | null = null;
@@ -128,6 +132,10 @@ export async function signUpWithEmail(email: string, password: string, name: str
       createdAt: new Date().toISOString(),
       referralCode: generateReferralCode(),
       hasRedeemedReferral: false,
+      lastLoginDate: new Date().toISOString().split('T')[0],
+      currentStreak: 1,
+      spinsAvailable: 0,
+      friends: [],
     };
     await setDoc(userRef, userData);
     
@@ -219,6 +227,10 @@ export async function signInAsGuest(): Promise<User | null> {
       createdAt: new Date().toISOString(),
       referralCode: generateReferralCode(),
       hasRedeemedReferral: false,
+      lastLoginDate: new Date().toISOString().split('T')[0],
+      currentStreak: 1,
+      spinsAvailable: 0,
+      friends: [],
     };
     await setDoc(userRef, userData);
     
@@ -269,6 +281,10 @@ async function createOrUpdateUser(user: User) {
         createdAt: new Date().toISOString(),
         referralCode: generateReferralCode(),
         hasRedeemedReferral: false,
+        lastLoginDate: new Date().toISOString().split('T')[0],
+        currentStreak: 1,
+        spinsAvailable: 0,
+        friends: [],
       });
     } else {
       // User exists, just update their FCM token and latest sign-in

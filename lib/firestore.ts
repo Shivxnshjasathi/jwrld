@@ -42,6 +42,8 @@ export interface Booking {
   createdAt: string;
   protection: boolean;
   paymentMethod?: string;
+  splitWith?: string[];
+  splitStatus?: Record<string, 'pending' | 'paid' | 'declined'>;
 }
 
 export interface WaitlistItem {

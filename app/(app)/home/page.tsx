@@ -6,6 +6,8 @@ import { useAuth } from '@/lib/auth';
 import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
 import { getAssetsByCategory, subscribeToBookings, subscribeToAnnouncement, type Asset, type Booking, type Announcement } from '@/lib/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { getFirebaseDb } from '@/lib/firebase';
 import SliderTrack from '@/components/slider-track';
 import { toast } from 'react-hot-toast';
 
@@ -31,6 +33,42 @@ export default function HomePage() {
   // -- Announcement --
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
+
+  // -- Streak & Spin --
+  const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
+  const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
+  const [pendingSplits, setPendingSplits] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!user) return;
+    const db = getFirebaseDb();
+    const q = query(collection(db, 'bookings'), where('splitWith', 'array-contains', user.uid), where('status', '==', 'pending'));
+    const unsub = onSnapshot(q, (snap: any) => {
+      const splits = snap.docs.map((d: any) => ({ id: d.id, ...d.data() })).filter((b: any) => b.splitStatus?.[user.uid] === 'pending');
+      setPendingSplits(splits);
+    });
+    return () => unsub();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/streak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setCurrentStreak(data.currentStreak);
+          setSpinsAvailable(data.spinsAvailable);
+          if (data.spinGranted) {
+            toast.success('🔥 7 Day Streak! You earned a free spin!');
+          }
+        }
+      })
+      .catch(console.error);
+  }, [user]);
 
   useEffect(() => {
     const unsub = subscribeToAnnouncement((data) => {
@@ -217,16 +255,69 @@ export default function HomePage() {
           <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
         </div>
         <button 
-          onClick={() => router.push('/messages')}
+          onClick={() => router.push('/social')}
           className="w-10 h-10 flex items-center justify-center rounded-full glass-panel text-secondary hover:bg-white/10 transition-colors active:scale-95 duration-200 shadow-[0_0_15px_rgba(45,212,191,0.2)] relative"
         >
-          <span className="material-symbols-outlined neon-text-secondary">chat</span>
+          <span className="material-symbols-outlined neon-text-secondary">group</span>
           {/* Notification dot */}
           <span className="absolute top-2 right-2 w-2 h-2 bg-primary rounded-full shadow-[0_0_8px_rgba(168,85,247,1)]"></span>
         </button>
       </header>
 
       <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto relative z-10 pb-[120px]">
+        
+        {/* Streak & Spin Banner */}
+        <div className="mb-md flex justify-between items-center animate-slide-up-fade">
+           {currentStreak > 0 ? (
+             <div className="flex items-center gap-1 bg-surface-variant/40 px-3 py-1 rounded-full border border-orange-500/30 backdrop-blur-md">
+               <span className="text-[14px]">🔥</span>
+               <span className="text-orange-400 font-bold text-[12px] uppercase">{currentStreak} Day Streak</span>
+             </div>
+           ) : <div />}
+           {spinsAvailable > 0 && (
+             <button 
+               onClick={() => router.push('/spin')}
+               className="flex items-center gap-2 bg-gradient-to-r from-secondary to-primary text-black px-4 py-1.5 rounded-full font-bold text-[12px] animate-pulse hover:scale-105 transition-transform shadow-[0_0_15px_rgba(45,212,191,0.5)]"
+             >
+               <span className="material-symbols-outlined text-[16px]">casino</span>
+               Spin the Wheel ({spinsAvailable})
+             </button>
+           )}
+        </div>
+
+        {/* Pending Splits Banner */}
+        {pendingSplits.length > 0 && (
+          <div className="mb-lg space-y-2">
+            {pendingSplits.map(split => (
+              <div key={split.id} className="bg-surface-variant/40 border border-primary/30 backdrop-blur-md rounded-xl p-md flex flex-col md:flex-row items-center gap-md animate-slide-up-fade shadow-[0_0_15px_rgba(168,85,247,0.1)]">
+                <span className="material-symbols-outlined text-primary neon-text-primary text-[24px]">payments</span>
+                <div className="flex-1 text-center md:text-left">
+                  <p className="text-[14px] font-bold text-white">{split.userName} invited you to split {split.assetName}</p>
+                  <p className="text-[12px] text-on-surface-variant">Your share: ₹{Math.round(split.totalAmount / (1 + split.splitWith.length))}</p>
+                </div>
+                <div className="flex gap-2">
+                  <button onClick={async () => {
+                    try {
+                      const res = await fetch('/api/bookings/split-action', { method: 'POST', body: JSON.stringify({ bookingId: split.id, uid: user?.uid, action: 'pay' }) });
+                      const data = await res.json();
+                      if (data.success) toast.success('Paid your share!');
+                      else toast.error(data.error);
+                    } catch { toast.error('Failed to pay'); }
+                  }} className="px-4 py-2 bg-primary text-black font-bold rounded-lg hover:opacity-90 transition-opacity text-[12px]">Pay Share</button>
+                  <button onClick={async () => {
+                    try {
+                      const res = await fetch('/api/bookings/split-action', { method: 'POST', body: JSON.stringify({ bookingId: split.id, uid: user?.uid, action: 'decline' }) });
+                      const data = await res.json();
+                      if (data.success) toast.success('Declined request');
+                      else toast.error(data.error);
+                    } catch { toast.error('Failed to decline'); }
+                  }} className="px-4 py-2 bg-error/20 text-error font-bold rounded-lg hover:bg-error/30 transition-colors text-[12px]">Decline</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* Announcement Banner */}
         {announcement?.active && announcement.text && !bannerDismissed && (
           <div className="mb-lg bg-surface-variant/40 border border-secondary/30 backdrop-blur-md rounded-xl p-md flex items-center gap-md animate-slide-up-fade shadow-[0_0_15px_rgba(45,212,191,0.1)]">

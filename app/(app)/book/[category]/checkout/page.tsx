@@ -32,6 +32,31 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [guestName, setGuestName] = useState('');
   const [guestPhone, setGuestPhone] = useState('');
   
+  // Split with friends
+  const [splitWith, setSplitWith] = useState<string[]>([]);
+  const [showSplitModal, setShowSplitModal] = useState(false);
+  const [friendsList, setFriendsList] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (!appUser?.friends?.length) return;
+    const { collection, query, where, getDocs } = require('firebase/firestore');
+    const { getFirebaseDb } = require('@/lib/firebase');
+    const fetchFriends = async () => {
+      const db = getFirebaseDb();
+      try {
+        const friendsData = [];
+        for (const fUid of appUser.friends!) {
+          const docSnap = await getDocs(query(collection(db, 'users'), where('uid', '==', fUid)));
+          if (!docSnap.empty) {
+            friendsData.push(docSnap.docs[0].data());
+          }
+        }
+        setFriendsList(friendsData);
+      } catch (err) {}
+    };
+    fetchFriends();
+  }, [appUser?.friends]);
+  
   // Global settings
   const [allowGuest, setAllowGuest] = useState(false);
   const [globalSettingsLoading, setGlobalSettingsLoading] = useState(true);
@@ -119,8 +144,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
   const executeBooking = async (userName: string) => {
     if (!user || !store.selectedAssetId) return;
-    if (paymentMethod === 'wallet' && (appUser?.walletBalance || 0) < totalAmount) {
-      setError('Insufficient wallet balance.');
+
+    const finalSplitWith = splitWith;
+    const isSplitting = finalSplitWith.length > 0;
+    const shareToPay = isSplitting ? Math.round(totalAmount / (1 + finalSplitWith.length)) : totalAmount;
+
+    if (paymentMethod === 'wallet' && (appUser?.walletBalance || 0) < shareToPay) {
+      setError(`Insufficient wallet balance for your share (₹${shareToPay}).`);
       return;
     }
 
@@ -130,7 +160,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     try {
       if (paymentMethod === 'wallet') {
         const { deductWalletBalance } = await import('@/lib/wallet');
-        await deductWalletBalance(user.uid, totalAmount);
+        await deductWalletBalance(user.uid, shareToPay);
       }
 
       if (appliedCouponId) {
@@ -151,10 +181,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         startTime: store.startTime,
         endTime: store.endTime,
         totalAmount,
-        status: paymentMethod === 'wallet' ? 'confirmed' : 'pending',
+        status: isSplitting ? 'pending' : (paymentMethod === 'wallet' ? 'confirmed' : 'pending'),
         paymentMethod,
         createdAt: new Date().toISOString(),
         protection: store.protection,
+        splitWith: isSplitting ? finalSplitWith : undefined,
+        splitStatus: isSplitting ? finalSplitWith.reduce((acc, fId) => ({ ...acc, [fId]: 'pending' }), { [user!.uid]: 'paid' } as Record<string, 'pending' | 'paid' | 'declined'>) : undefined,
       });
 
       setShowSuccessModal(true);
@@ -451,6 +483,45 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         )}
       </div>
 
+      {/* Split with Friends Button */}
+      {appUser?.friends && appUser.friends.length > 0 && (
+        <div className="fixed bottom-[80px] pb-2 left-0 right-0 px-5 z-40 pointer-events-none flex justify-end">
+           <button 
+             onClick={() => setShowSplitModal(true)}
+             className="bg-surface-variant text-white px-4 py-2 rounded-full shadow-[0_0_15px_rgba(45,212,191,0.2)] border border-white/10 font-bold text-[12px] flex items-center gap-2 pointer-events-auto hover:bg-white/10 transition-colors"
+           >
+             <span className="material-symbols-outlined text-[16px] text-secondary">group_add</span>
+             {splitWith.length > 0 ? `Splitting with ${splitWith.length}` : 'Split with Friends'}
+           </button>
+        </div>
+      )}
+
+      {/* Split Modal */}
+      {showSplitModal && (
+        <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-6 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="bg-surface-container rounded-t-[2rem] sm:rounded-[2rem] p-6 w-full sm:w-[90vw] sm:max-w-[400px] shadow-2xl relative overflow-hidden animate-slide-up-fade pointer-events-auto">
+            <h2 className="text-xl font-bold text-white mb-4">Split with Friends</h2>
+            <div className="space-y-2 mb-6 max-h-[50vh] overflow-y-auto">
+              {friendsList.map(f => {
+                const isSelected = splitWith.includes(f.uid);
+                return (
+                  <div key={f.uid} onClick={() => setSplitWith(prev => isSelected ? prev.filter(id => id !== f.uid) : [...prev, f.uid])} className={`p-3 rounded-xl border flex items-center gap-3 cursor-pointer transition-colors ${isSelected ? 'bg-primary/20 border-primary' : 'bg-surface-variant/40 border-outline-variant/30 hover:bg-white/5'}`}>
+                    <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center overflow-hidden">
+                      {f.photoURL ? <img src={f.photoURL} alt={f.name} /> : <span className="material-symbols-outlined text-white/50">person</span>}
+                    </div>
+                    <div className="flex-1 font-bold text-[14px] text-white">{f.name}</div>
+                    {isSelected && <span className="material-symbols-outlined text-primary">check_circle</span>}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-3">
+              <button onClick={() => setShowSplitModal(false)} className="flex-1 py-3 rounded-xl font-bold border border-white/10 text-white/70 hover:bg-white/5 transition-colors">Done</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Sticky Pay Button */}
       <div className="fixed bottom-0 pb-6 left-0 right-0 px-5 z-40 pointer-events-none">
         <button
@@ -465,7 +536,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
             </span>
           ) : (
             <>
-              {paymentMethod === 'counter' ? 'BOOK' : 'PAY'} {formatPrice(totalAmount)}
+              {paymentMethod === 'counter' ? 'BOOK' : 'PAY'} {formatPrice(splitWith.length > 0 ? Math.round(totalAmount / (1 + splitWith.length)) : totalAmount)}
               <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
             </>
           )}
