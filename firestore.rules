@@ -47,7 +47,12 @@ service cloud.firestore {
     // Events & Tournaments
     match /events/{eventId} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin() || (
+        request.auth != null &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['currentParticipants']) &&
+        request.resource.data.currentParticipants == resource.data.currentParticipants + 1
+      );
     }
     
     // Event Registrations
