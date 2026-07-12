@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
@@ -20,6 +20,29 @@ export default function ProfilePage() {
   const router = useRouter();
   const isDarkMode = useAppStore((s) => s.darkMode);
   const [showContactInfo, setShowContactInfo] = useState(false);
+
+  const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
+  const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
+
+  useEffect(() => {
+    if (!user) return;
+    fetch('/api/streak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: user.uid })
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setCurrentStreak(data.currentStreak);
+          setSpinsAvailable(data.spinsAvailable);
+          if (data.spinGranted) {
+            toast.success('🔥 You earned a free daily spin!');
+          }
+        }
+      })
+      .catch(console.error);
+  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -58,12 +81,29 @@ export default function ProfilePage() {
             <div className="text-[9px] font-bold tracking-[0.2em] text-primary uppercase mt-1">Art and Arcade</div>
           </div>
         </div>
-        <button 
-          onClick={() => setShowContactInfo(true)}
-          className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200"
-        >
-          <span className="material-symbols-outlined">info</span>
-        </button>
+        <div className="flex items-center gap-2">
+           {currentStreak > 0 && (
+             <div className="flex items-center gap-1 bg-surface-variant/40 px-2 py-1 rounded-full border border-orange-500/30 backdrop-blur-md">
+               <span className="text-[14px]">🔥</span>
+               <span className="text-orange-400 font-bold text-[10px] uppercase">{currentStreak}</span>
+             </div>
+           )}
+           {spinsAvailable > 0 && (
+             <button 
+               onClick={() => router.push('/spin')}
+               className="flex items-center gap-1 bg-gradient-to-r from-secondary to-primary text-black px-2 py-1 rounded-full font-bold text-[10px] animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]"
+             >
+               <span className="material-symbols-outlined text-[14px]">casino</span>
+               {spinsAvailable}
+             </button>
+           )}
+          <button 
+            onClick={() => setShowContactInfo(true)}
+            className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200 ml-2"
+          >
+            <span className="material-symbols-outlined">info</span>
+          </button>
+        </div>
       </header>
 
       <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto md:grid md:grid-cols-12 md:gap-gutter relative z-10">

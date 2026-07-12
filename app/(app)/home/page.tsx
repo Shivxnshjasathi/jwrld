@@ -34,9 +34,6 @@ export default function HomePage() {
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [bannerDismissed, setBannerDismissed] = useState(false);
 
-  // -- Streak & Spin --
-  const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
-  const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
   const [pendingSplits, setPendingSplits] = useState<any[]>([]);
 
   useEffect(() => {
@@ -48,26 +45,6 @@ export default function HomePage() {
       setPendingSplits(splits);
     });
     return () => unsub();
-  }, [user]);
-
-  useEffect(() => {
-    if (!user) return;
-    fetch('/api/streak', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: user.uid })
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          setCurrentStreak(data.currentStreak);
-          setSpinsAvailable(data.spinsAvailable);
-          if (data.spinGranted) {
-            toast.success('🔥 7 Day Streak! You earned a free spin!');
-          }
-        }
-      })
-      .catch(console.error);
   }, [user]);
 
   useEffect(() => {
@@ -266,24 +243,7 @@ export default function HomePage() {
 
       <main className="pt-[100px] px-gutter md:px-xl max-w-container-max mx-auto relative z-10 pb-[120px]">
         
-        {/* Streak & Spin Banner */}
-        <div className="mb-md flex justify-between items-center animate-slide-up-fade">
-           {currentStreak > 0 ? (
-             <div className="flex items-center gap-1 bg-surface-variant/40 px-3 py-1 rounded-full border border-orange-500/30 backdrop-blur-md">
-               <span className="text-[14px]">🔥</span>
-               <span className="text-orange-400 font-bold text-[12px] uppercase">{currentStreak} Day Streak</span>
-             </div>
-           ) : <div />}
-           {spinsAvailable > 0 && (
-             <button 
-               onClick={() => router.push('/spin')}
-               className="flex items-center gap-2 bg-gradient-to-r from-secondary to-primary text-black px-4 py-1.5 rounded-full font-bold text-[12px] animate-pulse hover:scale-105 transition-transform shadow-[0_0_15px_rgba(45,212,191,0.5)]"
-             >
-               <span className="material-symbols-outlined text-[16px]">casino</span>
-               Spin the Wheel ({spinsAvailable})
-             </button>
-           )}
-        </div>
+
 
         {/* Pending Splits Banner */}
         {pendingSplits.length > 0 && (
