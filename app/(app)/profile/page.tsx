@@ -169,19 +169,20 @@ export default function ProfilePage() {
           </div>
 
           {/* Refer & Earn Section */}
-          {appUser?.referralCode && (
-            <div className="glass-panel rounded-xl p-md mt-md relative overflow-hidden border-primary/20">
-              <div className="absolute -top-10 -right-10 w-24 h-24 bg-primary/20 rounded-full blur-[30px] pointer-events-none"></div>
-              <div className="flex items-start gap-sm mb-sm relative z-10">
-                <span className="material-symbols-outlined text-primary text-[24px]">redeem</span>
-                <div>
-                  <h3 className="font-body-lg text-[16px] text-white font-bold">Refer & Earn ₹50</h3>
-                  <p className="text-[12px] text-on-surface-variant leading-tight mt-1">
-                    Share your code with friends. When they sign up, you both get ₹50 in your Arcade Wallet!
-                  </p>
-                </div>
+          <div className="glass-panel rounded-xl p-md mt-md relative overflow-hidden border-primary/20">
+            <div className="absolute -top-10 -right-10 w-24 h-24 bg-primary/20 rounded-full blur-[30px] pointer-events-none"></div>
+            <div className="flex items-start gap-sm mb-sm relative z-10">
+              <span className="material-symbols-outlined text-primary text-[24px]">redeem</span>
+              <div>
+                <h3 className="font-body-lg text-[16px] text-white font-bold">Refer & Earn ₹50</h3>
+                <p className="text-[12px] text-on-surface-variant leading-tight mt-1">
+                  Share your code with friends. When they sign up, you both get ₹50 in your Arcade Wallet!
+                </p>
               </div>
-              <div className="flex items-center gap-2 relative z-10">
+            </div>
+            
+            {appUser?.referralCode ? (
+              <div className="flex items-center gap-2 relative z-10 mt-3">
                 <div className="flex-1 bg-surface-container-high/50 border border-outline-variant/30 rounded-lg px-3 py-2 text-center font-display-md tracking-widest text-[18px] text-white font-bold select-all">
                   {appUser.referralCode}
                 </div>
@@ -195,8 +196,24 @@ export default function ProfilePage() {
                   <span className="material-symbols-outlined text-[20px]">content_copy</span>
                 </button>
               </div>
-            </div>
-          )}
+            ) : (
+              <button 
+                onClick={async () => {
+                  if (!appUser) return;
+                  const db = getFirebaseDb();
+                  const prefix = (appUser.name || 'JDU').substring(0, 3).toUpperCase().replace(/[^A-Z]/g, 'JDU');
+                  const randomNum = Math.floor(1000 + Math.random() * 9000);
+                  const code = `${prefix}${randomNum}`;
+                  await updateDoc(doc(db, 'users', appUser.uid), { referralCode: code });
+                  toast.success('Code generated!');
+                  window.location.reload();
+                }}
+                className="w-full bg-primary text-black font-bold py-2 rounded-lg mt-3 transition-transform active:scale-95"
+              >
+                Generate My Code
+              </button>
+            )}
+          </div>
 
 
 
