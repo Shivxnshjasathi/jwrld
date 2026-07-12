@@ -1,4 +1,6 @@
-const CACHE_NAME = 'jaaduwrld-v3';
+const CACHE_NAME = 'jaaduwrld-pwa-v4';
+const OFFLINE_URL = '/offline';
+
 const STATIC_ASSETS = [
   '/',
   '/home',
@@ -7,15 +9,21 @@ const STATIC_ASSETS = [
   '/profile',
   '/settings',
   '/food',
+  '/social',
+  '/chats',
   '/help',
   '/privacy',
+  OFFLINE_URL
 ];
 
 // Install event — cache static assets + skip waiting immediately
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
+      // Pre-cache static assets
+      return cache.addAll(STATIC_ASSETS).catch((err) => {
+        console.error('[SW] Failed to cache static assets during install:', err);
+      });
     })
   );
   self.skipWaiting();
@@ -27,7 +35,7 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((keys) => {
       return Promise.all(
         keys
-          .filter((key) => key !== CACHE_NAME)
+          .filter((key) => key !== CACHE_NAME && key.startsWith('jaaduwrld-pwa-'))
           .map((key) => caches.delete(key))
       );
     })
@@ -35,7 +43,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event — Stale While Revalidate for pages, Cache First for static
+// Fetch event with advanced caching
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -43,75 +51,90 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (request.method !== 'GET') return;
 
-  // Skip Firebase/API calls — these must always be live
+  // Network-First for Firebase & APIs
   if (
     url.hostname.includes('firebase') ||
     url.hostname.includes('googleapis') ||
     url.hostname.includes('firestore') ||
     url.pathname.startsWith('/api/')
-  ) return;
-
-  // For page navigations: Stale-While-Revalidate (instant load + background update)
-  if (request.mode === 'navigate') {
+  ) {
     event.respondWith(
-      caches.match(request).then((cached) => {
-        const fetchPromise = fetch(request).then((response) => {
+      fetch(request)
+        .then((response) => {
           if (response.status === 200) {
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
           return response;
+        })
+        .catch(() => caches.match(request))
+    );
+    return;
+  }
+
+  // Next.js RSC payload caching (stale-while-revalidate)
+  if (request.headers.get('RSC') === '1' || url.pathname.startsWith('/_next/data/')) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        const fetchPromise = fetch(request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+          }
+          return response;
         }).catch(() => {
-          // Offline — return cached or fallback
-          return cached || caches.match('/');
+          // If offline and no cache, maybe return empty or a generic RSC payload
+          return cached;
         });
-        // Return cached immediately, update in background
         return cached || fetchPromise;
       })
     );
     return;
   }
 
-  // For static assets (JS/CSS/images): Cache First
+  // Next.js static assets & generic static files (Cache-First)
   if (
-    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?)$/) ||
-    url.pathname.startsWith('/_next/')
+    url.pathname.startsWith('/_next/static/') ||
+    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|ico|webp|woff2?|avif)$/) ||
+    url.hostname === 'fonts.googleapis.com' ||
+    url.hostname === 'fonts.gstatic.com'
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
         if (cached) return cached;
         return fetch(request).then((response) => {
-          if (response.status === 200) {
+          if (response.ok || response.type === 'opaque') { // opaque for cross-origin like fonts
             const clone = response.clone();
             caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
           return response;
+        }).catch(() => {
+          // Ignore failures for background images/fonts
         });
       })
     );
     return;
   }
 
-  // Everything else: Network first, cache fallback
-  event.respondWith(
-    fetch(request)
-      .then((response) => {
-        if (response.status === 200) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-        }
-        return response;
-      })
-      .catch(() => {
-        return caches.match(request).then((cachedResponse) => {
-          if (cachedResponse) return cachedResponse;
-          if (request.mode === 'navigate') {
-            return caches.match('/');
+  // HTML page navigations (Stale-While-Revalidate with Offline Fallback)
+  if (request.mode === 'navigate' || request.headers.get('accept').includes('text/html')) {
+    event.respondWith(
+      caches.match(request).then((cached) => {
+        const fetchPromise = fetch(request).then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
           }
-          return new Response('Offline', { status: 503 });
+          return response;
+        }).catch(() => {
+          // OFFLINE FALLBACK
+          return cached || caches.match(OFFLINE_URL) || caches.match('/');
         });
+        return cached || fetchPromise;
       })
-  );
+    );
+    return;
+  }
 });
 
 // Push notification handler

@@ -40,7 +40,7 @@ export default function ChatsListPage() {
         let allFriends: any[] = [];
         
         for (const chunk of uidChunks) {
-          const q = query(collection(db, 'users'), where(documentId(), 'in', chunk));
+          const q = query(collection(db, 'users'), where('uid', 'in', chunk));
           const snap = await getDocs(q);
           const data = snap.docs.map(d => ({ uid: d.id, ...d.data() }));
           allFriends = [...allFriends, ...data];

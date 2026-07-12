@@ -178,7 +178,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
       const bookingData: any = {
         userId: user.uid,
-        userName,
+        userName: userName || user?.displayName || 'Jaaduwrld Guest',
         assetId: store.selectedAssetId,
         assetName: store.selectedAssetName || '',
         category,
@@ -194,6 +194,13 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
       if (isInviting) {
         bookingData.invitedFriends = finalInvitedFriends;
+        bookingData.splitWith = finalInvitedFriends;
+        
+        const statusMap: Record<string, string> = {};
+        finalInvitedFriends.forEach((fId: string) => {
+          statusMap[fId] = 'pending';
+        });
+        bookingData.splitStatus = statusMap;
       }
 
       await createBooking(bookingData);
