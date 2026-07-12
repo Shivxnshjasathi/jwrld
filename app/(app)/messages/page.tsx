@@ -42,7 +42,7 @@ export default function UserMessagesPage() {
     
     setSending(true);
     try {
-      await sendMessage(user.uid, appUser.name, newMessage.trim(), 'user');
+      await sendMessage(user.uid, appUser.name || 'User', newMessage.trim(), 'user');
       setNewMessage('');
     } catch (err) {
       console.error(err);

@@ -116,6 +116,12 @@ export default function ProfilePage() {
              {spinsAvailable}
            </button>
           <button 
+            onClick={() => router.push('/messages')}
+            className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200 ml-2"
+          >
+            <span className="material-symbols-outlined">chat</span>
+          </button>
+          <button 
             onClick={() => setShowContactInfo(true)}
             className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200 ml-2"
           >
