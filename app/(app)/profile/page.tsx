@@ -102,12 +102,7 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-           {currentStreak > 0 && (
-             <div className="flex items-center gap-1 bg-surface-variant/40 px-2 py-1 rounded-full border border-orange-500/30 backdrop-blur-md">
-               <span className="text-[14px]">🔥</span>
-               <span className="text-orange-400 font-bold text-[10px] uppercase">{currentStreak}</span>
-             </div>
-           )}
+
            <button 
              onClick={() => router.push('/spin')}
              className={`flex items-center gap-1 px-2 py-1 rounded-full font-bold text-[10px] ${spinsAvailable > 0 ? 'bg-gradient-to-r from-secondary to-primary text-black animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]' : 'bg-surface-variant/40 text-on-surface-variant border border-outline-variant/30 backdrop-blur-md hover:bg-white/10'}`}
@@ -206,7 +201,15 @@ export default function ProfilePage() {
                 <h3 className="font-body-lg text-[18px] text-on-surface font-bold uppercase tracking-wider text-primary">
                   {appUser?.tier || 'Bronze'} Tier
                 </h3>
-                <p className="text-[12px] text-on-surface-variant">Jaadu XP</p>
+                <div className="flex items-center gap-2">
+                  <p className="text-[12px] text-on-surface-variant">Jaadu XP</p>
+                  {currentStreak > 0 && (
+                    <div className="flex items-center gap-0.5 text-orange-400">
+                      <span className="text-[10px]">🔥</span>
+                      <span className="font-bold text-[10px] uppercase">{currentStreak}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="text-right">
                 <p className="font-display-md text-[24px] font-bold text-white leading-none">
