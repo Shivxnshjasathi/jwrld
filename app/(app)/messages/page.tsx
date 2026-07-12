@@ -44,9 +44,9 @@ export default function UserMessagesPage() {
     try {
       await sendMessage(user.uid, appUser.name || 'User', newMessage.trim(), 'user');
       setNewMessage('');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      toast.error('Failed to send message');
+      toast.error('Failed to send: ' + (err.message || 'Unknown error'));
     }
     setSending(false);
   };
