@@ -1,6 +1,7 @@
 'use client';
 
 import { usePathname, useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 // Force cache invalidation
 
 const NAV_ITEMS = [
@@ -18,29 +19,28 @@ export default function BottomNav() {
       {NAV_ITEMS.map((item) => {
         const isActive = pathname.startsWith(item.href) || (pathname === '/' && item.href === '/home');
         
-        if (isActive) {
-          return (
-            <button
-              key={item.href}
-              onClick={() => router.replace(item.href)}
-              className="flex flex-col items-center justify-center text-primary after:content-[''] after:w-1.5 after:h-1.5 after:bg-primary after:rounded-full after:mt-1.5 hover:text-primary/80 transition-all active:scale-90 duration-300"
-            >
-              <span className="material-symbols-outlined font-label-md text-label-md text-[28px]" style={{ fontVariationSettings: "'FILL' 1" }}>
-                {item.icon}
-              </span>
-            </button>
-          );
-        }
-
         return (
           <button
             key={item.href}
             onClick={() => router.replace(item.href)}
-            className="flex flex-col items-center justify-center text-white/40 hover:text-secondary transition-all active:scale-90 duration-300"
+            className="relative flex flex-col items-center justify-center transition-colors duration-300"
           >
-            <span className="material-symbols-outlined font-label-md text-label-md text-[28px]">
-              {item.icon}
-            </span>
+            <motion.div
+              whileTap={{ scale: 0.85 }}
+              className={`flex flex-col items-center ${isActive ? 'text-primary' : 'text-white/40 hover:text-secondary'}`}
+            >
+              <span className="material-symbols-outlined font-label-md text-label-md text-[28px]" style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}>
+                {item.icon}
+              </span>
+            </motion.div>
+            
+            {isActive && (
+              <motion.div
+                layoutId="nav-indicator"
+                className="absolute -bottom-2 w-1.5 h-1.5 bg-primary rounded-full"
+                transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+              />
+            )}
           </button>
         );
       })}

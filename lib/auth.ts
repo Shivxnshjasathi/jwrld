@@ -320,6 +320,13 @@ export function useAuth() {
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
         setAppUser(userSnap.data() as AppUser);
+      } else {
+        // Document doesn't exist (maybe deleted manually). Recreate it.
+        await createOrUpdateUser(firebaseUser);
+        const newSnap = await getDoc(userRef);
+        if (newSnap.exists()) {
+          setAppUser(newSnap.data() as AppUser);
+        }
       }
     } catch (error) {
       console.error('Error fetching user data:', error);

@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
@@ -294,34 +295,57 @@ export default function HomePage() {
         )}
 
         {/* Category Tabs */}
-        <section className="mb-xl animate-slide-up-fade">
+        <section className="mb-xl">
           <h2 className="font-headline-md text-[24px] mb-md text-white font-semibold">Experiences</h2>
-          <div className="flex gap-md overflow-x-auto no-scrollbar pb-sm px-1">
+          <motion.div 
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1 }
+              }
+            }}
+            className="flex gap-md overflow-x-auto no-scrollbar pb-sm px-1"
+          >
             {TABS.map((tab, i) => {
               const isActive = activeTab === tab.id;
               return (
-                <button
+                <motion.button
+                  variants={{
+                    hidden: { opacity: 0, x: -20 },
+                    show: { opacity: 1, x: 0 }
+                  }}
+                  whileTap={{ scale: 0.95 }}
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex-shrink-0 flex flex-col items-center justify-center gap-sm glass-card p-md rounded-xl w-[100px] transition-all duration-300 ${
+                  className={`flex-shrink-0 relative flex flex-col items-center justify-center gap-sm glass-card p-md rounded-xl w-[100px] transition-colors duration-300 ${
                     isActive 
                       ? 'border-primary/60 shadow-[0_0_20px_rgba(168,85,247,0.35)]'
-                      : `opacity-60 hover:opacity-100 hover:-translate-y-1`
+                      : `opacity-60 hover:opacity-100 hover:border-white/20`
                   }`}
                 >
+                  {isActive && (
+                    <motion.div
+                      layoutId="activeTabBg"
+                      className="absolute inset-0 bg-primary/10 rounded-xl"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
                   <span 
-                    className={`material-symbols-outlined text-[32px] ${isActive ? 'text-primary neon-text-primary' : 'text-on-surface-variant'}`}
+                    className={`material-symbols-outlined text-[32px] relative z-10 ${isActive ? 'text-primary neon-text-primary' : 'text-on-surface-variant'}`}
                     style={isActive ? { fontVariationSettings: "'FILL' 1" } : {}}
                   >
                     {tab.icon}
                   </span>
-                  <span className={`font-label-md text-[14px] font-bold ${isActive ? 'text-primary neon-text-primary' : 'text-on-surface-variant'}`}>
+                  <span className={`font-label-md text-[14px] font-bold relative z-10 ${isActive ? 'text-primary neon-text-primary' : 'text-on-surface-variant'}`}>
                     {tab.label}
                   </span>
-                </button>
+                </motion.button>
               );
             })}
-          </div>
+          </motion.div>
         </section>
 
         {activeTab === 'food' ? (

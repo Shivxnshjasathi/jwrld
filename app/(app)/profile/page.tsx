@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
 import { doc, updateDoc, collection, query, where, getDocs, documentId } from 'firebase/firestore';
@@ -83,8 +84,34 @@ export default function ProfilePage() {
 
   const isVIP = appUser?.isVIP && appUser?.vipUntil && new Date(appUser.vipUntil) > new Date();
 
+  // 3D Tilt Card Animation Logic
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x, { stiffness: 300, damping: 30 });
+  const mouseYSpring = useSpring(y, { stiffness: 300, damping: 30 });
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["12deg", "-12deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-12deg", "12deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
-    <div className="bg-background text-on-surface min-h-dvh pb-[120px] font-body-md selection:bg-primary/30 selection:text-primary">
+    <div className="bg-background text-on-surface min-h-dvh pb-[120px] font-body-md selection:bg-primary/30 selection:text-primary overflow-hidden">
       {/* TopAppBar */}
       <header className="bg-surface/10 backdrop-blur-xl border-b border-outline-variant/20 shadow-sm fixed top-0 w-full flex justify-between items-center px-gutter py-md z-40">
         <div className="flex items-center gap-sm">
@@ -133,12 +160,16 @@ export default function ProfilePage() {
           <h1 className="font-headline-md text-[28px] md:text-[32px] font-bold mb-lg text-white">Profile</h1>
 
           {/* ID Card Component */}
+          <div style={{ perspective: 1000 }} className="w-full mx-auto relative h-[220px]">
           {isVIP ? (
-            <div 
+            <motion.div 
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
               onClick={() => router.push('/vip')}
-              className="cursor-pointer relative w-full h-[220px] mx-auto rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(250,204,21,0.2)] border border-yellow-400/50 transition-transform active:scale-95"
+              className="cursor-pointer relative w-full h-full rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(250,204,21,0.2)] border border-yellow-400/50 transition-shadow active:scale-95"
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] z-0"></div>
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] z-0" style={{ transform: "translateZ(-10px)" }}></div>
               
               {/* Card Glows */}
               <div className="absolute -top-20 -right-20 w-[200px] h-[200px] bg-yellow-500/30 blur-[60px] rounded-full z-0"></div>
@@ -169,14 +200,17 @@ export default function ProfilePage() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ) : (
-            <div 
+            <motion.div 
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
               onClick={() => router.push('/vip')}
-              className="cursor-pointer card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between transition-transform active:scale-95"
+              className="cursor-pointer card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-full flex flex-col justify-between transition-shadow active:scale-95"
             >
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none"></div>
-              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none"></div>
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none" style={{ transform: "translateZ(-20px)" }}></div>
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none" style={{ transform: "translateZ(-20px)" }}></div>
 
               <div className="flex justify-between items-start z-10 relative">
                 <span className="material-symbols-outlined text-on-surface/80 text-[32px]">contactless</span>
@@ -192,8 +226,9 @@ export default function ProfilePage() {
                 </p>
                 <p className="text-on-surface-variant text-[14px] mt-1">{appUser?.email}</p>
               </div>
-            </div>
+            </motion.div>
           )}
+          </div>
 
           {/* Gamification Section */}
           <div className="glass-panel rounded-xl p-md mt-md">
