@@ -111,7 +111,7 @@ export default function ProfilePage() {
              {spinsAvailable}
            </button>
           <button 
-            onClick={() => router.push('/messages')}
+            onClick={() => router.push('/chats')}
             className="text-primary hover:opacity-80 transition-opacity active:scale-95 duration-200 ml-2"
           >
             <span className="material-symbols-outlined">chat</span>
@@ -330,7 +330,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex gap-2">
                       <button 
-                        onClick={() => router.push('/messages')}
+                        onClick={() => router.push(`/chat/${friend.uid}`)}
                         className="flex-1 bg-surface-container hover:bg-white/10 text-white font-bold py-2 rounded-lg text-[12px] transition-colors"
                       >
                         Chat
