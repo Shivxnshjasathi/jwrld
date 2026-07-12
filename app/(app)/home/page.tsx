@@ -28,6 +28,8 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState('pool');
   const store = useBookingStore();
 
+  const [isNavigating, setIsNavigating] = useState(false);
+
   // -- Booking State --
   const [assets, setAssets] = useState<Asset[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -202,7 +204,9 @@ export default function HomePage() {
 
   const handleProceed = () => {
     if (store.selectedAssetId) {
+      setIsNavigating(true);
       router.push(`/book/${activeTab}/checkout`);
+      // Optional: setIsNavigating(false) could be omitted if page unmounts or added on timeout
     }
   };
 
@@ -458,20 +462,27 @@ export default function HomePage() {
       {/* Contextual FAB / Main CTA */}
       {activeTab !== 'food' && (
         <div className="fixed bottom-[88px] left-1/2 -translate-x-1/2 w-[calc(100%-48px)] max-w-[400px] z-30">
-          <button
+          <motion.button
+            whileHover={(!isPastTime() && !hasUserConflict() && !waitlisting && !isNavigating) ? { scale: 1.02 } : {}}
+            whileTap={(!isPastTime() && !hasUserConflict() && !waitlisting && !isNavigating) ? { scale: 0.95 } : {}}
             onClick={hasUserConflict() ? undefined : hasTimeConflict() && !isPastTime() ? handleWaitlist : handleProceed}
-            disabled={!store.selectedAssetId || waitlisting || isPastTime() || hasUserConflict()}
+            disabled={!store.selectedAssetId || waitlisting || isPastTime() || hasUserConflict() || isNavigating}
             className={`w-full py-4 rounded-full font-headline-md text-[18px] transition-all flex items-center justify-center gap-sm font-bold border border-white/20 ${
               isPastTime()
                 ? 'bg-surface-variant/80 text-white/50 backdrop-blur-md cursor-not-allowed border-white/5'
                 : hasUserConflict()
                 ? 'bg-error/80 text-white backdrop-blur-md shadow-[0_0_20px_rgba(255,180,171,0.5)] cursor-not-allowed'
                 : hasTimeConflict()
-                ? 'bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(183,109,255,0.5)] hover:scale-[1.02] active:scale-95'
-                : 'shimmer-btn animate-shimmer text-black fab-glow hover:scale-[1.02] active:scale-95'
+                ? 'bg-primary-container text-on-primary-container shadow-[0_0_20px_rgba(183,109,255,0.5)]'
+                : 'shimmer-btn animate-shimmer text-black fab-glow'
             }`}
           >
-            {isPastTime() ? (
+            {isNavigating ? (
+              <>
+                <span className="w-5 h-5 border-2 border-white/50 border-t-black rounded-full animate-spin" />
+                Loading...
+              </>
+            ) : isPastTime() ? (
               <>
                 <span className="material-symbols-outlined text-[24px]">history</span>
                 Time has passed
@@ -497,7 +508,7 @@ export default function HomePage() {
                 Book Experience
               </>
             )}
-          </button>
+          </motion.button>
         </div>
       )}
     </div>

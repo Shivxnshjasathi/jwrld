@@ -429,11 +429,16 @@ export function subscribeToUserBookings(
   const db = getFirebaseDb();
   const q = query(
     collection(db, 'bookings'),
-    where('userId', '==', userId),
-    orderBy('createdAt', 'desc')
+    where('userId', '==', userId)
   );
   return onSnapshot(q, (snapshot) => {
     const bookings = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
+    // Sort by createdAt descending on the client to avoid needing a composite index
+    bookings.sort((a, b) => {
+      const aTime = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bTime = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return bTime - aTime;
+    });
     callback(bookings);
   }, (error) => {
     console.error('[ArcadeZone] User bookings listener error:', error.message);

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 import { collection, query, where, getDocs, onSnapshot, getFirestore } from 'firebase/firestore';
@@ -144,10 +145,29 @@ export default function SocialPage() {
                 <p>No friends yet.</p>
               </div>
             ) : (
-              friendsList.map(f => {
+              <motion.div 
+                initial="hidden"
+                animate="show"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                  }
+                }}
+                className="space-y-4"
+              >
+              {friendsList.map(f => {
                 const isVIP = f.isVIP && f.vipUntil && new Date(f.vipUntil) > new Date();
                 return (
-                  <div key={f.uid} className="glass-panel p-md rounded-xl flex items-center gap-md">
+                  <motion.div 
+                    variants={{
+                      hidden: { opacity: 0, y: 15 },
+                      show: { opacity: 1, y: 0 }
+                    }}
+                    key={f.uid} 
+                    className="glass-panel p-md rounded-xl flex items-center gap-md"
+                  >
                     <div 
                       onClick={() => router.push(`/profile/${f.uid}`)}
                       className={`cursor-pointer w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center bg-surface-container flex-shrink-0 ${isVIP ? 'border-2 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border border-outline-variant/30'}`}
@@ -167,9 +187,10 @@ export default function SocialPage() {
                     >
                       <span className="material-symbols-outlined text-[20px]">chat</span>
                     </button>
-                  </div>
+                  </motion.div>
                 );
-              })
+              })}
+              </motion.div>
             )}
           </div>
         )}
@@ -189,12 +210,30 @@ export default function SocialPage() {
               </button>
             </form>
 
-            <div className="space-y-4">
+            <motion.div 
+              initial="hidden"
+              animate="show"
+              variants={{
+                hidden: { opacity: 0 },
+                show: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.05 }
+                }
+              }}
+              className="space-y-4"
+            >
               {searchResults.map(s => {
                 const isSelf = s.uid === user?.uid;
                 const isFriend = appUser?.friends?.includes(s.uid);
                 return (
-                  <div key={s.uid} className="glass-panel p-md rounded-xl flex items-center gap-md">
+                  <motion.div 
+                    variants={{
+                      hidden: { opacity: 0, x: -10 },
+                      show: { opacity: 1, x: 0 }
+                    }}
+                    key={s.uid} 
+                    className="glass-panel p-md rounded-xl flex items-center gap-md"
+                  >
                     <div 
                       onClick={() => router.push(`/profile/${s.uid}`)}
                       className="cursor-pointer w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 relative bg-surface-container flex items-center justify-center flex-shrink-0"
@@ -213,10 +252,10 @@ export default function SocialPage() {
                     {isFriend && (
                       <span className="text-[12px] text-secondary font-bold px-2 py-1 bg-secondary/20 rounded">Friend</span>
                     )}
-                  </div>
+                  </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
         )}
 
@@ -228,8 +267,27 @@ export default function SocialPage() {
                 <p>No pending requests.</p>
               </div>
             ) : (
-              friendRequests.map(req => (
-                <div key={req.id} className="glass-panel p-md rounded-xl flex items-center gap-md">
+              <motion.div 
+                initial="hidden"
+                animate="show"
+                variants={{
+                  hidden: { opacity: 0 },
+                  show: {
+                    opacity: 1,
+                    transition: { staggerChildren: 0.1 }
+                  }
+                }}
+                className="space-y-4"
+              >
+              {friendRequests.map(req => (
+                <motion.div 
+                  variants={{
+                    hidden: { opacity: 0, y: 15 },
+                    show: { opacity: 1, y: 0 }
+                  }}
+                  key={req.id} 
+                  className="glass-panel p-md rounded-xl flex items-center gap-md"
+                >
                   {req.fromName ? (
                     <>
                       <div 
@@ -257,8 +315,9 @@ export default function SocialPage() {
                       <span className="material-symbols-outlined text-[18px]">close</span>
                     </button>
                   </div>
-                </div>
-              ))
+                </motion.div>
+              ))}
+              </motion.div>
             )}
           </div>
         )}

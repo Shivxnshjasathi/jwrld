@@ -18,7 +18,7 @@ const MENU_ITEMS = [
 ];
 
 export default function ProfilePage() {
-  const { appUser, user, isAdmin } = useAuth();
+  const { appUser, user, isAdmin, loading, profileLoading } = useAuth();
   const router = useRouter();
   const isDarkMode = useAppStore((s) => s.darkMode);
   const [showContactInfo, setShowContactInfo] = useState(false);
@@ -26,6 +26,13 @@ export default function ProfilePage() {
   const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
   const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
   const [friendsData, setFriendsData] = useState<any[]>([]);
+
+  useEffect(() => {
+    if (appUser) {
+      setCurrentStreak(appUser.currentStreak || 0);
+      setSpinsAvailable(appUser.spinsAvailable || 0);
+    }
+  }, [appUser]);
 
   useEffect(() => {
     if (!appUser?.friends || appUser.friends.length === 0) return;
@@ -96,10 +103,20 @@ export default function ProfilePage() {
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
+    handleTilt(e.clientX, e.clientY, rect);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const touch = e.touches[0];
+    handleTilt(touch.clientX, touch.clientY, rect);
+  };
+
+  const handleTilt = (clientX: number, clientY: number, rect: DOMRect) => {
     const width = rect.width;
     const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const mouseX = clientX - rect.left;
+    const mouseY = clientY - rect.top;
     const xPct = mouseX / width - 0.5;
     const yPct = mouseY / height - 0.5;
     x.set(xPct);
@@ -109,6 +126,15 @@ export default function ProfilePage() {
     x.set(0);
     y.set(0);
   };
+
+  if (loading || profileLoading) {
+    return (
+      <div className="min-h-dvh bg-background flex flex-col items-center justify-center p-6">
+        <span className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
+        <p className="mt-4 text-on-surface-variant font-bold animate-pulse">Loading Profile...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-background text-on-surface min-h-dvh pb-[120px] font-body-md selection:bg-primary/30 selection:text-primary overflow-hidden">
@@ -165,6 +191,8 @@ export default function ProfilePage() {
             <motion.div 
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleMouseLeave}
               style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
               onClick={() => router.push('/vip')}
               className="cursor-pointer relative w-full h-full rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(250,204,21,0.2)] border border-yellow-400/50 transition-shadow active:scale-95"
@@ -205,6 +233,8 @@ export default function ProfilePage() {
             <motion.div 
               onMouseMove={handleMouseMove}
               onMouseLeave={handleMouseLeave}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleMouseLeave}
               style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
               onClick={() => router.push('/vip')}
               className="cursor-pointer card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-full flex flex-col justify-between transition-shadow active:scale-95"

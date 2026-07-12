@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
@@ -79,9 +80,26 @@ export default function ChatsListPage() {
             <span className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></span>
           </div>
         ) : friends.length > 0 ? (
-          <div className="space-y-3">
+          <motion.div 
+            initial="hidden"
+            animate="show"
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: { staggerChildren: 0.1 }
+              }
+            }}
+            className="space-y-3 pb-[100px]"
+          >
             {friends.map((friend) => (
-              <div 
+              <motion.div 
+                variants={{
+                  hidden: { opacity: 0, x: -20 },
+                  show: { opacity: 1, x: 0 }
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 key={friend.uid}
                 onClick={() => router.push(`/chat/${friend.uid}`)}
                 className="glass-panel p-4 rounded-xl flex items-center gap-4 cursor-pointer hover:bg-white/10 transition-colors border border-outline-variant/20 group"
@@ -101,12 +119,15 @@ export default function ChatsListPage() {
                     <span className="text-[10px] text-on-surface-variant">Tap to chat</span>
                   </div>
                   <p className="text-[13px] text-on-surface-variant truncate">
-                    {friend.tier || 'Bronze'} Tier
+                    Let's play arcade games!
                   </p>
                 </div>
-              </div>
+                <div className="text-primary opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="material-symbols-outlined">chevron_right</span>
+                </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         ) : (
           <div className="text-center py-16">
             <div className="w-20 h-20 bg-surface-container rounded-full flex items-center justify-center mx-auto mb-6 border border-outline-variant/30">

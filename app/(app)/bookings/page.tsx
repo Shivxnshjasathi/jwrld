@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { toast } from 'react-hot-toast';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { subscribeToUserBookings, cancelBooking, type Booking } from '@/lib/firestore';
 import { formatTime, formatPrice, getCategoryLabel } from '@/lib/utils';
@@ -198,9 +199,29 @@ function BookingsContent() {
                   <h3 className="text-sm font-bold text-secondary uppercase tracking-wider mb-4">
                     Upcoming ({upcomingBookings.length})
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <motion.div 
+                    initial="hidden"
+                    animate="show"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      show: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.1 }
+                      }
+                    }}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
                     {upcomingBookings.map((booking) => (
-                      <div key={booking.id} className="glass-card p-4 rounded-xl relative overflow-hidden group border border-primary/20 hover:border-primary/50 transition-colors">
+                      <motion.div 
+                        variants={{
+                          hidden: { opacity: 0, y: 20 },
+                          show: { opacity: 1, y: 0 }
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        key={booking.id} 
+                        className="glass-card p-4 rounded-xl relative overflow-hidden group border border-primary/20 hover:border-primary/50 transition-colors cursor-pointer"
+                      >
                         <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-primary to-secondary"></div>
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
@@ -264,21 +285,41 @@ function BookingsContent() {
                             </button>
                           </div>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
 
               {/* Past */}
               {pastBookings.length > 0 && (
-                <div>
+                <div className="mt-8">
                   <h3 className="text-sm font-bold text-on-surface-variant uppercase tracking-wider mb-4">
                     Past ({pastBookings.length})
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <motion.div 
+                    initial="hidden"
+                    animate="show"
+                    variants={{
+                      hidden: { opacity: 0 },
+                      show: {
+                        opacity: 1,
+                        transition: { staggerChildren: 0.1 }
+                      }
+                    }}
+                    className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                  >
                     {pastBookings.map((booking) => (
-                      <div key={booking.id} className="glass-panel p-4 rounded-xl opacity-60 hover:opacity-100 transition-opacity border border-white/5">
+                      <motion.div 
+                        variants={{
+                          hidden: { opacity: 0, y: 20 },
+                          show: { opacity: 1, y: 0 }
+                        }}
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        key={booking.id} 
+                        className="glass-card p-4 rounded-xl relative overflow-hidden opacity-80 hover:opacity-100 transition-opacity cursor-pointer border border-white/5"
+                      >
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-3">
                             <div className="w-12 h-12 rounded-full bg-surface-container-high border border-white/10 flex items-center justify-center shrink-0 text-on-surface-variant">
@@ -314,9 +355,9 @@ function BookingsContent() {
                             <span className="material-symbols-outlined text-[20px]">receipt_long</span>
                           </button>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
-                  </div>
+                  </motion.div>
                 </div>
               )}
             </>
@@ -325,9 +366,23 @@ function BookingsContent() {
       </main>
 
       {/* Receipt Modal */}
-      {receiptBooking && (
-        <div className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 animate-fade-in overflow-y-auto" onClick={() => setReceiptBooking(null)}>
-          <div className="w-full flex flex-col items-center justify-center animate-scale-in" onClick={e => e.stopPropagation()}>
+      <AnimatePresence>
+        {receiptBooking && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center p-6 overflow-y-auto" 
+            onClick={() => setReceiptBooking(null)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
+              transition={{ type: "spring", bounce: 0.3, duration: 0.6 }}
+              className="w-full flex flex-col items-center justify-center" 
+              onClick={e => e.stopPropagation()}
+            >
             {/* Printable receipt area */}
             <div ref={receiptRef} className="bg-[#131314] rounded-[2rem] p-8 shadow-2xl relative overflow-hidden border border-white/10 w-[320px] shrink-0">
               <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
@@ -390,9 +445,10 @@ function BookingsContent() {
                 <span className="material-symbols-outlined text-[18px]">share</span> Share
               </button>
             </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
