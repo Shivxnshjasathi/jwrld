@@ -216,7 +216,10 @@ export default function HomePage() {
       
       {/* TopAppBar */}
       <header className="fixed top-0 w-full flex justify-between items-center px-gutter py-md z-40 bg-black/30 backdrop-blur-2xl border-b border-white/5 shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
-        <div className="flex items-center gap-sm cursor-pointer hover:opacity-80 transition-opacity active:scale-95 duration-200">
+        <div 
+          onClick={() => router.push('/profile')}
+          className="flex items-center gap-sm cursor-pointer hover:opacity-80 transition-opacity active:scale-95 duration-200"
+        >
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/40 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
             {appUser?.photoURL ? (
               <img src={appUser.photoURL} alt="User Avatar" className="w-full h-full object-cover" />

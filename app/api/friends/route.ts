@@ -65,8 +65,13 @@ export async function POST(req: Request) {
       }
 
       // Create a friend request
+      const senderDoc = await db.collection('users').doc(uid).get();
+      const senderData = senderDoc.data() || {};
+      
       await db.collection('friendRequests').add({
         fromUid: uid,
+        fromName: senderData.name || 'Unknown User',
+        fromPhotoURL: senderData.photoURL || null,
         toUid: targetUid,
         status: 'pending',
         createdAt: new Date().toISOString()

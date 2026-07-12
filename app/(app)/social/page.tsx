@@ -229,10 +229,25 @@ export default function SocialPage() {
             ) : (
               friendRequests.map(req => (
                 <div key={req.id} className="glass-panel p-md rounded-xl flex items-center gap-md">
-                  <div className="flex-1">
-                    <div className="font-bold text-white text-[16px]">Friend Request</div>
-                    <div className="text-[12px] text-on-surface-variant">From User ID: {req.fromUid.substring(0,8)}...</div>
-                  </div>
+                  {req.fromName ? (
+                    <>
+                      <div 
+                        onClick={() => router.push(`/profile/${req.fromUid}`)}
+                        className="cursor-pointer w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 bg-surface-container flex items-center justify-center flex-shrink-0"
+                      >
+                        {req.fromPhotoURL ? <img src={req.fromPhotoURL} alt={req.fromName} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
+                      </div>
+                      <div className="flex-1 cursor-pointer" onClick={() => router.push(`/profile/${req.fromUid}`)}>
+                        <div className="font-bold text-white text-[16px]">{req.fromName}</div>
+                        <div className="text-[12px] text-on-surface-variant">Sent you a friend request</div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex-1">
+                      <div className="font-bold text-white text-[16px]">Friend Request</div>
+                      <div className="text-[12px] text-on-surface-variant">From User ID: {req.fromUid.substring(0,8)}...</div>
+                    </div>
+                  )}
                   <div className="flex gap-2">
                     <button onClick={() => respondRequest(req.id, 'accept')} className="w-8 h-8 rounded-full bg-secondary/20 text-secondary flex items-center justify-center hover:bg-secondary/40 transition-colors">
                       <span className="material-symbols-outlined text-[18px]">check</span>
