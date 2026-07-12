@@ -115,29 +115,67 @@ export default function ProfilePage() {
           <h1 className="font-headline-md text-[28px] md:text-[32px] font-bold mb-lg text-white">Profile</h1>
 
           {/* ID Card Component */}
-          <div 
-            onClick={() => router.push('/vip')}
-            className={`cursor-pointer card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between transition-transform active:scale-95 ${isVIP ? 'border-2 border-yellow-400/50 shadow-[0_0_30px_rgba(250,204,21,0.2)]' : ''}`}
-          >
-            <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none"></div>
-            <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none"></div>
-
-            <div className="flex justify-between items-start z-10 relative">
-              <span className={`material-symbols-outlined text-[32px] ${isVIP ? 'text-yellow-400' : 'text-on-surface/80'}`}>contactless</span>
-              <span className={`font-label-md text-[14px] uppercase tracking-widest font-bold ${isVIP ? 'text-yellow-400' : 'text-on-surface/60'}`}>Jaadu Pass</span>
+          {isVIP ? (
+            <div 
+              onClick={() => router.push('/vip')}
+              className="cursor-pointer relative w-full h-[220px] mx-auto rounded-[24px] overflow-hidden shadow-[0_20px_50px_rgba(250,204,21,0.2)] border border-yellow-400/50 transition-transform active:scale-95"
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] to-[#0A0A0A] z-0"></div>
+              
+              {/* Card Glows */}
+              <div className="absolute -top-20 -right-20 w-[200px] h-[200px] bg-yellow-500/30 blur-[60px] rounded-full z-0"></div>
+              <div className="absolute -bottom-20 -left-20 w-[200px] h-[200px] bg-yellow-600/20 blur-[60px] rounded-full z-0"></div>
+              
+              <div className="relative z-10 p-6 flex flex-col justify-between h-full">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-yellow-400 font-black text-[24px] tracking-tight flex items-center gap-2">
+                      JAADUWRLD <span className="material-symbols-outlined text-[24px]">workspace_premium</span>
+                    </h2>
+                    <p className="text-white/60 font-bold uppercase tracking-widest text-[10px]">Digital Membership</p>
+                  </div>
+                  <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center backdrop-blur-md border border-white/10">
+                    <span className="material-symbols-outlined text-yellow-400">diamond</span>
+                  </div>
+                </div>
+                
+                <div className="flex justify-between items-end">
+                  <div>
+                    <p className="text-white font-bold text-[24px] leading-tight">{appUser?.name || 'Member'}</p>
+                    <p className="text-yellow-400 font-bold text-[12px] mt-1">
+                      Valid until {new Date(appUser.vipUntil!).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="px-3 py-1 bg-yellow-500/20 border border-yellow-500/50 rounded-full text-yellow-400 text-[10px] font-black uppercase tracking-widest">
+                    ACTIVE
+                  </div>
+                </div>
+              </div>
             </div>
+          ) : (
+            <div 
+              onClick={() => router.push('/vip')}
+              className="cursor-pointer card-texture rounded-[20px] p-lg relative overflow-hidden shadow-[0_20px_40px_rgba(0,0,0,0.5)] h-[220px] flex flex-col justify-between transition-transform active:scale-95"
+            >
+              <div className="absolute -top-20 -right-20 w-40 h-40 bg-primary/30 rounded-full blur-[50px] pointer-events-none"></div>
+              <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-secondary/20 rounded-full blur-[40px] pointer-events-none"></div>
 
-            <div className="z-10 relative mt-auto">
-              <p className="font-label-sm text-[12px] text-on-surface-variant mb-xs font-bold uppercase tracking-wider">
-                {isAdmin ? 'Admin Access' : 'Player Access'}
-              </p>
-              <p className={`font-display-md text-[32px] font-bold tracking-tight leading-tight flex items-center gap-2 ${isVIP ? 'text-yellow-400' : 'text-white'}`}>
-                {appUser?.name || 'Arcade Player'}
-                {isVIP && <span className="material-symbols-outlined text-[24px]">workspace_premium</span>}
-              </p>
-              <p className="text-on-surface-variant text-[14px] mt-1">{appUser?.email}</p>
+              <div className="flex justify-between items-start z-10 relative">
+                <span className="material-symbols-outlined text-on-surface/80 text-[32px]">contactless</span>
+                <span className="font-label-md text-[14px] text-on-surface/60 uppercase tracking-widest font-bold">Jaadu Pass</span>
+              </div>
+
+              <div className="z-10 relative mt-auto">
+                <p className="font-label-sm text-[12px] text-on-surface-variant mb-xs font-bold uppercase tracking-wider">
+                  {isAdmin ? 'Admin Access' : 'Player Access'}
+                </p>
+                <p className="font-display-md text-[32px] font-bold tracking-tight leading-tight text-white">
+                  {appUser?.name || 'Arcade Player'}
+                </p>
+                <p className="text-on-surface-variant text-[14px] mt-1">{appUser?.email}</p>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Gamification Section */}
           <div className="glass-panel rounded-xl p-md mt-md">
