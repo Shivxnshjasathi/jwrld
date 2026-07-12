@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 import { format } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
@@ -222,7 +223,7 @@ export default function HomePage() {
         >
           <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/40 shadow-[0_0_10px_rgba(168,85,247,0.3)]">
             {appUser?.photoURL ? (
-              <img src={appUser.photoURL} alt="User Avatar" className="w-full h-full object-cover" />
+              <Image src={appUser.photoURL} alt="User Avatar" fill sizes="40px" className="object-cover" />
             ) : (
               <div className="w-full h-full bg-surface-container flex items-center justify-center text-primary font-bold">{userName.charAt(0)}</div>
             )}

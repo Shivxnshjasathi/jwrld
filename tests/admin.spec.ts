@@ -1,9 +1,25 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Admin Flow', () => {
+  test.beforeEach(async ({ page }) => {
+    // Authenticate as Guest first to bypass auth redirects
+    await page.goto('/login');
+    await page.locator('button:has-text("Guest")').click();
+    const guestBtn = page.locator('button:has-text("Continue as Guest")');
+    const demoBtn = page.locator('text=Continue in Demo Mode');
+    
+    await guestBtn.click();
+    try {
+      await page.waitForURL('**/home', { timeout: 8000 });
+    } catch (e) {
+      if (await demoBtn.isVisible()) {
+        await demoBtn.click();
+        await page.waitForURL('**/home', { timeout: 5000 });
+      }
+    }
+  });
+
   test('should load the admin dashboard and navigate to coupons', async ({ page }) => {
-    // Note: This assumes admin routes are accessible without complex auth mocking for the basic UI load, 
-    // or you'd need to set up auth state. We will just test that the page loads.
     await page.goto('/admin');
     
     // Check if the dashboard title exists
@@ -11,14 +27,10 @@ test.describe('Admin Flow', () => {
     
     // Check if Coupons button/link exists and click it
     const couponsLink = page.locator('text=Manage Coupons');
-    if (await couponsLink.isVisible()) {
-      await couponsLink.click();
-      
-      // We should be on the coupons page
-      await expect(page).toHaveURL(/\/admin\/coupons/);
-      
-      // Ensure the create coupon button is there
-      await expect(page.locator('text=+ Create Coupon').first()).toBeVisible();
-    }
+    await expect(couponsLink).toBeVisible();
+    await couponsLink.click();
+    
+    // Should navigate to /admin/coupons
+    await expect(page).toHaveURL(/\/admin\/coupons/);
   });
 });

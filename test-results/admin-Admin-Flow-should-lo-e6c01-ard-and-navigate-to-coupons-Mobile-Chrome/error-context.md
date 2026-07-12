@@ -6,8 +6,8 @@
 
 # Test info
 
-- Name: food.spec.ts >> Food Ordering Flow >> should load the food menu and display items
-- Location: tests/food.spec.ts:22:7
+- Name: admin.spec.ts >> Admin Flow >> should load the admin dashboard and navigate to coupons
+- Location: tests/admin.spec.ts:22:7
 
 # Error details
 
@@ -18,8 +18,19 @@ Test timeout of 30000ms exceeded.
 ```
 Error: page.goto: Test timeout of 30000ms exceeded.
 Call log:
-  - navigating to "http://localhost:3000/food", waiting until "load"
+  - navigating to "http://localhost:3000/admin", waiting until "load"
 
+```
+
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - img [ref=e5]
+    - heading "Jaaduwrld" [level=1] [ref=e8]
+    - paragraph [ref=e9]: Art and Arcade
+  - paragraph [ref=e14]: Loading...
 ```
 
 # Test source
@@ -27,7 +38,7 @@ Call log:
 ```ts
   1  | import { test, expect } from '@playwright/test';
   2  | 
-  3  | test.describe('Food Ordering Flow', () => {
+  3  | test.describe('Admin Flow', () => {
   4  |   test.beforeEach(async ({ page }) => {
   5  |     // Authenticate as Guest first to bypass auth redirects
   6  |     await page.goto('/login');
@@ -46,17 +57,21 @@ Call log:
   19 |     }
   20 |   });
   21 | 
-  22 |   test('should load the food menu and display items', async ({ page }) => {
-> 23 |     await page.goto('/food');
+  22 |   test('should load the admin dashboard and navigate to coupons', async ({ page }) => {
+> 23 |     await page.goto('/admin');
      |                ^ Error: page.goto: Test timeout of 30000ms exceeded.
   24 |     
-  25 |     // Check if the food section is present
-  26 |     await expect(page.locator('text=Café & Kitchen').first()).toBeVisible({ timeout: 10000 });
+  25 |     // Check if the dashboard title exists
+  26 |     await expect(page.locator('text=Admin Dashboard').first()).toBeVisible({ timeout: 10000 });
   27 |     
-  28 |     // Ensure that food items are visible
-  29 |     // We assume there's at least one "Add" button or similar interaction
-  30 |     await expect(page.locator('button:has-text("Add")').first()).toBeVisible();
-  31 |   });
-  32 | });
-  33 | 
+  28 |     // Check if Coupons button/link exists and click it
+  29 |     const couponsLink = page.locator('text=Manage Coupons');
+  30 |     await expect(couponsLink).toBeVisible();
+  31 |     await couponsLink.click();
+  32 |     
+  33 |     // Should navigate to /admin/coupons
+  34 |     await expect(page).toHaveURL(/\/admin\/coupons/);
+  35 |   });
+  36 | });
+  37 | 
 ```

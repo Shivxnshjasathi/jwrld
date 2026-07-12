@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
-import { collection, query, where, getDocs, documentId } from 'firebase/firestore';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
 import { useAppNavigation } from '@/hooks/use-app-navigation';
 
@@ -87,7 +88,7 @@ export default function ChatsListPage() {
               >
                 <div className="w-14 h-14 rounded-full overflow-hidden bg-surface-container flex-shrink-0 border-2 border-white/5 group-hover:border-primary/50 transition-colors">
                   {friend.photoURL ? (
-                    <img src={friend.photoURL} alt={friend.name} className="w-full h-full object-cover" />
+                    <Image src={friend.photoURL} alt={friend.name} fill sizes="56px" className="object-cover" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary font-bold text-xl">
                       {friend.name?.[0]?.toUpperCase() || 'U'}

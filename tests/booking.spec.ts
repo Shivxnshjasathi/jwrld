@@ -1,22 +1,51 @@
 import { test, expect } from '@playwright/test';
 
-test.describe('Booking Flow', () => {
-  test('should allow navigating to a booking category and viewing tables', async ({ page }) => {
+test.describe('Booking Flow UI', () => {
+  test.beforeEach(async ({ page }) => {
+    // Authenticate as Guest first to bypass auth redirects
+    await page.goto('/login');
+    await page.locator('button:has-text("Guest")').click();
+    
+    // Some environments may not have Firebase configured, check both buttons
+    const guestBtn = page.locator('button:has-text("Continue as Guest")');
+    const demoBtn = page.locator('text=Continue in Demo Mode');
+    
+    // We just try clicking guest
+    await guestBtn.click();
+    
+    try {
+      await page.waitForURL('**/home', { timeout: 8000 });
+    } catch (e) {
+      // If we didn't get to home, try the demo button
+      if (await demoBtn.isVisible()) {
+        await demoBtn.click();
+        await page.waitForURL('**/home', { timeout: 5000 });
+      }
+    }
+  });
+
+  test('home page renders tabs and date picker', async ({ page }) => {
     await page.goto('/home');
     
-    // Check if the Book section is present
-    await expect(page.locator('text=Book a Table').first()).toBeVisible();
+    await expect(page.locator('text=Jaaduwrld')).toBeVisible();
+    await expect(page.locator('text=8-Ball Pool')).toBeVisible();
+    await expect(page.locator('text=Snooker')).toBeVisible();
+    await expect(page.locator('text=PS5')).toBeVisible();
     
-    // Click on the Pool category
-    const poolCard = page.locator('a[href="/book/pool"]').first();
-    if (await poolCard.isVisible()) {
-      await poolCard.click();
-      
-      // We should be on the category page
-      await expect(page).toHaveURL(/\/book\/pool/);
-      
-      // Ensure the checkout or book button exists
-      await expect(page.locator('text=Book Now').first()).toBeVisible({ timeout: 10000 });
-    }
+    // Date Picker should be visible
+    await expect(page.locator('text=Select Date')).toBeVisible();
+    await expect(page.locator('text=Duration')).toBeVisible();
+    
+    // Check Book Experience button
+    await expect(page.locator('button:has-text("Book Experience")')).toBeVisible();
+  });
+
+  test('checkout page renders structure', async ({ page }) => {
+    await page.goto('/book/pool/checkout');
+    
+    await expect(page.locator('text=Checkout')).toBeVisible();
+    await expect(page.locator('text=Invite Friends')).toBeVisible();
+    await expect(page.locator('text=Apply Promo Code')).toBeVisible();
+    await expect(page.locator('button:has-text("Book")')).toBeVisible();
   });
 });

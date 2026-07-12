@@ -5,7 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  workers: 1, // Only 1 worker locally so we don't crash Next.js dev server with concurrent compilation
+  timeout: 60000, // Give Next.js dev server 60s to compile pages instead of default 30s
   reporter: 'html',
   use: {
     baseURL: 'http://localhost:3000',

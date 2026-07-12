@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
 import { doc, updateDoc, collection, query, where, getDocs, documentId } from 'firebase/firestore';
@@ -89,7 +90,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-sm">
           <div className={`w-10 h-10 rounded-full overflow-hidden relative flex items-center justify-center bg-surface-container ${isVIP ? 'border-2 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border border-outline-variant/30'}`}>
             {appUser?.photoURL ? (
-              <img src={appUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
+              <Image src={appUser.photoURL} alt="Profile" fill sizes="40px" className="object-cover" />
             ) : (
               <span className="material-symbols-outlined text-on-surface-variant">person</span>
             )}
@@ -316,7 +317,7 @@ export default function ProfilePage() {
                     <div className="flex items-center gap-3 mb-4">
                       <div className="w-12 h-12 rounded-full overflow-hidden bg-surface-container flex-shrink-0">
                         {friend.photoURL ? (
-                          <img src={friend.photoURL} alt={friend.name} className="w-full h-full object-cover" />
+                          <Image src={friend.photoURL} alt={friend.name} fill sizes="48px" className="object-cover" />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center bg-primary/20 text-primary font-bold">
                             {friend.name?.[0]?.toUpperCase() || 'U'}

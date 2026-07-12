@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 import { collection, query, where, getDocs, onSnapshot, getFirestore } from 'firebase/firestore';
@@ -151,7 +152,7 @@ export default function SocialPage() {
                       onClick={() => router.push(`/profile/${f.uid}`)}
                       className={`cursor-pointer w-12 h-12 rounded-full overflow-hidden relative flex items-center justify-center bg-surface-container flex-shrink-0 ${isVIP ? 'border-2 border-yellow-400 shadow-[0_0_15px_rgba(250,204,21,0.6)]' : 'border border-outline-variant/30'}`}
                     >
-                      {f.photoURL ? <img src={f.photoURL} alt={f.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
+                      {f.photoURL ? <Image src={f.photoURL} alt={f.name} fill sizes="48px" className="object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
                     </div>
                     <div className="flex-1 cursor-pointer" onClick={() => router.push(`/profile/${f.uid}`)}>
                       <div className="font-bold text-white text-[16px] flex items-center gap-2">
@@ -196,9 +197,9 @@ export default function SocialPage() {
                   <div key={s.uid} className="glass-panel p-md rounded-xl flex items-center gap-md">
                     <div 
                       onClick={() => router.push(`/profile/${s.uid}`)}
-                      className="cursor-pointer w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 bg-surface-container flex items-center justify-center flex-shrink-0"
+                      className="cursor-pointer w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 relative bg-surface-container flex items-center justify-center flex-shrink-0"
                     >
-                      {s.photoURL ? <img src={s.photoURL} alt={s.name} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
+                      {s.photoURL ? <Image src={s.photoURL} alt={s.name} fill sizes="48px" className="object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
                     </div>
                     <div className="flex-1 cursor-pointer" onClick={() => router.push(`/profile/${s.uid}`)}>
                       <div className="font-bold text-white text-[16px]">{s.name}</div>
@@ -233,9 +234,9 @@ export default function SocialPage() {
                     <>
                       <div 
                         onClick={() => router.push(`/profile/${req.fromUid}`)}
-                        className="cursor-pointer w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 bg-surface-container flex items-center justify-center flex-shrink-0"
+                        className="cursor-pointer w-12 h-12 rounded-full overflow-hidden border border-outline-variant/30 relative bg-surface-container flex items-center justify-center flex-shrink-0"
                       >
-                        {req.fromPhotoURL ? <img src={req.fromPhotoURL} alt={req.fromName} className="w-full h-full object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
+                        {req.fromPhotoURL ? <Image src={req.fromPhotoURL} alt={req.fromName} fill sizes="48px" className="object-cover" /> : <span className="material-symbols-outlined text-on-surface-variant">person</span>}
                       </div>
                       <div className="flex-1 cursor-pointer" onClick={() => router.push(`/profile/${req.fromUid}`)}>
                         <div className="font-bold text-white text-[16px]">{req.fromName}</div>
