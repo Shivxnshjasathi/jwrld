@@ -1,11 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useAppNavigation } from '@/hooks/useAppNavigation';
 
 export default function GamesHubPage() {
   const router = useRouter();
-  const { goBack } = useAppNavigation();
 
   return (
     <div className="flex flex-col min-h-dvh bg-[#0A0618] overflow-hidden relative font-sans">
@@ -16,7 +14,7 @@ export default function GamesHubPage() {
       </div>
 
       <div className="flex items-center px-5 pt-14 pb-4 relative z-10">
-        <button onClick={goBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white active:scale-95 transition-transform">
+        <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white active:scale-95 transition-transform">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
       </div>

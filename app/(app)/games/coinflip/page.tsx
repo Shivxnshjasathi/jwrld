@@ -1,10 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { useAppNavigation } from '@/hooks/useAppNavigation';
+import { useRouter } from 'next/navigation';
 
 export default function CoinFlipPage() {
-  const { goBack } = useAppNavigation();
+  const router = useRouter();
   const [flipping, setFlipping] = useState(false);
   const [result, setResult] = useState<'heads' | 'tails' | null>(null);
   const [rotation, setRotation] = useState(0);
@@ -33,7 +33,7 @@ export default function CoinFlipPage() {
   return (
     <div className="flex flex-col min-h-dvh bg-[#0A0618] relative font-sans perspective-[1000px]">
       <div className="flex items-center px-5 pt-14 pb-4 relative z-10">
-        <button onClick={goBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white">
+        <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
       </div>

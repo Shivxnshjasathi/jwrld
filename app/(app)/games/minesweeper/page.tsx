@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useAppNavigation } from '@/hooks/useAppNavigation';
+import { useRouter } from 'next/navigation';
 
 type Cell = {
   isMine: boolean;
@@ -18,7 +18,7 @@ const LEVELS = {
 };
 
 export default function MinesweeperPage() {
-  const { goBack } = useAppNavigation();
+  const router = useRouter();
   const [level, setLevel] = useState<keyof typeof LEVELS>('Beginner');
   const [grid, setGrid] = useState<Cell[][]>([]);
   const [status, setStatus] = useState<GameStatus>('idle');
@@ -192,7 +192,7 @@ export default function MinesweeperPage() {
   return (
     <div className="flex flex-col min-h-dvh bg-[#0A0618] relative font-sans">
       <div className="flex items-center justify-between px-5 pt-14 pb-4 relative z-10">
-        <button onClick={goBack} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white">
+        <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white">
           <span className="material-symbols-outlined text-[20px]">arrow_back</span>
         </button>
         <div className="flex gap-2">
