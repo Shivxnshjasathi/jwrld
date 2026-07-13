@@ -158,7 +158,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-2">
 
            <button 
-             onClick={() => router.push('/spin')}
+             onClick={() => router.push('/games')}
              className={`flex items-center gap-1 px-2 py-1 rounded-full font-bold text-[10px] ${spinsAvailable > 0 ? 'bg-gradient-to-r from-secondary to-primary text-black animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]' : 'bg-surface-variant/40 text-on-surface-variant border border-outline-variant/30 backdrop-blur-md hover:bg-white/10'}`}
            >
              <span className={`material-symbols-outlined text-[14px] ${spinsAvailable === 0 ? 'opacity-50' : ''}`}>casino</span>
