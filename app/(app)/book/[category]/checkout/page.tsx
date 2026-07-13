@@ -250,6 +250,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       if (!currentUid) {
         console.log('[handleGuestSubmit] User not authenticated. Signing in as guest...');
         const newUser = await signInAsGuest();
+        if (!newUser) throw new Error('Failed to create guest session');
         currentUid = newUser.uid;
       }
       
