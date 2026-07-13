@@ -94,26 +94,26 @@ export default function HomePage() {
     return () => unsubscribe();
   }, [store.selectedDate, activeTab]);
 
-  const activeBookings = bookings.filter((b) => ['pending', 'approved', 'confirmed'].includes(b.status));
-
-  const bookedHours = Array.from(new Set(
-    activeBookings.flatMap((b) => {
-      const hours = [];
-      for (let h = b.startTime; h < b.endTime; h++) hours.push(h);
-      return hours;
-    })
+  const globalBookedHours = Array.from(new Set(
+    bookings
+      .filter((b) => ['approved', 'confirmed'].includes(b.status))
+      .flatMap((b) => {
+        const hours = [];
+        for (let h = b.startTime; h < b.endTime; h++) hours.push(h);
+        return hours;
+      })
   ));
 
   const hasTimeConflict = () => {
     for (let h = store.startTime; h < store.endTime; h++) {
-      if (bookedHours.includes(h)) return true;
+      if (globalBookedHours.includes(h)) return true;
     }
     return false;
   };
 
   const userBookedHours = Array.from(new Set(
-    activeBookings
-      .filter(b => b.userId === user?.uid)
+    bookings
+      .filter((b) => ['approved', 'confirmed'].includes(b.status) && b.userId === user?.uid)
       .flatMap((b) => {
         const hours = [];
         for (let h = b.startTime; h < b.endTime; h++) hours.push(h);
@@ -161,10 +161,9 @@ export default function HomePage() {
   useEffect(() => {
     if (activeTab === 'food') return;
     
-    // Auto-select first available slot if current slot has conflict or is in the past
     let currentHasConflict = false;
     for (let h = store.startTime; h < store.endTime; h++) {
-      if (bookedHours.includes(h) || pastHours.includes(h)) {
+      if (globalBookedHours.includes(h) || pastHours.includes(h)) {
         currentHasConflict = true;
         break;
       }
@@ -172,13 +171,13 @@ export default function HomePage() {
 
     if (currentHasConflict) {
       for (let h = 10; h < 21; h++) {
-        if (!bookedHours.includes(h) && !pastHours.includes(h)) {
+        if (!globalBookedHours.includes(h) && !pastHours.includes(h)) {
           store.setTimeRange(h, h + 1);
           break;
         }
       }
     }
-  }, [store.selectedDate, activeTab, bookedHours, pastHours, store.startTime, store.endTime]);
+  }, [store.selectedDate, activeTab, globalBookedHours, pastHours, store.startTime, store.endTime]);
 
   const [waitlisting, setWaitlisting] = useState(false);
 
@@ -449,7 +448,7 @@ export default function HomePage() {
                 <SliderTrack
                   startTime={store.startTime}
                   endTime={store.endTime}
-                  bookedHours={bookedHours}
+                  bookedHours={globalBookedHours}
                   pastHours={pastHours}
                   onRangeChange={(start, end) => store.setTimeRange(start, end)}
                 />
