@@ -230,6 +230,7 @@ export async function deleteAsset(assetId: string) {
 // ─── Bookings ────────────────────────────────────────────────────────────────
 
 export async function getBookingsForDate(date: string, category?: string): Promise<Booking[]> {
+  console.log(`[Firestore] getBookingsForDate called with date: ${date}, category: ${category}`);
   const db = getDb();
   let q;
   if (category) {
@@ -247,10 +248,12 @@ export async function getBookingsForDate(date: string, category?: string): Promi
     );
   }
   const snapshot = await getDocs(q);
+  console.log(`[Firestore] getBookingsForDate found ${snapshot.size} bookings`);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
 }
 
 export async function getUserBookings(userId: string): Promise<Booking[]> {
+  console.log(`[Firestore] getUserBookings called for userId: ${userId}`);
   const db = getDb();
   const q = query(
     collection(db, 'bookings'),
@@ -258,10 +261,12 @@ export async function getUserBookings(userId: string): Promise<Booking[]> {
     orderBy('createdAt', 'desc')
   );
   const snapshot = await getDocs(q);
+  console.log(`[Firestore] getUserBookings found ${snapshot.size} bookings`);
   return snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Booking));
 }
 
 export async function createBooking(booking: Omit<Booking, 'id'>): Promise<string> {
+  console.log(`[Firestore] createBooking called:`, { assetId: booking.assetId, date: booking.date, startTime: booking.startTime });
   const db = getDb();
   // Check for conflicts before creating
   const conflicts = await getBookingsForDate(booking.date, booking.category);
@@ -273,6 +278,7 @@ export async function createBooking(booking: Omit<Booking, 'id'>): Promise<strin
   );
 
   if (hasConflict) {
+    console.error(`[Firestore] createBooking failed: Slot already booked`);
     throw new Error('This slot has already been booked. Please select another.');
   }
 
@@ -280,6 +286,7 @@ export async function createBooking(booking: Omit<Booking, 'id'>): Promise<strin
     ...booking,
     createdAt: new Date().toISOString(),
   });
+  console.log(`[Firestore] createBooking successful! ID: ${docRef.id}`);
   
   // Notify admins
   sendPushToAdmins(
