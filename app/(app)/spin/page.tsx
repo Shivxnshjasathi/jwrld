@@ -6,11 +6,11 @@ import { useAuth } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 
 export default function SpinPage() {
-  const { user, appUser } = useAuth();
   const router = useRouter();
+  const { appUser } = useAuth();
   
   const [spinning, setSpinning] = useState(false);
-  const [prize, setPrize] = useState<{ type: string, amount: number, label: string } | null>(null);
+  const [targetRotation, setTargetRotation] = useState(0);
   const [spinsAvailable, setSpinsAvailable] = useState(0);
 
   useEffect(() => {
@@ -24,78 +24,103 @@ export default function SpinPage() {
       toast.error('No spins available! Come back tomorrow to build your streak.');
       return;
     }
-    
+
+    // Start a dummy fast spin while fetching
     setSpinning(true);
-    setPrize(null);
+    // Add 10 full spins plus some extra so it looks like it's spinning endlessly while waiting
+    setTargetRotation(prev => prev + 3600); 
 
     try {
       const res = await fetch('/api/spin', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ uid: user?.uid })
+        body: JSON.stringify({ uid: appUser?.uid })
       });
       const data = await res.json();
       
       if (data.success) {
         setSpinsAvailable(s => s - 1);
         
-        // Wait for animation
+        // Calculate the exact rotation needed to land on the prizeIndex
+        // Wheel has 8 slices. Slice 0 is at top (0 deg). 
+        // Each slice is 45 degrees.
+        // To make slice `i` land at the top (0 degrees), we need the wheel to be rotated by `360 - (i * 45)` degrees.
+        // We also want to add 5 full spins (1800 degrees) to make it spin for a while.
+        
+        const prizeIndex = data.prizeIndex;
+        // Since we already started a dummy spin (targetRotation was updated), let's calculate a NEW final rotation
+        // that's higher than the current rotation to ensure it keeps going forward.
+        setTargetRotation(prev => {
+          // Snap to the next multiple of 360, add 5 full spins, then subtract the index offset
+          const base = Math.ceil(prev / 360) * 360;
+          return base + 1800 + (360 - (prizeIndex * 45));
+        });
+
         setTimeout(() => {
           setSpinning(false);
-          setPrize({ type: data.prizeType, amount: data.prizeAmount, label: data.label });
-          toast.success(`You won ${data.label}!`);
-        }, 3000);
+          if (data.prizeType === 'miss') {
+             toast.error('Oh no! Better luck next time.', { icon: '😢' });
+          } else {
+             toast.success(`🎉 You won ${data.label}!`);
+          }
+        }, 3500); // Wait for the 3s CSS transition to finish + a little buffer
       } else {
         setSpinning(false);
         toast.error(data.error || 'Failed to spin');
       }
-    } catch (err) {
+    } catch (error) {
       setSpinning(false);
-      toast.error('An error occurred');
+      toast.error('Network error');
     }
   };
 
   return (
-    <div className="bg-[#0A0618] text-on-surface min-h-dvh font-body-md selection:bg-primary/30 relative overflow-hidden flex flex-col">
-      {/* Background Gradient */}
-      <div className="absolute top-0 left-0 w-full h-[50vh] bg-gradient-to-b from-[#4A154B]/40 to-transparent pointer-events-none"></div>
-      
-      {/* Top Bar */}
-      <header className="flex justify-between items-center px-gutter py-md z-40 relative mt-4">
-        <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
-          <span className="material-symbols-outlined text-[20px]">chevron_left</span>
-        </button>
-        <span className="text-white/60 text-[14px] font-medium">{spinsAvailable} spins left</span>
-        <button className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
-          <span className="material-symbols-outlined text-[20px]">more_vert</span>
-        </button>
-      </header>
-
-      {/* Text Content */}
-      <div className="flex flex-col items-center mt-xl z-40 relative">
-        <h1 className="font-display-md text-[36px] font-bold text-white mb-2 tracking-tight">Spin the Wheel!</h1>
-        <p className="text-white/40 text-[14px] font-medium">5 more spins ready in 05:00</p>
-        
-        <button
-          onClick={handleSpin}
-          disabled={spinning || spinsAvailable <= 0}
-          className="mt-8 relative group active:scale-95 transition-transform disabled:opacity-50 disabled:pointer-events-none"
-        >
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF6B6B] to-[#4ECDC4] rounded-full blur opacity-75 group-hover:opacity-100 transition duration-200"></div>
-          <div className="relative px-10 py-3.5 bg-[#1A1A24] rounded-full leading-none flex items-center justify-center">
-            <span className="text-white font-bold text-[16px]">{spinning ? 'Spinning...' : 'Spin Again'}</span>
-          </div>
-        </button>
+    <div className="flex flex-col min-h-dvh bg-[#0A0618] overflow-hidden relative">
+      {/* Dynamic Background */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-[#FF6B6B]/20 rounded-full blur-[100px] mix-blend-screen animate-pulse"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[70%] h-[70%] bg-[#4ECDC4]/20 rounded-full blur-[100px] mix-blend-screen animate-pulse" style={{ animationDelay: '1s' }}></div>
+        <div className="absolute top-[30%] left-[20%] w-[50%] h-[50%] bg-[#9D4EDD]/10 rounded-full blur-[120px] mix-blend-screen animate-pulse" style={{ animationDelay: '2s' }}></div>
       </div>
 
-      {/* Wheel Area - Positioned at bottom */}
-      <div className="relative flex-1 flex flex-col justify-end items-center w-full mt-10">
+      <div className="flex items-center justify-between px-5 pt-14 pb-4 relative z-10">
+        <button onClick={() => router.back()} className="w-10 h-10 flex items-center justify-center rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white">
+          <span className="material-symbols-outlined text-[20px]">arrow_back</span>
+        </button>
+        <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 rounded-full">
+          <span className="material-symbols-outlined text-[16px] text-[#FFD93D]">stars</span>
+          <span className="text-white/60 text-[14px] font-medium">{spinsAvailable} spins left</span>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col items-center justify-center px-5 relative z-10">
         
-        {/* Glow behind wheel */}
-        <div className="absolute bottom-[-100px] w-[400px] h-[400px] bg-gradient-to-t from-[#FF6B6B]/20 to-[#4ECDC4]/20 blur-[80px] rounded-full pointer-events-none z-0"></div>
+        {/* Title Area */}
+        <div className="text-center mb-12 animate-fade-in">
+          <h1 className="font-display-md text-[36px] font-bold text-white mb-2 tracking-tight">Spin the Wheel!</h1>
+          <p className="text-white/40 text-[14px] font-medium">Test your luck, win epic rewards.</p>
+        </div>
+
+        {/* Spin Button container */}
+        <div className="relative mb-16 z-30">
+          <button 
+            onClick={handleSpin}
+            disabled={spinning || spinsAvailable <= 0}
+            className={`w-[200px] h-[60px] rounded-full border-[3px] flex items-center justify-center shadow-[0_0_30px_rgba(255,107,107,0.5)] transition-all ${
+              spinning || spinsAvailable <= 0 ? 'bg-surface-variant border-white/10 opacity-50 scale-95' : 'bg-gradient-to-r from-[#FF6B6B] to-[#9D4EDD] border-[#FFD93D] active:scale-95'
+            }`}
+          >
+            <span className="text-white font-bold text-[16px]">{spinning ? 'Spinning...' : 'Spin!'}</span>
+          </button>
+          
+          {/* Subtle glow underneath */}
+          {!spinning && spinsAvailable > 0 && (
+             <div className="absolute inset-0 bg-[#FF6B6B] rounded-full blur-[20px] opacity-40 z-[-1] animate-pulse"></div>
+          )}
+        </div>
 
         {/* The Wheel Container */}
-        <div className="relative w-[500px] h-[500px] translate-y-[35%] flex items-center justify-center z-10">
+        <div className="relative w-[320px] h-[320px] mt-[-20px] mb-[60px] animate-scale-in">
           
           {/* Outer Ring with Glow */}
           <div className="absolute inset-[-4px] rounded-full bg-gradient-to-br from-[#FF6B6B] via-[#9D4EDD] to-[#4ECDC4] opacity-80 blur-[2px]"></div>
@@ -105,8 +130,8 @@ export default function SpinPage() {
           <div 
             className="absolute inset-[8px] rounded-full overflow-hidden"
             style={{ 
-              transform: spinning ? 'rotate(1800deg)' : 'rotate(0deg)',
-              transition: spinning ? 'transform 3s cubic-bezier(0.15, 0.9, 0.15, 1)' : 'none'
+              transform: `rotate(${targetRotation}deg)`,
+              transition: spinning ? 'transform 3s cubic-bezier(0.15, 0.9, 0.15, 1)' : 'transform 1s cubic-bezier(0.2, 0.8, 0.2, 1)'
             }}
           >
             <div 
@@ -117,7 +142,7 @@ export default function SpinPage() {
             >
               {/* Text Labels on Wheel Slices */}
               <div className="absolute inset-0 flex items-center justify-center">
-                 {['jackpot', '₹50 OFF', 'miss', '15% OFF', '₹20 OFF', 'miss', '10% OFF', '5% OFF'].map((label, i) => (
+                 {['JACKPOT!', '₹50 Bonus', '200 XP', '100 XP', '₹20 Bonus', '50 XP', '₹10 Bonus', 'Try Again'].map((label, i) => (
                    <div 
                      key={i} 
                      className="absolute w-[30px] h-[50%] origin-bottom top-0 flex flex-col items-center justify-start pt-8"
