@@ -4,7 +4,7 @@ import { useState, use, useEffect } from 'react';
 import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { format, isToday, isTomorrow } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
-import { useAuth } from '@/lib/auth';
+import { useAuth, signInAsGuest } from '@/lib/auth';
 import { createBooking, validateCoupon, incrementCouponUsage, getGlobalSettings } from '@/lib/firestore';
 import { formatTime, formatPrice } from '@/lib/utils';
 import { doc, updateDoc } from 'firebase/firestore';
@@ -134,8 +134,20 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
   const handlePayment = async () => {
     console.log('[handlePayment] triggered. user:', !!user, 'selectedAssetId:', store.selectedAssetId, 'appUser:', !!appUser);
-    if (!user || !store.selectedAssetId || !appUser) {
-      console.warn('[handlePayment] Aborting because user, selectedAssetId, or appUser is missing.');
+    
+    if (!store.selectedAssetId) {
+      setError('No asset selected. Please go back and select a table.');
+      return;
+    }
+
+    if (!user || !appUser) {
+      console.warn('[handlePayment] Aborting because user or appUser is missing.');
+      // If we don't have user info, show guest modal if allowed, otherwise error
+      if (allowGuest) {
+        setShowGuestModal(true);
+      } else {
+        setError('Guest bookings are currently disabled. Please log in.');
+      }
       return;
     }
 
@@ -151,10 +163,12 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     await executeBooking(appUser.name);
   };
 
-  const executeBooking = async (userName: string) => {
-    console.log('[executeBooking] triggered. userName:', userName, 'user:', !!user, 'selectedAssetId:', store.selectedAssetId);
-    if (!user || !store.selectedAssetId) {
-      console.warn('[executeBooking] Aborting because user or selectedAssetId is missing.');
+  const executeBooking = async (userName: string, uid?: string) => {
+    const finalUid = uid || user?.uid;
+    console.log('[executeBooking] triggered. userName:', userName, 'finalUid:', !!finalUid, 'selectedAssetId:', store.selectedAssetId);
+    
+    if (!finalUid || !store.selectedAssetId) {
+      console.warn('[executeBooking] Aborting because finalUid or selectedAssetId is missing.');
       return;
     }
 
@@ -173,7 +187,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     try {
       if (paymentMethod === 'wallet') {
         const { deductWalletBalance } = await import('@/lib/wallet');
-        await deductWalletBalance(user.uid, shareToPay);
+        await deductWalletBalance(finalUid, shareToPay);
       }
 
       if (appliedCouponId) {
@@ -185,8 +199,8 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       }
 
       const bookingData: any = {
-        userId: user.uid,
-        userName: userName || user?.displayName || 'Jaaduwrld Guest',
+        userId: finalUid,
+        userName: userName || 'Jaaduwrld Guest',
         assetId: store.selectedAssetId,
         assetName: store.selectedAssetName || '',
         category,
@@ -230,13 +244,22 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     setLoading(true);
     try {
       const db = getFirebaseDb();
-      await updateDoc(doc(db, 'users', user!.uid), {
+      let currentUid = user?.uid;
+      
+      // If user is not authenticated, sign them in anonymously as a guest
+      if (!currentUid) {
+        console.log('[handleGuestSubmit] User not authenticated. Signing in as guest...');
+        const newUser = await signInAsGuest();
+        currentUid = newUser.uid;
+      }
+      
+      await updateDoc(doc(db, 'users', currentUid), {
         name: guestName,
         phone: guestPhone,
         role: 'customer'
       });
       setShowGuestModal(false);
-      await executeBooking(guestName);
+      await executeBooking(guestName, currentUid);
     } catch (err) {
       setError('Failed to update details. Try again.');
       setLoading(false);
