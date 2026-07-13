@@ -22,6 +22,13 @@ export const isFirebaseConfigured: boolean = Boolean(
   firebaseConfig.projectId !== 'undefined'
 );
 
+console.log('[Firebase Init] Config status:', {
+  hasApiKey: !!firebaseConfig.apiKey,
+  hasProjectId: !!firebaseConfig.projectId,
+  isConfigured: isFirebaseConfigured,
+  apiKeyPreview: firebaseConfig.apiKey ? `${firebaseConfig.apiKey.substring(0, 5)}...` : 'missing'
+});
+
 let _app: FirebaseApp | null = null;
 let _auth: Auth | null = null;
 let _db: Firestore | null = null;

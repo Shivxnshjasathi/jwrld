@@ -313,14 +313,20 @@ export function useAuth() {
   const [profileLoading, setProfileLoading] = useState(true);
 
   const fetchAppUser = useCallback(async (firebaseUser: User) => {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured) {
+      console.warn('[fetchAppUser] Firebase is not configured. Aborting fetch.');
+      return;
+    }
     try {
+      console.log('[fetchAppUser] Starting fetch for uid:', firebaseUser.uid);
       const db = getFirebaseDb();
       const userRef = doc(db, 'users', firebaseUser.uid);
       const userSnap = await getDoc(userRef);
       if (userSnap.exists()) {
+        console.log('[fetchAppUser] Success: User doc found.');
         setAppUser(userSnap.data() as AppUser);
       } else {
+        console.warn('[fetchAppUser] User doc not found. Attempting to recreate...');
         // Document doesn't exist (maybe deleted manually). Recreate it.
         await createOrUpdateUser(firebaseUser);
         const newSnap = await getDoc(userRef);
@@ -335,6 +341,7 @@ export function useAuth() {
 
   useEffect(() => {
     if (!isFirebaseConfigured) {
+      console.warn('[useAuth] Firebase is not configured. User will remain unauthenticated.');
       setLoading(false);
       setProfileLoading(false);
       return;

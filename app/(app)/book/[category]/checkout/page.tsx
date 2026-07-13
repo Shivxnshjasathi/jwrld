@@ -133,7 +133,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   };
 
   const handlePayment = async () => {
-    if (!user || !store.selectedAssetId || !appUser) return;
+    console.log('[handlePayment] triggered. user:', !!user, 'selectedAssetId:', store.selectedAssetId, 'appUser:', !!appUser);
+    if (!user || !store.selectedAssetId || !appUser) {
+      console.warn('[handlePayment] Aborting because user, selectedAssetId, or appUser is missing.');
+      return;
+    }
 
     if (appUser.role === 'guest') {
       if (!allowGuest) {
@@ -148,7 +152,11 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   };
 
   const executeBooking = async (userName: string) => {
-    if (!user || !store.selectedAssetId) return;
+    console.log('[executeBooking] triggered. userName:', userName, 'user:', !!user, 'selectedAssetId:', store.selectedAssetId);
+    if (!user || !store.selectedAssetId) {
+      console.warn('[executeBooking] Aborting because user or selectedAssetId is missing.');
+      return;
+    }
 
     const finalInvitedFriends = splitWith;
     const isInviting = finalInvitedFriends.length > 0;
