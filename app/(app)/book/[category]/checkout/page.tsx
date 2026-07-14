@@ -125,6 +125,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         store.applyCoupon(discount);
         setAppliedCouponId(coupon.id);
         setShowCouponInput(false);
+        playSuccess();
       } else {
         setError('Invalid or expired coupon code');
       }
