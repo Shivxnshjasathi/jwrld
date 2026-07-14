@@ -77,8 +77,7 @@ export default function AdminDashboard() {
   const todayBookings = bookings.filter((b) => b.date === todayStr && (b.status === 'confirmed' || b.status === 'approved'));
   const pendingBookings = bookings.filter((b) => b.status === 'pending');
   const activeAssets = assets.filter((a) => a.status === 'active');
-  const totalRevenue = bookings
-    .filter(b => b.status === 'confirmed' || b.status === 'approved')
+  const todayRevenue = todayBookings
     .reduce((sum, b) => sum + (b.totalAmount || 0), 0);
 
   const getAssetStatus = (assetId: string) => {
@@ -210,11 +209,11 @@ export default function AdminDashboard() {
           <div className="glass-panel rounded-xl p-lg flex flex-col justify-between h-[140px] relative overflow-hidden group">
             <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="flex justify-between items-start z-10">
-              <span className="font-label-md text-[14px] font-bold text-on-surface-variant uppercase tracking-wider">Total Revenue</span>
+              <span className="font-label-md text-[14px] font-bold text-on-surface-variant uppercase tracking-wider">Today's Revenue</span>
               <span className="material-symbols-outlined text-primary text-[24px]">account_balance_wallet</span>
             </div>
             <div className="z-10">
-              <div className="font-display-md text-[40px] font-bold text-on-surface">₹{totalRevenue.toLocaleString()}</div>
+              <div className="font-display-md text-[40px] font-bold text-on-surface">₹{todayRevenue.toLocaleString()}</div>
             </div>
           </div>
 
