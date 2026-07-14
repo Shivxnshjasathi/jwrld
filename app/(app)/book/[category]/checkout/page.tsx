@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, use, useEffect } from 'react';
+import { useSound } from '@/hooks/use-sound';
 import { useAppNavigation } from '@/hooks/use-app-navigation';
 import { format, isToday, isTomorrow } from 'date-fns';
 import { useBookingStore } from '@/lib/store';
@@ -22,6 +23,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [couponCode, setCouponCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'counter' | 'upi'>('counter');
   const [globalSettings, setGlobalSettings] = useState<any>(null);
+  const { playSuccess } = useSound();
 
   useEffect(() => {
     getGlobalSettings().then(setGlobalSettings).catch(console.error);
@@ -227,6 +229,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
       await createBooking(bookingData);
 
+      playSuccess();
       setShowSuccessModal(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to create booking');

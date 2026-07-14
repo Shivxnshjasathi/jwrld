@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useRef } from 'react';
 import { formatTime, OPERATING_HOURS } from '@/lib/utils';
+import { useSound } from '@/hooks/use-sound';
 
 interface TimeSliderProps {
   startTime: number;
@@ -14,6 +15,8 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
   const { start: opStart, end: opEnd } = OPERATING_HOURS;
   const totalSlots = opEnd - opStart;
   const duration = endTime - startTime;
+  const { playTap } = useSound();
+  const lastPlayedTimeRef = useRef<{start: number, end: number}>({start: startTime, end: endTime});
 
   const timeLabels = useMemo(() => {
     const labels: string[] = [];
@@ -41,12 +44,14 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
 
   const handleDecreaseDuration = () => {
     if (duration > 1) {
+      playTap();
       onTimeChange(startTime, endTime - 1);
     }
   };
 
   const handleIncreaseDuration = () => {
     if (endTime < opEnd) {
+      playTap();
       onTimeChange(startTime, endTime + 1);
     }
   };
@@ -58,6 +63,7 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
     const clickedHour = Math.round(percentage * totalSlots + opStart);
     
     const newStart = Math.max(opStart, Math.min(clickedHour, opEnd - duration));
+    if (newStart !== startTime) playTap();
     onTimeChange(newStart, newStart + duration);
   };
 
@@ -75,9 +81,17 @@ export default function TimeSlider({ startTime, endTime, bookedHours = [], onTim
 
         if (type === 'start') {
           const newStart = Math.max(opStart, Math.min(hour, endTime - 1));
+          if (newStart !== lastPlayedTimeRef.current.start) {
+            playTap();
+            lastPlayedTimeRef.current = { start: newStart, end: endTime };
+          }
           onTimeChange(newStart, endTime);
         } else {
           const newEnd = Math.min(opEnd, Math.max(hour, startTime + 1));
+          if (newEnd !== lastPlayedTimeRef.current.end) {
+            playTap();
+            lastPlayedTimeRef.current = { start: startTime, end: newEnd };
+          }
           onTimeChange(startTime, newEnd);
         }
       };

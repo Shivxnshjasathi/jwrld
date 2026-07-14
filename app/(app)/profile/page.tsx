@@ -9,6 +9,7 @@ import { useAppStore } from '@/lib/store';
 import { doc, updateDoc, collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
 import { toast } from 'react-hot-toast';
+import { useSound } from '@/hooks/use-sound';
 
 const MENU_ITEMS = [
   { icon: 'event_available', label: 'Tournaments & Events', href: '/events', color: 'text-primary' },
@@ -22,6 +23,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const isDarkMode = useAppStore((s) => s.darkMode);
   const [showContactInfo, setShowContactInfo] = useState(false);
+  const { playPop, playClick, playPowerUp, playBlip } = useSound();
 
   const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
   const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
@@ -64,6 +66,7 @@ export default function ProfilePage() {
           setCurrentStreak(data.currentStreak);
           setSpinsAvailable(data.spinsAvailable);
           if (data.spinGranted) {
+            playPowerUp();
             toast.success('🔥 You earned a free daily spin!');
           }
         }
@@ -158,7 +161,7 @@ export default function ProfilePage() {
         <div className="flex items-center gap-2">
 
            <button 
-             onClick={() => router.push('/spin')}
+             onClick={() => { playPop(); router.push('/spin'); }}
              className={`flex items-center gap-1 px-2 py-1 rounded-full font-bold text-[10px] ${spinsAvailable > 0 ? 'bg-gradient-to-r from-secondary to-primary text-black animate-pulse shadow-[0_0_10px_rgba(45,212,191,0.5)]' : 'bg-surface-variant/40 text-on-surface-variant border border-outline-variant/30 backdrop-blur-md hover:bg-white/10'}`}
            >
              <span className={`material-symbols-outlined text-[14px] ${spinsAvailable === 0 ? 'opacity-50' : ''}`}>casino</span>
@@ -317,8 +320,9 @@ export default function ProfilePage() {
                 </div>
                 <button 
                   onClick={() => {
+                    playBlip();
                     navigator.clipboard.writeText(appUser.referralCode!);
-                    toast.success('Code copied!');
+                    toast.success('Referral code copied!');
                   }}
                   className="bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30 rounded-lg h-[44px] px-4 flex items-center justify-center transition-colors active:scale-95"
                 >
@@ -425,7 +429,10 @@ export default function ProfilePage() {
             {MENU_ITEMS.map((item, idx) => (
               <div
                 key={item.label}
-                onClick={() => item.href !== '#' && router.push(item.href)}
+                onClick={() => {
+                  playClick();
+                  if (item.href !== '#') router.push(item.href);
+                }}
                 className="glass-panel rounded-xl p-md flex items-center justify-between group hover:bg-white/[0.08] transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-md">
@@ -462,6 +469,23 @@ export default function ProfilePage() {
               <div className="flex items-center gap-sm text-error">
                 <span className="material-symbols-outlined">logout</span>
                 <span className="font-body-md text-[16px] font-bold">Sign Out</span>
+              </div>
+            </button>
+          </div>
+          <div className="mt-xl flex justify-center pb-xl">
+            <button 
+              onClick={() => {
+                playPop();
+                window.location.href = 'https://porfolio-v1-black.vercel.app';
+              }}
+              className="group flex flex-col items-center gap-1 active:scale-95 transition-transform"
+            >
+              <div className="text-[12px] font-medium text-on-surface-variant flex items-center gap-1">
+                Made with <span className="text-primary material-symbols-outlined text-[14px] animate-pulse">favorite</span> by
+              </div>
+              <div className="text-[16px] font-black text-white tracking-widest uppercase relative">
+                Shivxnsh
+                <div className="absolute -bottom-1 left-0 w-0 h-[2px] bg-primary group-hover:w-full transition-all duration-300"></div>
               </div>
             </button>
           </div>

@@ -4,12 +4,14 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
+import { useSound } from '@/hooks/use-sound';
 
 const SEGMENTS = ['₹50 Bonus', '200 XP', '₹20 Bonus', '100 XP', '₹10 Bonus', '50 XP', '150 XP', 'TRY AGAIN'];
 
 export default function SpinPage() {
   const { user, appUser } = useAuth();
   const router = useRouter();
+  const { playTick, playFanfare, playPop } = useSound();
   
   const [spinning, setSpinning] = useState(false);
   const [rotation, setRotation] = useState(0);
@@ -51,11 +53,24 @@ export default function SpinPage() {
         const newRotation = rotation + (extraSpins * 360) + diff + randomOffset;
         setRotation(newRotation);
 
+        // Ticking sound effect loop
+        let tickInterval = 50;
+        let elapsedTime = 0;
+        const playTickLoop = () => {
+          if (elapsedTime >= 3000) return;
+          playTick();
+          elapsedTime += tickInterval;
+          tickInterval += 8; // Slow down the tick gradually
+          setTimeout(playTickLoop, tickInterval);
+        };
+        playTickLoop();
+
         // Wait for animation
         setTimeout(() => {
           setSpinning(false);
           setPrize({ type: data.prizeType, amount: data.prizeAmount, label: data.label });
           if (data.prizeType !== 'none') {
+            playFanfare();
             toast.success(`You won ${data.label}!`);
           } else {
             toast.error(`Aww, better luck next time!`);
@@ -78,7 +93,7 @@ export default function SpinPage() {
       
       {/* Top Bar */}
       <header className="flex justify-between items-center px-gutter py-md z-40 relative mt-4">
-        <button onClick={() => router.back()} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
+        <button onClick={() => { playPop(); router.back(); }} className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-white hover:bg-white/10 transition-colors">
           <span className="material-symbols-outlined text-[20px]">chevron_left</span>
         </button>
         <span className="text-white/60 text-[14px] font-medium">{spinsAvailable} spins left</span>
