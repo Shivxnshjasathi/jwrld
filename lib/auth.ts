@@ -194,25 +194,18 @@ export async function signInWithGoogle(): Promise<User | null> {
     return result.user;
   } catch (error: any) {
     console.error('Error signing in with Google (popup):', error);
-    // If popup is blocked or internal error occurs (common on mobile browsers), fallback to redirect
     if (
-      error.code === 'auth/popup-blocked' ||
-      error.code === 'auth/popup-closed-by-user' ||
-      error.code === 'auth/internal-error' || 
-      error.code === 'auth/unauthorized-domain'
+      error.code === 'auth/popup-closed-by-user'
     ) {
-      console.log('Falling back to signInWithRedirect...');
-      const auth = getFirebaseAuth();
-      const provider = new GoogleAuthProvider();
-      provider.setCustomParameters({
-        prompt: 'select_account'
-      });
-      // Import here to avoid unused imports globally if not needed
-      const { signInWithRedirect } = await import('firebase/auth');
-      await signInWithRedirect(auth, provider);
-      // signInWithRedirect navigates away, so we return null here
-      return null;
+      // User simply closed the popup, don't throw a scary error
+      throw error;
     }
+    
+    // For internal errors or unauthorized domains, we want to surface them so the admin can fix their GCP console
+    if (error.code === 'auth/internal-error') {
+      console.error('Google Auth Internal Error: Ensure your OAuth Consent Screen is published or you are using a test account, and your Vercel domain is added to Authorized Domains in Firebase.');
+    }
+    
     throw error;
   }
 }
