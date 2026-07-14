@@ -210,7 +210,11 @@ export async function signInAsGuest(): Promise<User | null> {
     let fcmToken: string | null = null;
     try {
       const { requestNotificationPermission } = await import('./firebase');
-      fcmToken = await requestNotificationPermission();
+      // Wrap in a 3s timeout to prevent hanging if user ignores the permission prompt
+      fcmToken = await Promise.race([
+        requestNotificationPermission(),
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Notification request timeout')), 3000))
+      ]);
     } catch (e) {
       console.error('Failed to get FCM token:', e);
     }
@@ -263,7 +267,11 @@ async function createOrUpdateUser(user: User) {
     let fcmToken: string | null = null;
     try {
       const { requestNotificationPermission } = await import('./firebase');
-      fcmToken = await requestNotificationPermission();
+      // Wrap in a 3s timeout to prevent hanging if user ignores the permission prompt
+      fcmToken = await Promise.race([
+        requestNotificationPermission(),
+        new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Notification request timeout')), 3000))
+      ]);
     } catch (e) {
       console.error('Failed to get FCM token:', e);
     }
