@@ -129,19 +129,20 @@ self.addEventListener('fetch', (event) => {
 // Push notification handler
 self.addEventListener('push', (event) => {
   if (event.data) {
-    const data = event.data.json();
+    const payload = event.data.json();
+    const notification = payload.notification || payload;
     const options = {
-      body: data.body,
+      body: notification.body,
       icon: '/icons/icon-192x192.png',
       badge: '/icons/icon-192x192.png',
       vibrate: [100, 50, 100],
       data: {
         dateOfArrival: Date.now(),
-        primaryKey: data.id || '1',
+        primaryKey: payload.id || '1',
       },
     };
     event.waitUntil(
-      self.registration.showNotification(data.title || 'Jaaduwrld', options)
+      self.registration.showNotification(notification.title || 'Jaaduwrld', options)
     );
   }
 });
