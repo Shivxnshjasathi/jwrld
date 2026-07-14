@@ -9,6 +9,7 @@ import { toast } from 'react-hot-toast';
 import { useParams } from 'next/navigation';
 import { getFirebaseDb } from '@/lib/firebase';
 import { doc, getDoc } from 'firebase/firestore';
+import { useSound } from '@/hooks/use-sound';
 
 export default function FriendChatPage() {
   const { user, appUser } = useAuth();
@@ -19,6 +20,7 @@ export default function FriendChatPage() {
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { playPop } = useSound();
   
   const [friendName, setFriendName] = useState('Friend');
 
@@ -56,6 +58,7 @@ export default function FriendChatPage() {
     
     setSending(true);
     try {
+      playPop();
       await sendDirectMessage(user.uid, friendId, newMessage.trim());
       setNewMessage('');
     } catch (err) {

@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useCallback, useState } from 'react';
+import { useSound } from '@/hooks/use-sound';
 
 const MIN_HOUR = 10;
 const MAX_HOUR = 21;
@@ -18,6 +19,16 @@ export default function SliderTrack({ startTime, endTime, bookedHours, pastHours
   const trackRef = useRef<HTMLDivElement>(null);
   const [dragging, setDragging] = useState<'start' | 'end' | 'range' | null>(null);
   const dragRef = useRef<{ x: number; startTime: number; endTime: number }>({ x: 0, startTime: 10, endTime: 11 });
+  const { playTap } = useSound();
+  const lastTapRef = useRef<{start: number, end: number}>({start: startTime, end: endTime});
+
+  const handleRangeChange = useCallback((newStart: number, newEnd: number) => {
+    if (newStart !== lastTapRef.current.start || newEnd !== lastTapRef.current.end) {
+      playTap();
+      lastTapRef.current = { start: newStart, end: newEnd };
+    }
+    onRangeChange(newStart, newEnd);
+  }, [onRangeChange, playTap]);
 
   const getHourFromX = useCallback((clientX: number): number => {
     if (!trackRef.current) return MIN_HOUR;
@@ -35,20 +46,20 @@ export default function SliderTrack({ startTime, endTime, bookedHours, pastHours
     if (dragging === 'start') {
       const newStart = Math.min(hour, endTime - 1);
       const clamped = Math.max(MIN_HOUR, Math.min(MAX_HOUR - 1, newStart));
-      onRangeChange(clamped, Math.max(clamped + 1, endTime));
+      handleRangeChange(clamped, Math.max(clamped + 1, endTime));
     } else if (dragging === 'end') {
       const newEnd = Math.max(hour, startTime + 1);
       const clamped = Math.max(MIN_HOUR + 1, Math.min(MAX_HOUR, newEnd));
-      onRangeChange(Math.min(startTime, clamped - 1), clamped);
+      handleRangeChange(Math.min(startTime, clamped - 1), clamped);
     } else {
       const delta = hour - getHourFromX(dragRef.current.x);
       let newStart = dragRef.current.startTime + delta;
       let newEnd = newStart + dur;
       if (newStart < MIN_HOUR) { newStart = MIN_HOUR; newEnd = newStart + dur; }
       if (newEnd > MAX_HOUR) { newEnd = MAX_HOUR; newStart = newEnd - dur; }
-      onRangeChange(newStart, newEnd);
+      handleRangeChange(newStart, newEnd);
     }
-  }, [dragging, startTime, endTime, getHourFromX, onRangeChange]);
+  }, [dragging, startTime, endTime, getHourFromX, handleRangeChange]);
 
   const endDrag = useCallback(() => setDragging(null), []);
 
@@ -59,8 +70,8 @@ export default function SliderTrack({ startTime, endTime, bookedHours, pastHours
     let newStart = Math.round(hour - dur / 2);
     if (newStart < MIN_HOUR) newStart = MIN_HOUR;
     if (newStart + dur > MAX_HOUR) newStart = MAX_HOUR - dur;
-    onRangeChange(newStart, newStart + dur);
-  }, [startTime, endTime, getHourFromX, onRangeChange]);
+    handleRangeChange(newStart, newStart + dur);
+  }, [startTime, endTime, getHourFromX, handleRangeChange]);
 
   const startPct = ((startTime - MIN_HOUR) / RANGE) * 100;
   const widthPct = ((endTime - startTime) / RANGE) * 100;

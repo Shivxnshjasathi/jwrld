@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 import { collection, query, where, getDocs, onSnapshot, getFirestore } from 'firebase/firestore';
+import { useSound } from '@/hooks/use-sound';
 
 export default function SocialPage() {
   const { user, appUser } = useAuth();
@@ -18,6 +19,7 @@ export default function SocialPage() {
   const [friendRequests, setFriendRequests] = useState<any[]>([]);
   const [friendsList, setFriendsList] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const { playPop, playSuccess } = useSound();
 
   useEffect(() => {
     if (!user) return;
@@ -76,7 +78,10 @@ export default function SocialPage() {
         body: JSON.stringify({ action: 'send', uid: user.uid, targetUid })
       });
       const data = await res.json();
-      if (data.success) toast.success('Request sent!');
+      if (data.success) {
+        playPop();
+        toast.success('Request sent!');
+      }
       else toast.error(data.error);
     } catch (err) {
       toast.error('Failed to send request');
@@ -92,7 +97,11 @@ export default function SocialPage() {
         body: JSON.stringify({ action, uid: user.uid, requestId })
       });
       const data = await res.json();
-      if (data.success) toast.success(`Request ${action}ed`);
+      if (data.success) {
+        if (action === 'accept') playSuccess();
+        else playPop();
+        toast.success(`Request ${action}ed`);
+      }
       else toast.error(data.error);
     } catch (err) {
       toast.error('Action failed');
