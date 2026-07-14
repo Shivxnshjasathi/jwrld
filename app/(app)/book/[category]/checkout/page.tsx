@@ -266,7 +266,9 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
       setShowGuestModal(false);
       await executeBooking(guestName, currentUid);
     } catch (err) {
+      console.error(err);
       setError('Failed to update details. Try again.');
+    } finally {
       setLoading(false);
     }
   };
