@@ -96,7 +96,7 @@ export default function HomePage() {
 
   const globalBookedHours = Array.from(new Set(
     bookings
-      .filter((b) => ['approved', 'confirmed'].includes(b.status) && b.assetId === store.selectedAssetId)
+      .filter((b) => ['approved', 'confirmed'].includes(b.status) && (b.assetId === store.selectedAssetId || b.assetName === store.selectedAssetName))
       .flatMap((b) => {
         const hours = [];
         const start = Number(b.startTime);
@@ -115,7 +115,7 @@ export default function HomePage() {
 
   const userBookedHours = Array.from(new Set(
     bookings
-      .filter((b) => ['approved', 'confirmed'].includes(b.status) && b.userId === user?.uid && b.assetId === store.selectedAssetId)
+      .filter((b) => ['approved', 'confirmed'].includes(b.status) && b.userId === user?.uid && (b.assetId === store.selectedAssetId || b.assetName === store.selectedAssetName))
       .flatMap((b) => {
         const hours = [];
         const start = Number(b.startTime);
