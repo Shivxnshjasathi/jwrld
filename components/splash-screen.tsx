@@ -28,7 +28,7 @@ export default function SplashScreen({ children }: { children: React.ReactNode }
         {/* Minimal logo */}
         <div className="mb-6">
           <div className="w-16 h-16 rounded-2xl bg-white/10 flex items-center justify-center">
-            <svg width="32\" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <svg width="32" height="32" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M20 4L4 36H16L20 28L24 36H36L20 4Z" fill="white" />
               <circle cx="20" cy="22" r="3" fill="#111111" />
             </svg>
