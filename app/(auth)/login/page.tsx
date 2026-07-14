@@ -11,7 +11,7 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 function LoginContent() {
-  const [authMode, setAuthMode] = useState<'login' | 'signup' | 'guest'>('login');
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [showPassword, setShowPassword] = useState(false);
 
   // Form State
@@ -45,15 +45,13 @@ function LoginContent() {
       setError('Firebase is not configured. Add your credentials to .env.local and restart.');
       return;
     }
-    if (authMode !== 'guest') {
-      if (!email || !password) {
-        setError('Email and password are required');
-        return;
-      }
-      if (authMode === 'signup' && (!firstName || !lastName)) {
-        setError('First and last name are required for sign up');
-        return;
-      }
+    if (!email || !password) {
+      setError('Email and password are required');
+      return;
+    }
+    if (authMode === 'signup' && (!firstName || !lastName)) {
+      setError('First and last name are required for sign up');
+      return;
     }
 
     setLoading(true);
@@ -62,13 +60,7 @@ function LoginContent() {
 
     try {
       const returnUrl = searchParams.get('returnUrl') || sessionStorage.getItem('returnUrl') || '/home';
-      if (authMode === 'guest') {
-        const user = await signInAsGuest();
-        if (user) {
-          sessionStorage.removeItem('returnUrl');
-          router.replace(returnUrl);
-        }
-      } else if (authMode === 'signup') {
+      if (authMode === 'signup') {
         if (!phone) {
           setError('Phone number is required for sign up');
           setLoading(false);
@@ -190,7 +182,7 @@ function LoginContent() {
           <h1 className="font-display-md text-display-md text-on-surface tracking-tighter leading-none mb-2">Jaaduwrld</h1>
           <p className="text-[11px] font-bold tracking-[0.2em] text-primary uppercase mb-4">Art and Arcade</p>
           <p className="font-body-md text-body-md text-on-surface-variant">
-            {authMode === 'login' ? 'Enter the Arcade' : authMode === 'signup' ? 'Create your access pass' : 'Browse as a guest'}
+            {authMode === 'login' ? 'Enter the Arcade' : 'Create your access pass'}
           </p>
         </div>
 
@@ -213,15 +205,6 @@ function LoginContent() {
               }`}
           >
             Sign Up
-          </button>
-          <button
-            onClick={() => { setAuthMode('guest'); setError(''); }}
-            className={`flex-1 py-2 px-3 rounded-full font-label-md text-[12px] transition-all duration-300 ${authMode === 'guest'
-              ? 'bg-white/15 text-white shadow-sm'
-              : 'text-on-surface-variant hover:text-white'
-              }`}
-          >
-            Guest
           </button>
         </div>
 
@@ -387,11 +370,11 @@ function LoginContent() {
               {loading ? (
                 <>
                   <span className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
-                  <span>{authMode === 'login' ? 'Authenticating...' : authMode === 'signup' ? 'Initializing...' : 'Entering...'}</span>
+                  <span>{authMode === 'login' ? 'Authenticating...' : 'Initializing...'}</span>
                 </>
               ) : (
                 <>
-                  <span>{authMode === 'login' ? 'Initiate Sequence' : authMode === 'signup' ? 'Create Access Pass' : 'Continue as Guest'}</span>
+                  <span>{authMode === 'login' ? 'Initiate Sequence' : 'Create Access Pass'}</span>
                   <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>arrow_forward</span>
                 </>
               )}
