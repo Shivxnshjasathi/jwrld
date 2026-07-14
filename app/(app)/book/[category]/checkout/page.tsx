@@ -145,18 +145,18 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
 
     if (!user || !appUser) {
       console.warn('[handlePayment] Aborting because user or appUser is missing.');
-      // If we don't have user info, show guest modal if allowed, otherwise error
+      // If we don't have user info, show guest modal if allowed, otherwise route to login
       if (allowGuest) {
         setShowGuestModal(true);
       } else {
-        setError('Guest bookings are currently disabled. Please log in.');
+        replace(`/login?returnUrl=/book/${category}/checkout`);
       }
       return;
     }
 
     if (appUser.role === 'guest') {
       if (!allowGuest) {
-        setError('Guest bookings are currently disabled. Please log in.');
+        replace(`/login?returnUrl=/book/${category}/checkout`);
         return;
       }
       setShowGuestModal(true);

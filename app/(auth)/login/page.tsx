@@ -6,6 +6,8 @@ import { AlertTriangle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
 import { signInWithEmail, signUpWithEmail, signInAsGuest, resetPassword, useAuth, signInWithGoogle } from '@/lib/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 
+import { useSearchParams } from 'next/navigation';
+
 export default function LoginPage() {
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'guest'>('login');
   const [showPassword, setShowPassword] = useState(false);
@@ -24,13 +26,16 @@ export default function LoginPage() {
   const [resetMessage, setResetMessage] = useState('');
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { isAuthenticated, loading: authLoading } = useAuth();
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.replace('/home');
+      const returnUrl = searchParams.get('returnUrl') || sessionStorage.getItem('returnUrl') || '/home';
+      sessionStorage.removeItem('returnUrl');
+      router.replace(returnUrl);
     }
-  }, [isAuthenticated, authLoading, router]);
+  }, [isAuthenticated, authLoading, router, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,9 +59,13 @@ export default function LoginPage() {
     setResetMessage('');
 
     try {
+      const returnUrl = searchParams.get('returnUrl') || sessionStorage.getItem('returnUrl') || '/home';
       if (authMode === 'guest') {
         const user = await signInAsGuest();
-        if (user) router.replace('/home');
+        if (user) {
+          sessionStorage.removeItem('returnUrl');
+          router.replace(returnUrl);
+        }
       } else if (authMode === 'signup') {
         if (!phone) {
           setError('Phone number is required for sign up');
@@ -64,10 +73,16 @@ export default function LoginPage() {
           return;
         }
         const user = await signUpWithEmail(email, password, `${firstName} ${lastName}`, phone, referralCode);
-        if (user) router.replace('/home');
+        if (user) {
+          sessionStorage.removeItem('returnUrl');
+          router.replace(returnUrl);
+        }
       } else {
         const user = await signInWithEmail(email, password);
-        if (user) router.replace('/home');
+        if (user) {
+          sessionStorage.removeItem('returnUrl');
+          router.replace(returnUrl);
+        }
       }
     } catch (err: any) {
       const msg = err.message || '';
@@ -118,8 +133,16 @@ export default function LoginPage() {
     setLoading(true);
     setError('');
     try {
+      const returnUrl = searchParams.get('returnUrl');
+      if (returnUrl) {
+        sessionStorage.setItem('returnUrl', returnUrl);
+      }
       const user = await signInWithGoogle();
-      if (user) router.replace('/home');
+      if (user) {
+        const finalUrl = returnUrl || sessionStorage.getItem('returnUrl') || '/home';
+        sessionStorage.removeItem('returnUrl');
+        router.replace(finalUrl);
+      }
     } catch (err: any) {
       console.error(err);
       if (err.code === 'auth/popup-closed-by-user') {

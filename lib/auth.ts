@@ -378,6 +378,19 @@ export function useAuth() {
     }
 
     const auth = getFirebaseAuth();
+    
+    // Process any pending redirect results (important for mobile PWA fallback)
+    import('firebase/auth').then(({ getRedirectResult }) => {
+      getRedirectResult(auth).then((result) => {
+        if (result?.user) {
+          console.log('[useAuth] Processing redirect result for user:', result.user.uid);
+          createOrUpdateUser(result.user).catch(console.error);
+        }
+      }).catch(err => {
+        console.error('[useAuth] Redirect result error:', err);
+      });
+    });
+
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
