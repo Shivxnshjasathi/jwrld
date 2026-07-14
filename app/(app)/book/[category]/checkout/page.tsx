@@ -273,14 +273,26 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
     }
   };
 
+  const [isMounted, setIsMounted] = useState(false);
+  
   useEffect(() => {
-    if (!store.selectedAssetId) {
+    // Small delay to ensure Zustand persist has fully hydrated from localStorage
+    const timer = setTimeout(() => setIsMounted(true), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && !store.selectedAssetId) {
       goBack('/home');
     }
-  }, [store.selectedAssetId]);
+  }, [store.selectedAssetId, isMounted]);
 
-  if (!store.selectedAssetId) {
-    return null;
+  if (!isMounted || !store.selectedAssetId) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center bg-obsidian text-primary">
+        <div className="w-10 h-10 border-4 border-surface border-t-primary rounded-full animate-spin neon-glow-primary" />
+      </div>
+    );
   }
 
   return (

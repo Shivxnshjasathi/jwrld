@@ -483,6 +483,18 @@ export default function ProfilePage() {
           </div>
           {/* Settings & Sign Out */}
           <div className="mt-xl border-t border-outline-variant/20 pt-lg space-y-sm">
+            {isAdmin && (
+              <button
+                onClick={() => { playClick(); router.push('/admin'); }}
+                className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-white/10 transition-colors border-primary/30 shadow-[0_0_10px_rgba(45,212,191,0.2)]"
+              >
+                <div className="flex items-center gap-sm text-primary">
+                  <span className="material-symbols-outlined">admin_panel_settings</span>
+                  <span className="font-body-md text-[16px] font-bold">Admin Dashboard</span>
+                </div>
+                <span className="material-symbols-outlined text-primary">chevron_right</span>
+              </button>
+            )}
             <button
               onClick={() => { playPop(); setShowFeedbackModal(true); }}
               className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-white/10 transition-colors"
