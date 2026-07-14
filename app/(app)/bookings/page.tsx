@@ -122,8 +122,16 @@ function BookingsContent() {
     }
   };
 
-  const upcomingBookings = bookings.filter((b) => b.status === 'pending' || b.status === 'approved' || b.status === 'confirmed');
-  const pastBookings = bookings.filter((b) => b.status === 'completed' || b.status === 'cancelled' || b.status === 'rejected');
+  const now = new Date();
+  const isPast = (b: Booking) => {
+    if (b.status === 'completed' || b.status === 'cancelled' || b.status === 'rejected') return true;
+    const endDate = new Date(b.date + 'T00:00:00');
+    endDate.setHours(b.endTime === 24 ? 23 : b.endTime, b.endTime === 24 ? 59 : 0, 0, 0);
+    return endDate < now;
+  };
+
+  const upcomingBookings = bookings.filter((b) => !isPast(b));
+  const pastBookings = bookings.filter((b) => isPast(b));
 
   return (
     <div className="min-h-dvh bg-[#0A0A0B] text-on-surface font-body-md selection:bg-primary/30">

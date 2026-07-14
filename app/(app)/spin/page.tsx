@@ -5,11 +5,14 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import { toast } from 'react-hot-toast';
 
+const SEGMENTS = ['₹50 Bonus', '200 XP', '₹20 Bonus', '100 XP', '₹10 Bonus', '50 XP', '150 XP', 'TRY AGAIN'];
+
 export default function SpinPage() {
   const { user, appUser } = useAuth();
   const router = useRouter();
   
   const [spinning, setSpinning] = useState(false);
+  const [rotation, setRotation] = useState(0);
   const [prize, setPrize] = useState<{ type: string, amount: number, label: string } | null>(null);
   const [spinsAvailable, setSpinsAvailable] = useState(0);
 
@@ -39,11 +42,24 @@ export default function SpinPage() {
       if (data.success) {
         setSpinsAvailable(s => s - 1);
         
+        const prizeIndex = SEGMENTS.indexOf(data.label);
+        const randomOffset = Math.floor(Math.random() * 30) - 15;
+        const extraSpins = 5;
+        const targetAngle = 360 - (prizeIndex * 45);
+        const currentMod = rotation % 360;
+        const diff = targetAngle - currentMod;
+        const newRotation = rotation + (extraSpins * 360) + diff + randomOffset;
+        setRotation(newRotation);
+
         // Wait for animation
         setTimeout(() => {
           setSpinning(false);
           setPrize({ type: data.prizeType, amount: data.prizeAmount, label: data.label });
-          toast.success(`You won ${data.label}!`);
+          if (data.prizeType !== 'none') {
+            toast.success(`You won ${data.label}!`);
+          } else {
+            toast.error(`Aww, better luck next time!`);
+          }
         }, 3000);
       } else {
         setSpinning(false);
@@ -105,7 +121,7 @@ export default function SpinPage() {
           <div 
             className="absolute inset-[8px] rounded-full overflow-hidden"
             style={{ 
-              transform: spinning ? 'rotate(1800deg)' : 'rotate(0deg)',
+              transform: `rotate(${rotation}deg)`,
               transition: spinning ? 'transform 3s cubic-bezier(0.15, 0.9, 0.15, 1)' : 'none'
             }}
           >
@@ -117,7 +133,7 @@ export default function SpinPage() {
             >
               {/* Text Labels on Wheel Slices */}
               <div className="absolute inset-0 flex items-center justify-center">
-                 {['jackpot', '₹50 OFF', 'miss', '15% OFF', '₹20 OFF', 'miss', '10% OFF', '5% OFF'].map((label, i) => (
+                 {SEGMENTS.map((label, i) => (
                    <div 
                      key={i} 
                      className="absolute w-[30px] h-[50%] origin-bottom top-0 flex flex-col items-center justify-start pt-8"

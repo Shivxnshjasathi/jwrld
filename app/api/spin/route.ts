@@ -32,24 +32,27 @@ export async function POST(req: Request) {
       }
 
       // Randomly select a prize
-      // Possible prizes: Wallet (10, 20, 50), XP (50, 100, 200)
       const r = Math.random();
       let prizeType = 'xp';
       let prizeAmount = 50;
       let label = '50 XP';
 
-      if (r < 0.1) {
+      if (r < 0.05) {
         prizeType = 'wallet'; prizeAmount = 50; label = '₹50 Bonus';
-      } else if (r < 0.3) {
+      } else if (r < 0.1) {
         prizeType = 'wallet'; prizeAmount = 20; label = '₹20 Bonus';
-      } else if (r < 0.5) {
+      } else if (r < 0.2) {
         prizeType = 'wallet'; prizeAmount = 10; label = '₹10 Bonus';
-      } else if (r < 0.7) {
+      } else if (r < 0.3) {
         prizeType = 'xp'; prizeAmount = 200; label = '200 XP';
-      } else if (r < 0.85) {
+      } else if (r < 0.5) {
+        prizeType = 'xp'; prizeAmount = 150; label = '150 XP';
+      } else if (r < 0.7) {
         prizeType = 'xp'; prizeAmount = 100; label = '100 XP';
-      } else {
+      } else if (r < 0.9) {
         prizeType = 'xp'; prizeAmount = 50; label = '50 XP';
+      } else {
+        prizeType = 'none'; prizeAmount = 0; label = 'TRY AGAIN';
       }
 
       const updates: any = {
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
 
       if (prizeType === 'wallet') {
         updates.walletBalance = FieldValue.increment(prizeAmount);
-      } else {
+      } else if (prizeType === 'xp') {
         updates.xp = FieldValue.increment(prizeAmount);
       }
 

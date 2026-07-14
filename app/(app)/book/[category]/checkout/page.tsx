@@ -608,13 +608,14 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
           <div className="glass-card rounded-[2rem] p-8 w-[90vw] min-w-[320px] max-w-[384px] flex flex-col items-center text-center shadow-2xl animate-scale-in relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary to-secondary"></div>
             
-            <div className="w-20 h-20 bg-secondary/10 border border-secondary/30 rounded-full flex items-center justify-center mb-6 mt-4">
-              <span className="material-symbols-outlined text-[40px] text-secondary">check_circle</span>
+            <div className="w-20 h-20 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center mb-6 mt-4">
+              <span className="material-symbols-outlined text-[40px] text-primary">schedule</span>
             </div>
             
-            <h2 className="text-[24px] font-black text-white mb-2 tracking-tight">Booking Confirmed!</h2>
+            <h2 className="text-[24px] font-black text-white mb-2 tracking-tight">Booking Requested!</h2>
             <p className="text-[14px] text-on-surface-variant mb-8 font-medium leading-relaxed">
-              You have successfully booked <span className="text-primary font-bold">{store.selectedAssetName}</span> for {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}.
+              You have requested to book <span className="text-primary font-bold">{store.selectedAssetName}</span> for {formatTime(store.startTime)} - {formatTime(store.endTime === 24 ? 0 : store.endTime)}.<br/><br/>
+              Waiting for confirmation from our team.
             </p>
             
             <button
