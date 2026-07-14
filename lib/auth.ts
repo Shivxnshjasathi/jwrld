@@ -186,11 +186,33 @@ export async function signInWithGoogle(): Promise<User | null> {
   try {
     const auth = getFirebaseAuth();
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
     const result = await signInWithPopup(auth, provider);
     await createOrUpdateUser(result.user);
     return result.user;
   } catch (error: any) {
-    console.error('Error signing in with Google:', error);
+    console.error('Error signing in with Google (popup):', error);
+    // If popup is blocked or internal error occurs (common on mobile browsers), fallback to redirect
+    if (
+      error.code === 'auth/popup-blocked' ||
+      error.code === 'auth/popup-closed-by-user' ||
+      error.code === 'auth/internal-error' || 
+      error.code === 'auth/unauthorized-domain'
+    ) {
+      console.log('Falling back to signInWithRedirect...');
+      const auth = getFirebaseAuth();
+      const provider = new GoogleAuthProvider();
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      // Import here to avoid unused imports globally if not needed
+      const { signInWithRedirect } = await import('firebase/auth');
+      await signInWithRedirect(auth, provider);
+      // signInWithRedirect navigates away, so we return null here
+      return null;
+    }
     throw error;
   }
 }
