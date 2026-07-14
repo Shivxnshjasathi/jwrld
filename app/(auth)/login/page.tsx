@@ -127,7 +127,7 @@ export default function LoginPage() {
       } else if (err.code === 'auth/unauthorized-domain') {
         setError('This domain is not authorized for Google Sign-In.');
       } else {
-        setError(err.message || 'Google Sign-In failed. Please try again.');
+        setError('Google Sign-In encountered an error. Please use regular Email Sign Up or join as a Guest below.');
       }
     }
     setLoading(false);
