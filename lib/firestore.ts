@@ -109,6 +109,16 @@ export interface GlobalSettings {
   upiId?: string;
 }
 
+export interface Feedback {
+  id: string;
+  userId: string;
+  userName: string;
+  type: 'bug' | 'review';
+  message: string;
+  status: 'new' | 'read' | 'resolved';
+  createdAt: number;
+}
+
 export interface Event {
   id: string;
   title: string;
@@ -841,4 +851,36 @@ export function subscribeToGlobalSettings(callback: (settings: GlobalSettings) =
     console.error('[ArcadeZone] Global settings listener error:', error.message);
     callback({ allowGuestBooking: false });
   });
+}
+
+// ─── Feedback & Bugs ─────────────────────────────────────────────────────────
+
+export async function submitFeedback(feedback: Omit<Feedback, 'id' | 'createdAt' | 'status'>) {
+  const db = getDb();
+  await addDoc(collection(db, 'feedback'), {
+    ...feedback,
+    status: 'new',
+    createdAt: Date.now(),
+  });
+}
+
+export function subscribeToFeedback(callback: (feedback: Feedback[]) => void): Unsubscribe {
+  if (!isFirebaseConfigured) {
+    callback([]);
+    return () => {};
+  }
+  const db = getFirebaseDb();
+  const q = query(collection(db, 'feedback'), orderBy('createdAt', 'desc'));
+  return onSnapshot(q, (snapshot) => {
+    const feedbackList = snapshot.docs.map((d) => ({ id: d.id, ...d.data() } as Feedback));
+    callback(feedbackList);
+  }, (error) => {
+    console.error('[ArcadeZone] Feedback listener error:', error.message);
+    callback([]);
+  });
+}
+
+export async function updateFeedbackStatus(id: string, status: 'new' | 'read' | 'resolved') {
+  const db = getDb();
+  await updateDoc(doc(db, 'feedback', id), { status });
 }

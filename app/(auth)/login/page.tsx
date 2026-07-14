@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, Eye, EyeOff, CheckCircle2 } from 'lucide-react';
-import { signInWithEmail, signUpWithEmail, signInAsGuest, resetPassword, useAuth } from '@/lib/auth';
+import { signInWithEmail, signUpWithEmail, signInAsGuest, resetPassword, useAuth, signInWithGoogle } from '@/lib/auth';
 import { isFirebaseConfigured } from '@/lib/firebase';
 
 export default function LoginPage() {
@@ -101,7 +101,7 @@ export default function LoginPage() {
     setResetMessage('');
     try {
       await resetPassword(email);
-      setResetMessage('Password reset email sent! Check your inbox.');
+      setResetMessage('Password reset email sent! Check your inbox or spam folder.');
     } catch (err: any) {
       const msg = err.message || '';
       if (msg.includes('auth/user-not-found')) {
@@ -113,6 +113,19 @@ export default function LoginPage() {
       }
     }
   };
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const user = await signInWithGoogle();
+      if (user) router.replace('/home');
+    } catch (err: any) {
+      setError('Google Sign-In failed. Please try again.');
+    }
+    setLoading(false);
+  };
+
 
   if (authLoading) {
     return (
@@ -373,7 +386,9 @@ export default function LoginPage() {
                 {/* Google SSO Button (Glass Secondary) */}
                 <button 
                   type="button"
-                  className="w-full glass-panel rounded-lg py-md px-lg font-label-md text-label-md text-white flex items-center justify-center gap-3 hover:bg-white/10 transition-colors border-white/10"
+                  onClick={handleGoogleSignIn}
+                  disabled={loading}
+                  className="w-full glass-panel rounded-lg py-md px-lg font-label-md text-label-md text-white flex items-center justify-center gap-3 hover:bg-white/10 transition-colors border-white/10 disabled:opacity-50"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"></path>

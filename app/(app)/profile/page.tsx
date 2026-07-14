@@ -8,6 +8,7 @@ import { useAuth, signOut } from '@/lib/auth';
 import { useAppStore } from '@/lib/store';
 import { doc, updateDoc, collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import { getFirebaseDb } from '@/lib/firebase';
+import { submitFeedback } from '@/lib/firestore';
 import { toast } from 'react-hot-toast';
 import { useSound } from '@/hooks/use-sound';
 
@@ -28,6 +29,12 @@ export default function ProfilePage() {
   const [currentStreak, setCurrentStreak] = useState(appUser?.currentStreak || 0);
   const [spinsAvailable, setSpinsAvailable] = useState(appUser?.spinsAvailable || 0);
   const [friendsData, setFriendsData] = useState<any[]>([]);
+
+  // Feedback State
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [feedbackType, setFeedbackType] = useState<'bug' | 'review'>('review');
+  const [feedbackText, setFeedbackText] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
 
   useEffect(() => {
     if (appUser) {
@@ -89,6 +96,30 @@ export default function ProfilePage() {
     } catch (error) {
       console.error(error);
       toast.error('Failed to make admin');
+    }
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!user || !appUser) return;
+    if (!feedbackText.trim()) {
+      toast.error('Please enter a message');
+      return;
+    }
+    setSubmittingFeedback(true);
+    try {
+      await submitFeedback({
+        userId: user.uid,
+        userName: appUser.name || 'Unknown',
+        type: feedbackType,
+        message: feedbackText.trim()
+      });
+      toast.success('Thank you! Feedback submitted.');
+      setShowFeedbackModal(false);
+      setFeedbackText('');
+    } catch (err) {
+      toast.error('Failed to submit feedback');
+    } finally {
+      setSubmittingFeedback(false);
     }
   };
 
@@ -453,6 +484,16 @@ export default function ProfilePage() {
           {/* Settings & Sign Out */}
           <div className="mt-xl border-t border-outline-variant/20 pt-lg space-y-sm">
             <button
+              onClick={() => { playPop(); setShowFeedbackModal(true); }}
+              className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-white/10 transition-colors"
+            >
+              <div className="flex items-center gap-sm text-tertiary">
+                <span className="material-symbols-outlined">bug_report</span>
+                <span className="font-body-md text-[16px] font-bold">Feedback & Bug Report</span>
+              </div>
+              <span className="material-symbols-outlined text-on-surface-variant">chevron_right</span>
+            </button>
+            <button
               onClick={() => router.push('/settings')}
               className="w-full flex items-center justify-between p-md glass-panel rounded-lg hover:bg-white/10 transition-colors"
             >
@@ -532,6 +573,78 @@ export default function ProfilePage() {
             >
               Close
             </button>
+          </div>
+        </>
+      )}
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && (
+        <>
+          <div 
+            className="fixed inset-0 z-[60] bg-black/60 backdrop-blur-sm animate-fade-in"
+            onClick={() => !submittingFeedback && setShowFeedbackModal(false)}
+          ></div>
+          <div className="fixed bottom-0 left-0 w-full z-[70] bg-surface-container-high rounded-t-3xl border-t border-outline-variant/20 p-xl shadow-[0_-20px_40px_rgba(0,0,0,0.5)] animate-slide-up-fade md:top-1/2 md:bottom-auto md:-translate-y-1/2 md:left-1/2 md:-translate-x-1/2 md:w-[500px] md:rounded-3xl md:border">
+            <div className="w-12 h-1 bg-outline-variant/30 rounded-full mx-auto mb-lg md:hidden"></div>
+            <div className="flex justify-between items-center mb-md">
+              <h2 className="font-headline-sm text-[24px] font-bold text-white flex items-center gap-2">
+                <span className="material-symbols-outlined text-tertiary">rate_review</span>
+                Feedback
+              </h2>
+              <button onClick={() => setShowFeedbackModal(false)} className="text-on-surface-variant hover:text-white md:hidden">
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <p className="text-on-surface-variant text-[14px] mb-lg">
+              Help us improve Jaaduwrld! Let us know if you found a bug or have a suggestion.
+            </p>
+
+            <div className="flex gap-2 mb-md bg-black/20 p-1 rounded-xl">
+              <button
+                onClick={() => setFeedbackType('review')}
+                className={`flex-1 py-2 px-3 rounded-lg font-bold text-[14px] transition-colors ${feedbackType === 'review' ? 'bg-white/10 text-white shadow-sm' : 'text-on-surface-variant hover:text-white'}`}
+              >
+                Suggestion / Review
+              </button>
+              <button
+                onClick={() => setFeedbackType('bug')}
+                className={`flex-1 py-2 px-3 rounded-lg font-bold text-[14px] transition-colors ${feedbackType === 'bug' ? 'bg-error/20 text-error shadow-sm' : 'text-on-surface-variant hover:text-error'}`}
+              >
+                Report a Bug
+              </button>
+            </div>
+
+            <textarea
+              value={feedbackText}
+              onChange={(e) => setFeedbackText(e.target.value)}
+              placeholder={feedbackType === 'bug' ? "Describe the bug..." : "What do you think of Jaaduwrld?"}
+              className="input-dark w-full h-[120px] rounded-xl p-4 text-on-surface font-body-md placeholder-on-surface-variant/50 focus:ring-1 focus:ring-primary mb-md resize-none"
+            />
+
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowFeedbackModal(false)}
+                disabled={submittingFeedback}
+                className="flex-1 py-3 rounded-xl font-bold bg-white/10 hover:bg-white/20 text-white transition-all disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleSubmitFeedback}
+                disabled={submittingFeedback}
+                className="flex-1 py-3 rounded-xl font-bold bg-gradient-to-r from-tertiary to-primary text-black transition-all shadow-[0_0_15px_rgba(45,212,191,0.3)] hover:scale-[1.02] active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {submittingFeedback ? (
+                  <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></span>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[20px]">send</span>
+                    Submit
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </>
       )}

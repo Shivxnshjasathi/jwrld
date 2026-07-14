@@ -177,6 +177,7 @@ export default function AdminDashboard() {
               <a onClick={() => router.push('/admin/events')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Events</a>
               <a onClick={() => router.push('/admin/broadcast')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Broadcast</a>
               <a onClick={() => router.push('/admin/revenue')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Revenue</a>
+              <a onClick={() => router.push('/admin/feedback')} className="cursor-pointer text-on-surface-variant hover:opacity-80 transition-opacity font-label-md text-[14px]">Feedback</a>
             </nav>
 
           {/* Trailing */}
