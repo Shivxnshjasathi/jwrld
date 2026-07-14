@@ -23,7 +23,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
   const [couponCode, setCouponCode] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'wallet' | 'counter' | 'upi'>('counter');
   const [globalSettings, setGlobalSettings] = useState<any>(null);
-  const { playSuccess } = useSound();
+  const { playSuccess, playNavClick } = useSound();
 
   useEffect(() => {
     getGlobalSettings().then(setGlobalSettings).catch(console.error);
@@ -125,7 +125,7 @@ export default function CheckoutPage({ params }: { params: Promise<{ category: s
         store.applyCoupon(discount);
         setAppliedCouponId(coupon.id);
         setShowCouponInput(false);
-        playSuccess();
+        playNavClick();
       } else {
         setError('Invalid or expired coupon code');
       }
