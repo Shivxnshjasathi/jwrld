@@ -189,9 +189,9 @@ export async function signInWithGoogle(): Promise<User | null> {
     const result = await signInWithPopup(auth, provider);
     await createOrUpdateUser(result.user);
     return result.user;
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error signing in with Google:', error);
-    return null;
+    throw error;
   }
 }
 

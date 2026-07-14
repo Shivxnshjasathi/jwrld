@@ -121,7 +121,14 @@ export default function LoginPage() {
       const user = await signInWithGoogle();
       if (user) router.replace('/home');
     } catch (err: any) {
-      setError('Google Sign-In failed. Please try again.');
+      console.error(err);
+      if (err.code === 'auth/popup-closed-by-user') {
+        setError('Google Sign-In was cancelled.');
+      } else if (err.code === 'auth/unauthorized-domain') {
+        setError('This domain is not authorized for Google Sign-In.');
+      } else {
+        setError(err.message || 'Google Sign-In failed. Please try again.');
+      }
     }
     setLoading(false);
   };
