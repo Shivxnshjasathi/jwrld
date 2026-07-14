@@ -140,7 +140,7 @@ export default function SpinPage() {
                      style={{ transform: `rotate(${i * 45}deg)` }}
                    >
                      <span 
-                       className="text-white font-black text-[24px] uppercase tracking-wider drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" 
+                       className="text-white font-black text-[16px] uppercase tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]" 
                        style={{ transform: 'rotate(-90deg) translateY(10px)', writingMode: 'vertical-rl' }}
                      >
                        {label}
