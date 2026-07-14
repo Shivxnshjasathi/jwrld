@@ -278,9 +278,8 @@ function LoginContent() {
               </div>
             )}
 
-            {/* Form Fields - Hidden if Guest */}
-            {authMode !== 'guest' && (
-              <>
+            {/* Form Fields */}
+            <>
                 {/* Email Field */}
                 <div className="space-y-sm">
                   <label className="font-label-md text-label-md text-on-surface-variant block" htmlFor="email">Email Address</label>
@@ -332,8 +331,7 @@ function LoginContent() {
                     </button>
                   </div>
                 </div>
-              </>
-            )}
+            </>
 
             {/* Error and Success Messages */}
             {error && <p className="text-error text-xs font-medium mt-3 px-1 animate-fade-in">{error}</p>}
