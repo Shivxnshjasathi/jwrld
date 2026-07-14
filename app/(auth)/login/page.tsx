@@ -8,7 +8,9 @@ import { isFirebaseConfigured } from '@/lib/firebase';
 
 import { useSearchParams } from 'next/navigation';
 
-export default function LoginPage() {
+import { Suspense } from 'react';
+
+function LoginContent() {
   const [authMode, setAuthMode] = useState<'login' | 'signup' | 'guest'>('login');
   const [showPassword, setShowPassword] = useState(false);
 
@@ -434,5 +436,17 @@ export default function LoginPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-dvh flex items-center justify-center bg-obsidian text-primary">
+        <div className="w-10 h-10 border-4 border-surface border-t-primary rounded-full animate-spin neon-glow-primary" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
